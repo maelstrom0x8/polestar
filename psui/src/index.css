@@ -78,7 +78,7 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
   /* Brand core — sampled from the PIA/Predictive Analytics reference system.
      Electric's hex is read directly from the source file; Signal/Mist/Ink
@@ -89,24 +89,34 @@
   --mist: #f6f3ee;
   --ink: #000115;
 
-  --bg-primary: var(--ink);
-  --bg-secondary: #060a1f;
-  --bg-card: var(--signal);
-  --bg-card-deep: var(--signal-deep);
-  --bg-inverse: var(--mist);
+  --bg-primary: var(--mist);
+  --bg-secondary: #ece7dd;
 
-  --text-primary: var(--mist);
-  --text-secondary: rgba(246, 243, 238, 0.68);
-  --text-muted: rgba(246, 243, 238, 0.42);
+  --text-primary: var(--ink);
+  --text-secondary: rgba(0, 1, 21, 0.68);
+  /* 0.56, not the 0.42 this started at — measured at 2.96:1 against
+     --bg-primary, under the 4.5:1 WCAG AA floor for normal text. 0.56
+     measures 4.72:1. Re-derive this (python, sRGB relative-luminance
+     formula) before changing the alpha, don't retune by eye. */
+  --text-muted: rgba(0, 1, 21, 0.56);
   --text-on-electric: var(--ink);
   --text-on-signal: var(--mist);
   --text-on-mist: var(--ink);
 
-  --accent: var(--electric);
-  --accent-contrast: var(--ink);
+  /* Electric yellow fails contrast as foreground text no matter how
+     it's used — not fixable by tuning opacity. Signal blue carries the
+     "this is the active/highlighted one" role instead; --electric
+     stays reserved for use as a fill (e.g. .btn-primary's background),
+     where contrast isn't a problem. */
+  --accent: var(--signal);
 
-  --border: rgba(246, 243, 238, 0.14);
-  --border-strong: rgba(246, 243, 238, 0.32);
+  --border: rgba(0, 1, 21, 0.12);
+  /* 0.46, not 0.28 this started at — 0.28 measured 1.96:1 against
+     --bg-primary, under the 3:1 WCAG 1.4.11 floor for a meaningful UI
+     boundary (this token draws input/button/card borders, not just
+     decorative dividers — --border above is for those). 0.46 measures
+     3.36:1. */
+  --border-strong: rgba(0, 1, 21, 0.46);
 
   --radius-sm: 2px;
   --radius-md: 4px;
@@ -130,33 +140,6 @@
   --text-body: 1.5rem;
   --text-small: 1.125rem;
   --text-label: 1rem;
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-
-  --bg-primary: var(--mist);
-  --bg-secondary: #ece7dd;
-  --bg-card: var(--signal);
-  --bg-card-deep: var(--signal-deep);
-  --bg-inverse: var(--ink);
-
-  --text-primary: var(--ink);
-  --text-secondary: rgba(0, 1, 21, 0.68);
-  --text-muted: rgba(0, 1, 21, 0.42);
-  --text-on-electric: var(--ink);
-  --text-on-signal: var(--mist);
-  --text-on-mist: var(--ink);
-
-  /* Electric yellow fails contrast as foreground text on a light
-     background no matter how it's used — not fixable by tuning opacity.
-     Signal blue carries the "this is the active/highlighted one" role
-     in light mode instead; --electric stays reserved for use as a fill
-     (e.g. .btn-primary's background), where contrast isn't a problem. */
-  --accent: var(--signal);
-
-  --border: rgba(0, 1, 21, 0.12);
-  --border-strong: rgba(0, 1, 21, 0.28);
 }
 
 * {
@@ -493,6 +476,22 @@ button {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+}
+
+/* The backdrop's dozen-odd elements are positioned for a wide aspect
+   ratio; checked at 375px and they collide with the headline and read
+   as clutter rather than texture. It's pure decoration (aria-hidden,
+   no pointer-events) - hiding it below tablet width is a legitimate
+   choice, not a workaround, since mobile has no room for it to earn
+   its keep. */
+@media (max-width: 640px) {
+  .landing-backdrop {
+    display: none;
+  }
+
+  .landing-hero {
+    min-height: 0;
+  }
 }
 
 .landing-backdrop__ghost {
@@ -927,6 +926,23 @@ button {
   padding: 18px 4px 18px 16px;
   border-bottom: 1px solid var(--border);
   transition: background-color var(--duration-hover) var(--ease-reveal);
+}
+
+/* At 480px+ a wrapping title and the status/cost column fight for the
+   same line and overlap - checked, not assumed. Stacking avoids it
+   regardless of title length or whether the approval checkbox is
+   present, rather than chasing exact widths. */
+@media (max-width: 480px) {
+  .project-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .project-row__meta {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .project-row:hover {

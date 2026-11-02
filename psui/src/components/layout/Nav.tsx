@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import { ThemeToggle } from "../ThemeToggle";
 import { useScrolled } from "../../lib/useScrolled";
 
 function linkClassName({ isActive }: { isActive: boolean }) {
@@ -24,7 +23,6 @@ export function Nav() {
           </NavLink>
         </nav>
         <div className="nav__actions">
-          <ThemeToggle />
           <button
             type="button"
             className="btn btn-secondary"
