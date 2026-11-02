@@ -362,6 +362,13 @@ button {
   z-index: 10;
   background: var(--bg-primary);
   border-bottom: 1px solid var(--border);
+  transition: background-color var(--duration-hover) var(--ease-reveal),
+    border-color var(--duration-hover) var(--ease-reveal);
+}
+
+.nav--scrolled {
+  background: var(--bg-secondary);
+  border-bottom-color: var(--border-strong);
 }
 
 .nav__inner {
@@ -490,17 +497,33 @@ button {
   margin-top: 16px;
 }
 
-.round-card {
+.round-card-link {
   display: block;
+  text-decoration: none;
+}
+
+.round-card {
+  position: relative;
+  overflow: hidden;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 24px 28px;
+  padding: 24px 28px 24px 34px;
   transition: border-color var(--duration-hover) var(--ease-reveal);
 }
 
 .round-card:hover {
   border-color: var(--border-strong);
+}
+
+.round-card__accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--signal);
+  transform-origin: top;
 }
 
 .round-card__header {
@@ -564,11 +587,28 @@ button {
 }
 
 .project-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 18px 4px;
+  padding: 18px 4px 18px 16px;
   border-bottom: 1px solid var(--border);
+  transition: background-color var(--duration-hover) var(--ease-reveal);
+}
+
+.project-row:hover {
+  background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+}
+
+.project-row__accent {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--signal);
+  transform-origin: top;
 }
 
 .project-row__main {

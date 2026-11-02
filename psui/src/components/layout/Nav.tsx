@@ -1,13 +1,16 @@
 import { NavLink } from "react-router-dom";
 import { ThemeToggle } from "../ThemeToggle";
+import { useScrolled } from "../../lib/useScrolled";
 
 function linkClassName({ isActive }: { isActive: boolean }) {
   return `nav__link${isActive ? " nav__link--active" : ""}`;
 }
 
 export function Nav() {
+  const scrolled = useScrolled();
+
   return (
-    <header className="nav">
+    <header className={`nav${scrolled ? " nav--scrolled" : ""}`}>
       <div className="nav__inner">
         <NavLink to="/" className="nav__brand">
           POLESTAR

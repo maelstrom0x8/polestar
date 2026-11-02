@@ -1,6 +1,9 @@
+import { motion } from "motion/react";
 import type { Project } from "../../types/domain";
 import { formatNear } from "../../lib/format";
 import { Checkbox } from "../ui/Checkbox";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 interface ProjectRowProps {
   project: Project;
@@ -13,7 +16,12 @@ export function ProjectRow({ project, showApproval, approved, onToggle }: Projec
   const attestedCount = project.milestones.filter((m) => m.attested).length;
 
   return (
-    <div className="project-row">
+    <motion.div className="project-row" initial="rest" whileHover="hover" animate="rest">
+      <motion.span
+        className="project-row__accent"
+        variants={{ rest: { scaleY: 0 }, hover: { scaleY: 1 } }}
+        transition={{ duration: 0.3, ease: EASE }}
+      />
       {showApproval && (
         <Checkbox
           id={`approve-${project.id}`}
@@ -36,6 +44,6 @@ export function ProjectRow({ project, showApproval, approved, onToggle }: Projec
         </span>
         <span className="project-row__cost">{formatNear(project.cost)}</span>
       </div>
-    </div>
+    </motion.div>
   );
 }
