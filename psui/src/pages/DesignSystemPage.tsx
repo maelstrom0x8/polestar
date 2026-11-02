@@ -68,7 +68,7 @@ export function DesignSystemPage() {
           <span className="h2">Heading Two</span>
           <span className="h3">Heading Three</span>
           <span style={{ fontSize: "var(--text-body)" }}>
-            Body text at 1rem, Titillium Web Regular.
+            Body text at var(--text-body), Titillium Web Regular.
           </span>
           <span className="label">Micro label / caption</span>
         </div>
