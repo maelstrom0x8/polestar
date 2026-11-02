@@ -1,10 +1,10 @@
 [package]
-name = "vote"
+name = "allocate"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "Single Transferable Vote (Scottish STV with Gregory surplus transfers) counting engine"
+description = "Participatory-budgeting allocation engine: Method of Equal Shares plus a density-ranked completion stage"
 
 [dependencies]
 math = { workspace = true }
