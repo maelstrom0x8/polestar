@@ -1,10 +1,10 @@
 [package]
-name = "polestar-treasury"
+name = "polestar-budgeting"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "Polestar treasury and proposal governance contract for NEAR Protocol"
+description = "Polestar participatory-budgeting contract for NEAR Protocol"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -14,7 +14,7 @@ near-sdk = { workspace = true }
 borsh = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-math = { workspace = true }
+allocate = { workspace = true }
 
 [dev-dependencies]
 near-sdk = { workspace = true, features = ["unit-testing"] }
