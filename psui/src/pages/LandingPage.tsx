@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { LandingNav } from "../components/layout/LandingNav";
 import { LandingFooter } from "../components/layout/LandingFooter";
+import { LandingBackdrop } from "../components/LandingBackdrop";
 import { RevealCard } from "../components/RevealCard";
 
 const HOW_IT_WORKS = [
@@ -26,17 +27,20 @@ export function LandingPage() {
     <div>
       <LandingNav />
       <main className="landing-main" style={{ paddingBottom: 120 }}>
-        <section style={{ marginBottom: 72 }}>
-          <span className="label">Polestar</span>
-          <h1 className="display" style={{ marginTop: 8 }}>
-            Shared budgets,
-            <br />
-            allocated fairly.
-          </h1>
-          <div style={{ marginTop: 28 }}>
-            <Link to="/rounds" className="btn btn-primary">
-              View rounds
-            </Link>
+        <section className="landing-hero" style={{ marginBottom: 72, paddingTop: 24, paddingBottom: 24 }}>
+          <LandingBackdrop />
+          <div className="landing-hero__content">
+            <span className="label">Polestar</span>
+            <h1 className="display" style={{ marginTop: 8 }}>
+              Shared budgets,
+              <br />
+              allocated fairly.
+            </h1>
+            <div style={{ marginTop: 28 }}>
+              <Link to="/rounds" className="btn btn-primary">
+                View rounds
+              </Link>
+            </div>
           </div>
         </section>
 

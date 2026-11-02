@@ -477,6 +477,233 @@ button {
   font-size: var(--text-label);
 }
 
+.landing-hero {
+  position: relative;
+  min-height: 460px;
+}
+
+.landing-hero__content {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-backdrop {
+  position: absolute;
+  inset: -40px;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.landing-backdrop__ghost {
+  position: absolute;
+  top: -0.22em;
+  left: -0.02em;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 11rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  opacity: 0.05;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.landing-backdrop__block {
+  position: absolute;
+  border-radius: var(--radius-md);
+}
+
+.landing-backdrop__block--a {
+  top: 20px;
+  right: -40px;
+  width: 260px;
+  height: 180px;
+  background: color-mix(in srgb, var(--signal) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--signal) 28%, transparent);
+}
+
+.landing-backdrop__block--b {
+  bottom: 40px;
+  right: 180px;
+  width: 120px;
+  height: 120px;
+  background: color-mix(in srgb, var(--electric) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--electric) 26%, transparent);
+}
+
+.landing-backdrop__hatch {
+  position: absolute;
+  top: 70px;
+  right: 60px;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border-strong);
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--border-strong),
+    var(--border-strong) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+}
+
+.landing-backdrop__dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.landing-backdrop__tick {
+  position: absolute;
+  width: 16px;
+  height: 1px;
+  background: var(--border-strong);
+}
+
+.landing-backdrop__tag {
+  position: absolute;
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.landing-backdrop__ghost-numeral {
+  position: absolute;
+  bottom: -0.18em;
+  right: 2%;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 9rem;
+  line-height: 1;
+  color: var(--signal);
+  opacity: 0.09;
+  user-select: none;
+}
+
+.landing-backdrop__ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 64px;
+  height: 64px;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--electric) 0,
+    var(--electric) 6px,
+    transparent 6px,
+    transparent 14px
+  );
+  mask-image: linear-gradient(to bottom left, black 0%, black 40%, transparent 70%);
+  -webkit-mask-image: linear-gradient(to bottom left, black 0%, black 40%, transparent 70%);
+}
+
+.landing-backdrop__rings {
+  position: absolute;
+  bottom: 6%;
+  left: 1%;
+  width: 28px;
+  height: 18px;
+  border-radius: 9999px;
+}
+
+.landing-backdrop__rings::before,
+.landing-backdrop__rings::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+}
+
+.landing-backdrop__rings::before {
+  left: 0;
+}
+
+.landing-backdrop__rings::after {
+  left: 10px;
+}
+
+.landing-backdrop__heatmap {
+  position: absolute;
+  top: 48%;
+  right: 4%;
+  display: grid;
+  grid-template-columns: repeat(4, 10px);
+  grid-template-rows: repeat(3, 10px);
+  gap: 3px;
+}
+
+.landing-backdrop__cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.landing-backdrop__cell--signal {
+  background: color-mix(in srgb, var(--signal) 55%, transparent);
+}
+
+.landing-backdrop__cell--electric {
+  background: color-mix(in srgb, var(--electric) 45%, transparent);
+}
+
+.landing-backdrop__cell--muted {
+  background: var(--border);
+}
+
+.landing-backdrop__barcode {
+  position: absolute;
+  bottom: 8%;
+  right: 2%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.landing-backdrop__bar {
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--signal) 35%, transparent);
+}
+
+.landing-backdrop__cubes {
+  position: absolute;
+  bottom: 2%;
+  left: 14%;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.landing-backdrop__cube-svg {
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+  opacity: 0.55;
+}
+
+.landing-backdrop__scatter-dot {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.landing-backdrop__scatter-dot--signal {
+  background: color-mix(in srgb, var(--signal) 40%, transparent);
+}
+
+.landing-backdrop__scatter-dot--electric {
+  background: color-mix(in srgb, var(--electric) 40%, transparent);
+}
+
 .nav__inner {
   max-width: 1040px;
   margin: 0 auto;
