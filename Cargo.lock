@@ -1224,6 +1224,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "math"
+version = "0.1.0"
+dependencies = [
+ "borsh",
+ "proptest",
+ "schemars 0.8.22",
+ "serde",
+]
+
+[[package]]
 name = "memchr"
 version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1738,32 +1748,11 @@ name = "polestar-election"
 version = "0.1.0"
 dependencies = [
  "borsh",
+ "math",
  "near-sdk",
- "polestar-rational",
- "polestar-stv",
  "serde",
  "serde_json",
-]
-
-[[package]]
-name = "polestar-rational"
-version = "0.1.0"
-dependencies = [
- "borsh",
- "proptest",
- "schemars 0.8.22",
- "serde",
-]
-
-[[package]]
-name = "polestar-stv"
-version = "0.1.0"
-dependencies = [
- "borsh",
- "polestar-rational",
- "proptest",
- "schemars 0.8.22",
- "serde",
+ "vote",
 ]
 
 [[package]]
@@ -1771,8 +1760,8 @@ name = "polestar-treasury"
 version = "0.1.0"
 dependencies = [
  "borsh",
+ "math",
  "near-sdk",
- "polestar-rational",
  "serde",
  "serde_json",
 ]
@@ -2673,6 +2662,17 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "vote"
+version = "0.1.0"
+dependencies = [
+ "borsh",
+ "math",
+ "proptest",
+ "schemars 0.8.22",
+ "serde",
+]
 
 [[package]]
 name = "wait-timeout"

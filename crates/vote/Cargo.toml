@@ -1,5 +1,5 @@
 [package]
-name = "polestar-stv"
+name = "vote"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,7 +7,7 @@ license.workspace = true
 description = "Single Transferable Vote (Scottish STV with Gregory surplus transfers) counting engine"
 
 [dependencies]
-polestar-rational = { workspace = true }
+math = { workspace = true }
 borsh = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 schemars = { workspace = true, optional = true }
@@ -17,6 +17,6 @@ proptest = { workspace = true }
 
 [features]
 default = ["borsh", "serde"]
-borsh = ["dep:borsh", "polestar-rational/borsh"]
-serde = ["dep:serde", "polestar-rational/serde"]
-schemars = ["dep:schemars", "polestar-rational/schemars"]
+borsh = ["dep:borsh", "math/borsh"]
+serde = ["dep:serde", "math/serde"]
+schemars = ["dep:schemars", "math/schemars"]

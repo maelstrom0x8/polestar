@@ -1,7 +1,7 @@
 [workspace]
 members = [
-    "crates/rational",
-    "crates/stv",
+    "crates/math",
+    "crates/vote",
     "contracts/election",
     "contracts/treasury",
 ]
@@ -21,8 +21,8 @@ serde_json = "1.0"
 schemars = "0.8"
 proptest = "1.6"
 
-polestar-rational = { path = "crates/rational" }
-polestar-stv = { path = "crates/stv" }
+math = { path = "crates/math" }
+vote = { path = "crates/vote" }
 
 [profile.release]
 codegen-units = 1
