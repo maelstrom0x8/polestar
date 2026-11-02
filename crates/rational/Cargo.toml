@@ -1,0 +1,21 @@
+[package]
+name = "polestar-rational"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Canonical exact rational arithmetic with checked operations"
+
+[dependencies]
+borsh = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+schemars = { workspace = true, optional = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+
+[features]
+default = ["borsh", "serde"]
+borsh = ["dep:borsh"]
+serde = ["dep:serde"]
+schemars = ["dep:schemars"]
