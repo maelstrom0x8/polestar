@@ -3,6 +3,7 @@ target/
 *.bak
 .DS_Store
 .agents/
+CLAUDE.md
 
 
 # Visual Studio Code
