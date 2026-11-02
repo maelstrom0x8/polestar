@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+    <!--
+      Anti-FOWT (Flash of Wrong Theme). Must run before any CSS paints.
+      Reads persisted preference from localStorage and sets data-theme on <html>
+      before React hydrates, eliminating the light→dark flash on reload.
+    -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("polestar-theme");
+          if (t === "dark" || t === "light") {
+            document.documentElement.dataset.theme = t;
+          }
+        } catch (_) {
+          // localStorage may be blocked in private-browsing or sandboxed iframes
+        }
+      })();
+    </script>
+
+    <title>Polestar</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
