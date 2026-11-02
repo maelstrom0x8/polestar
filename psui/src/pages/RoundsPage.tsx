@@ -4,19 +4,14 @@ import { RoundList } from "../components/rounds/RoundList";
 export function RoundsPage() {
   return (
     <div className="page">
-      <section style={{ marginBottom: 56 }}>
+      <section style={{ marginBottom: 32 }}>
         <span className="label">Polestar</span>
-        <h1 className="display" style={{ marginTop: 8 }}>
-          Shared budgets,
-          <br />
-          allocated fairly.
+        <h1 className="h1" style={{ marginTop: 8 }}>
+          Rounds
         </h1>
       </section>
 
-      <section>
-        <span className="label">Rounds</span>
-        <RoundList rounds={ROUNDS} />
-      </section>
+      <RoundList rounds={ROUNDS} />
     </div>
   );
 }

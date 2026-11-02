@@ -14,7 +14,7 @@ export function RoundDetailPage() {
     return (
       <div className="page">
         <p style={{ marginBottom: 20 }}>Round not found.</p>
-        <Link to="/" className="btn btn-secondary">
+        <Link to="/rounds" className="btn btn-secondary">
           Back to rounds
         </Link>
       </div>
@@ -23,7 +23,7 @@ export function RoundDetailPage() {
 
   return (
     <div className="page">
-      <Link to="/" className="label" style={{ display: "inline-block", marginBottom: 24 }}>
+      <Link to="/rounds" className="label" style={{ display: "inline-block", marginBottom: 24 }}>
         &larr; All rounds
       </Link>
 

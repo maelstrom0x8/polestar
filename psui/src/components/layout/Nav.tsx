@@ -16,7 +16,7 @@ export function Nav() {
           POLESTAR
         </NavLink>
         <nav className="nav__links">
-          <NavLink to="/" end className={linkClassName}>
+          <NavLink to="/rounds" className={linkClassName}>
             Rounds
           </NavLink>
           <NavLink to="/design-system" className={linkClassName}>

@@ -371,6 +371,112 @@ button {
   border-bottom-color: var(--border-strong);
 }
 
+/* Landing page — glass chrome, distinct from the flat app shell above */
+
+.landing-nav-wrap {
+  position: fixed;
+  top: 24px;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+.landing-nav {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 1040px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--bg-primary) 62%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+.landing-nav__inner {
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.landing-main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 180px 24px 0;
+}
+
+.landing-footer {
+  margin-top: 80px;
+  background: color-mix(in srgb, var(--bg-primary) 62%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+}
+
+.landing-footer__inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 64px 24px 32px;
+}
+
+.landing-footer__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.landing-footer__brand {
+  max-width: 280px;
+}
+
+.landing-footer__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 32px;
+  flex: 1;
+  max-width: 560px;
+}
+
+.landing-footer__column nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.landing-footer__link {
+  display: block;
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  transition: color var(--duration-hover) var(--ease-reveal);
+}
+
+.landing-footer__link:hover {
+  color: var(--text-primary);
+}
+
+.landing-footer__bottom {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.landing-footer__meta {
+  color: var(--text-muted);
+  font-size: var(--text-label);
+}
+
 .nav__inner {
   max-width: 1040px;
   margin: 0 auto;
