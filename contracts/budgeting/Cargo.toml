@@ -19,3 +19,9 @@ allocate = { workspace = true, features = ["schemars"] }
 [dev-dependencies]
 near-sdk = { workspace = true, features = ["unit-testing"] }
 proptest = { workspace = true }
+near-workspaces = { version = "0.24", features = ["experimental"] }
+near-primitives = "0.38"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+anyhow = "1"
+futures = "0.3"
+serde_json = { workspace = true, features = ["arbitrary_precision"] }
