@@ -16,6 +16,189 @@ where
     P: Ord + Clone + fmt::Display,
     V: Ord + Clone,
 {
+    let mut state = AllocationState::new(projects, ballots, budget)?;
+    loop {
+        if let AllocationStepOutcome::Done(result) = state.step()? {
+            return Ok(result);
+        }
+    }
+}
+
+pub enum AllocationStepOutcome<P> {
+    Selected(FundingRecord<P>),
+    StageAdvanced,
+    Done(AllocationResult<P>),
+}
+
+pub struct AllocationState<P: Ord, V: Ord> {
+    cost_of: BTreeMap<P, u128>,
+    supporters_of: BTreeMap<P, Vec<V>>,
+    voter_budget: BTreeMap<V, Rational>,
+    pending: BTreeSet<P>,
+    funded: Vec<FundingRecord<P>>,
+    remaining: u128,
+    budget: u128,
+    stage: FundingStage,
+}
+
+impl<P, V> AllocationState<P, V>
+where
+    P: Ord + Clone + fmt::Display,
+    V: Ord + Clone,
+{
+    pub fn new(
+        projects: &[Project<P>],
+        ballots: &[Ballot<P, V>],
+        budget: u128,
+    ) -> Result<Self, AllocationError> {
+        let ProjectIndex {
+            cost_of,
+            supporters_of,
+        } = validate_and_index(projects, ballots)?;
+
+        let n = ballots.len() as u128;
+        let mut voter_budget: BTreeMap<V, Rational> = BTreeMap::new();
+        if n > 0 {
+            let share = Rational::new(budget, n)?;
+            for ballot in ballots {
+                voter_budget.insert(ballot.voter.clone(), share);
+            }
+        }
+
+        let pending: BTreeSet<P> = cost_of.keys().cloned().collect();
+
+        Ok(Self {
+            cost_of,
+            supporters_of,
+            voter_budget,
+            pending,
+            funded: Vec::new(),
+            remaining: budget,
+            budget,
+            stage: FundingStage::Mes,
+        })
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn resume(
+        projects: &[Project<P>],
+        ballots: &[Ballot<P, V>],
+        budget: u128,
+        stage: FundingStage,
+        pending: BTreeSet<P>,
+        voter_budget: BTreeMap<V, Rational>,
+        funded: Vec<FundingRecord<P>>,
+        remaining: u128,
+    ) -> Result<Self, AllocationError> {
+        let ProjectIndex {
+            cost_of,
+            supporters_of,
+        } = validate_and_index(projects, ballots)?;
+        Ok(Self {
+            cost_of,
+            supporters_of,
+            voter_budget,
+            pending,
+            funded,
+            remaining,
+            budget,
+            stage,
+        })
+    }
+
+    pub fn stage(&self) -> FundingStage {
+        self.stage
+    }
+
+    pub fn pending(&self) -> &BTreeSet<P> {
+        &self.pending
+    }
+
+    pub fn voter_budget(&self) -> &BTreeMap<V, Rational> {
+        &self.voter_budget
+    }
+
+    pub fn funded_so_far(&self) -> &[FundingRecord<P>] {
+        &self.funded
+    }
+
+    pub fn remaining(&self) -> u128 {
+        self.remaining
+    }
+
+    pub fn step(&mut self) -> Result<AllocationStepOutcome<P>, AllocationError> {
+        match self.stage {
+            FundingStage::Mes => {
+                let selected = mes_select_one(
+                    &self.cost_of,
+                    &self.supporters_of,
+                    &mut self.voter_budget,
+                    &mut self.pending,
+                    &mut self.funded,
+                    &mut self.remaining,
+                )?;
+                if selected {
+                    Ok(AllocationStepOutcome::Selected(
+                        self.funded
+                            .last()
+                            .cloned()
+                            .expect("mes_select_one just pushed a record"),
+                    ))
+                } else {
+                    self.stage = FundingStage::Completion;
+                    Ok(AllocationStepOutcome::StageAdvanced)
+                }
+            }
+            FundingStage::Completion => {
+                let selected = completion_select_one(
+                    &self.cost_of,
+                    &self.supporters_of,
+                    &mut self.pending,
+                    &mut self.funded,
+                    &mut self.remaining,
+                )?;
+                if selected {
+                    Ok(AllocationStepOutcome::Selected(
+                        self.funded
+                            .last()
+                            .cloned()
+                            .expect("completion_select_one just pushed a record"),
+                    ))
+                } else {
+                    for project_id in &self.pending {
+                        let cost = self.cost_of[project_id];
+                        if cost <= self.remaining {
+                            return Err(AllocationError::ExhaustivenessViolated {
+                                remaining: self.remaining,
+                                cheapest_unfunded_cost: cost,
+                            });
+                        }
+                    }
+                    Ok(AllocationStepOutcome::Done(AllocationResult {
+                        budget: self.budget,
+                        funded: std::mem::take(&mut self.funded),
+                        unfunded: std::mem::take(&mut self.pending).into_iter().collect(),
+                        remaining: self.remaining,
+                    }))
+                }
+            }
+        }
+    }
+}
+
+struct ProjectIndex<P, V> {
+    cost_of: BTreeMap<P, u128>,
+    supporters_of: BTreeMap<P, Vec<V>>,
+}
+
+fn validate_and_index<P, V>(
+    projects: &[Project<P>],
+    ballots: &[Ballot<P, V>],
+) -> Result<ProjectIndex<P, V>, AllocationError>
+where
+    P: Ord + Clone + fmt::Display,
+    V: Ord + Clone,
+{
     let cost_of = validate_and_index_projects(projects)?;
     validate_ballots(ballots, &cost_of)?;
 
@@ -29,52 +212,9 @@ where
                 .push(ballot.voter.clone());
         }
     }
-
-    let n = ballots.len() as u128;
-    let mut voter_budget: BTreeMap<V, Rational> = BTreeMap::new();
-    if n > 0 {
-        let share = Rational::new(budget, n)?;
-        for ballot in ballots {
-            voter_budget.insert(ballot.voter.clone(), share);
-        }
-    }
-
-    let mut pending: BTreeSet<P> = cost_of.keys().cloned().collect();
-    let mut funded: Vec<FundingRecord<P>> = Vec::new();
-    let mut remaining = budget;
-
-    run_mes_stage(
-        &cost_of,
-        &supporters_of,
-        &mut voter_budget,
-        &mut pending,
-        &mut funded,
-        &mut remaining,
-    )?;
-
-    run_completion_stage(
-        &cost_of,
-        &supporters_of,
-        &mut pending,
-        &mut funded,
-        &mut remaining,
-    )?;
-
-    for project_id in &pending {
-        let cost = cost_of[project_id];
-        if cost <= remaining {
-            return Err(AllocationError::ExhaustivenessViolated {
-                remaining,
-                cheapest_unfunded_cost: cost,
-            });
-        }
-    }
-
-    Ok(AllocationResult {
-        budget,
-        funded,
-        unfunded: pending.into_iter().collect(),
-        remaining,
+    Ok(ProjectIndex {
+        cost_of,
+        supporters_of,
     })
 }
 
@@ -175,79 +315,54 @@ where
     Ok(true)
 }
 
-fn run_mes_stage<P, V>(
-    cost_of: &BTreeMap<P, u128>,
-    supporters_of: &BTreeMap<P, Vec<V>>,
-    voter_budget: &mut BTreeMap<V, Rational>,
-    pending: &mut BTreeSet<P>,
-    funded: &mut Vec<FundingRecord<P>>,
-    remaining: &mut u128,
-) -> Result<(), AllocationError>
-where
-    P: Ord + Clone,
-    V: Ord + Clone,
-{
-    while mes_select_one(
-        cost_of,
-        supporters_of,
-        voter_budget,
-        pending,
-        funded,
-        remaining,
-    )? {}
-    Ok(())
-}
-
-fn run_completion_stage<P, V>(
+fn completion_select_one<P, V>(
     cost_of: &BTreeMap<P, u128>,
     supporters_of: &BTreeMap<P, Vec<V>>,
     pending: &mut BTreeSet<P>,
     funded: &mut Vec<FundingRecord<P>>,
     remaining: &mut u128,
-) -> Result<(), AllocationError>
+) -> Result<bool, AllocationError>
 where
     P: Ord + Clone,
 {
-    loop {
-        let mut best: Option<(Rational, &P)> = None;
+    let mut best: Option<(Rational, &P)> = None;
 
-        for project_id in pending.iter() {
-            let cost = cost_of[project_id];
-            if cost > *remaining {
-                continue;
-            }
-            let support_count = supporters_of[project_id].len() as u128;
-            let density = Rational::new(support_count, cost)?;
-            best = Some(match best {
-                None => (density, project_id),
-                Some((best_density, best_id)) => {
-                    if density > best_density || (density == best_density && project_id < best_id) {
-                        (density, project_id)
-                    } else {
-                        (best_density, best_id)
-                    }
-                }
-            });
+    for project_id in pending.iter() {
+        let cost = cost_of[project_id];
+        if cost > *remaining {
+            continue;
         }
-
-        let Some((_, project_id)) = best else {
-            break;
-        };
-        let project_id = project_id.clone();
-
-        let cost = cost_of[&project_id];
-        *remaining = remaining
-            .checked_sub(cost)
-            .expect("completion only ever selects a project within the current remaining budget");
-        funded.push(FundingRecord {
-            project: project_id.clone(),
-            stage: FundingStage::Completion,
-            amount: cost,
+        let support_count = supporters_of[project_id].len() as u128;
+        let density = Rational::new(support_count, cost)?;
+        best = Some(match best {
+            None => (density, project_id),
+            Some((best_density, best_id)) => {
+                if density > best_density || (density == best_density && project_id < best_id) {
+                    (density, project_id)
+                } else {
+                    (best_density, best_id)
+                }
+            }
         });
-        pending.remove(&project_id);
     }
 
-    Ok(())
+    let Some((_, project_id)) = best else {
+        return Ok(false);
+    };
+    let project_id = project_id.clone();
+
+    let cost = cost_of[&project_id];
+    *remaining = remaining
+        .checked_sub(cost)
+        .expect("completion only ever selects a project within the current remaining budget");
+    funded.push(FundingRecord {
+        project: project_id.clone(),
+        stage: FundingStage::Completion,
+        amount: cost,
+    });
+    pending.remove(&project_id);
+
+    Ok(true)
 }
 
 #[cfg(test)]
@@ -339,6 +454,33 @@ mod tests {
                     break;
                 }
             }
+        }
+
+        #[test]
+        fn prop_resume_after_every_step_matches_straight_through((projects, ballots, budget) in scenario(5, 8)) {
+            let straight_through = run_allocation(&projects, &ballots, budget).unwrap();
+
+            let mut state = AllocationState::new(&projects, &ballots, budget).unwrap();
+            let result = loop {
+                let outcome = state.step().unwrap();
+                let (stage, pending, voter_budget, funded, remaining) = (
+                    state.stage(),
+                    state.pending().clone(),
+                    state.voter_budget().clone(),
+                    state.funded_so_far().to_vec(),
+                    state.remaining(),
+                );
+                state = AllocationState::resume(
+                    &projects, &ballots, budget, stage, pending, voter_budget, funded, remaining,
+                )
+                .unwrap();
+
+                if let AllocationStepOutcome::Done(result) = outcome {
+                    break result;
+                }
+            };
+
+            prop_assert_eq!(result, straight_through);
         }
     }
 }

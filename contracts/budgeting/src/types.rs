@@ -1,6 +1,6 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
-use allocate::AllocationResult;
+use allocate::{AllocationResult, FundingRecord, FundingStage, Rational};
 use near_sdk::collections::UnorderedMap;
 use near_sdk::near;
 use near_sdk::AccountId;
@@ -67,6 +67,14 @@ pub struct Ballot {
 }
 
 #[near(serializers = [borsh])]
+pub struct AllocationProgress {
+    pub stage: FundingStage,
+    pub pending: BTreeSet<ProjectId>,
+    pub voter_budget: BTreeMap<AccountId, Rational>,
+    pub funded: Vec<FundingRecord<ProjectId>>,
+}
+
+#[near(serializers = [borsh])]
 pub struct RoundState {
     pub id: RoundId,
     pub config: RoundConfig,
@@ -76,6 +84,7 @@ pub struct RoundState {
     pub next_project_id: ProjectId,
     pub remaining: u128,
     pub result: Option<AllocationResult<ProjectId>>,
+    pub progress: Option<AllocationProgress>,
 }
 
 pub fn projects_prefix(round_id: RoundId) -> Vec<u8> {

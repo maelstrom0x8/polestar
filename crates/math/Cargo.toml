@@ -16,6 +16,6 @@ proptest = { workspace = true }
 
 [features]
 default = ["borsh", "serde"]
-borsh = ["dep:borsh"]
+borsh = ["dep:borsh", "borsh/unstable__schema"]
 serde = ["dep:serde"]
 schemars = ["dep:schemars"]

@@ -145,7 +145,7 @@ fn run_scenario(
         CLOSES_AT + 1,
     );
     contract.close_declaration(round_id);
-    contract.finalize_allocation(round_id);
+    while !contract.process_allocation_step(round_id) {}
 
     ScenarioOutcome {
         result: contract

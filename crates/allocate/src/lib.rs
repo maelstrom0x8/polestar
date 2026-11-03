@@ -3,7 +3,7 @@ pub mod error;
 pub(crate) mod rho;
 pub mod types;
 
-pub use engine::run_allocation;
+pub use engine::{run_allocation, AllocationState, AllocationStepOutcome};
 pub use error::AllocationError;
 pub use math::{Rational, RationalError};
 pub use types::{AllocationResult, Ballot, FundingRecord, FundingStage, Project};

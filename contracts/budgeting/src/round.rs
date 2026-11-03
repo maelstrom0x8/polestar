@@ -1,12 +1,15 @@
 use std::collections::BTreeSet;
 
+use allocate::{
+    AllocationError, AllocationState, Ballot as EngineBallot, Project as EngineProject,
+};
 use near_sdk::collections::UnorderedMap;
 use near_sdk::{env, near, AccountId, NearToken};
 
 use crate::types::{
-    ballots_prefix, projects_prefix, Ballot, Milestone, Project, ProjectId, ProjectStatus,
-    RoundConfig, RoundId, RoundPhase, RoundState, MAX_PROJECTS_PER_ROUND, MAX_SUMMARY_LEN,
-    MAX_TITLE_LEN,
+    ballots_prefix, projects_prefix, AllocationProgress, Ballot, Milestone, Project, ProjectId,
+    ProjectStatus, RoundConfig, RoundId, RoundPhase, RoundState, MAX_PROJECTS_PER_ROUND,
+    MAX_SUMMARY_LEN, MAX_TITLE_LEN,
 };
 use crate::{Contract, ContractExt};
 
@@ -48,6 +51,7 @@ impl Contract {
             ballots: UnorderedMap::new(ballots_prefix(round_id)),
             next_project_id: 0,
             result: None,
+            progress: None,
         };
         self.rounds.insert(&round_id, &round);
 
@@ -204,6 +208,29 @@ impl Contract {
         if env::block_height() <= round.config.closes_at {
             env::panic_str("ERR_DECLARATION_NOT_YET_CLOSED");
         }
+
+        let projects: Vec<EngineProject<ProjectId>> = round
+            .projects
+            .iter()
+            .map(|(id, project)| EngineProject::new(id, project.cost))
+            .collect();
+        let ballots: Vec<EngineBallot<ProjectId, AccountId>> = round
+            .ballots
+            .iter()
+            .map(|(voter, ballot)| EngineBallot::new(voter, ballot.approved))
+            .collect();
+        let state = match AllocationState::new(&projects, &ballots, round.config.budget) {
+            Ok(state) => state,
+            Err(AllocationError::ArithmeticOverflow(_)) => env::panic_str("ERR_RATIONAL_OVERFLOW"),
+            Err(_) => env::panic_str("ERR_ALLOCATION_INVARIANT_VIOLATED"),
+        };
+        round.progress = Some(AllocationProgress {
+            stage: state.stage(),
+            pending: state.pending().clone(),
+            voter_budget: state.voter_budget().clone(),
+            funded: state.funded_so_far().to_vec(),
+        });
+
         round.phase = RoundPhase::Allocation;
         let ballot_count = round.ballots.len();
         self.rounds.insert(&round_id, &round);

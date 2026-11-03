@@ -322,11 +322,11 @@ fn close_declaration_transitions_to_allocation_phase() {
 
 #[test]
 #[should_panic(expected = "ERR_WRONG_PHASE")]
-fn finalize_allocation_rejects_wrong_phase() {
+fn process_allocation_step_rejects_wrong_phase() {
     let mut contract = new_contract();
     let (round_id, _) = round_in_declaration(&mut contract);
     set_ctx(stranger(), NearToken::from_near(0), CLOSES_AT + 1);
-    contract.finalize_allocation(round_id);
+    contract.process_allocation_step(round_id);
 }
 
 #[test]
@@ -347,7 +347,7 @@ fn round_in_settlement(contract: &mut Contract) -> (RoundId, ProjectId) {
 
     set_ctx(stranger(), NearToken::from_near(0), CLOSES_AT + 1);
     contract.close_declaration(round_id);
-    contract.finalize_allocation(round_id);
+    while !contract.process_allocation_step(round_id) {}
     (round_id, project_id)
 }
 
