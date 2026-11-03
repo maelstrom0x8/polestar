@@ -19,6 +19,6 @@ serde_json = { workspace = true }
 
 [features]
 default = ["borsh", "serde"]
-borsh = ["dep:borsh", "math/borsh"]
+borsh = ["dep:borsh", "borsh/unstable__schema", "math/borsh"]
 serde = ["dep:serde", "math/serde"]
 schemars = ["dep:schemars", "math/schemars"]
