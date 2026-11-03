@@ -1,6 +1,8 @@
 mod allocation;
 mod auth;
 mod escrow;
+#[cfg(test)]
+mod properties;
 mod round;
 #[cfg(test)]
 mod tests;

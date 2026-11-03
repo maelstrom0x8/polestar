@@ -3,7 +3,6 @@ members = [
     "crates/math",
     "crates/allocate",
     "contracts/budgeting",
-    "pscli",
 ]
 resolver = "2"
 
