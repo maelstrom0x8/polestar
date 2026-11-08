@@ -435,3 +435,49 @@ fn on_milestone_transfer_rolls_back_attested_on_failure() {
         "a milestone transfer failure must not touch the round's escrowed remaining"
     );
 }
+
+#[test]
+fn get_round_count_reflects_rounds_created() {
+    let mut contract = new_contract();
+    assert_eq!(contract.get_round_count(), 0);
+    fund(&mut contract);
+    assert_eq!(contract.get_round_count(), 1);
+    fund(&mut contract);
+    assert_eq!(contract.get_round_count(), 2);
+}
+
+#[test]
+fn get_project_returns_single_project() {
+    let mut contract = new_contract();
+    let round_id = fund(&mut contract);
+    let project_id = register(&mut contract, round_id, 600, vec![300, 300]);
+
+    let project = contract
+        .get_project(round_id, project_id)
+        .expect("project exists");
+    assert_eq!(project.id, project_id);
+    assert_eq!(project.cost, 600);
+    assert!(contract.get_project(round_id, project_id + 1).is_none());
+    assert!(contract.get_project(round_id + 1, project_id).is_none());
+}
+
+#[test]
+fn get_project_support_counts_approving_ballots_only() {
+    let mut contract = new_contract();
+    let round_id = fund(&mut contract);
+    let project_id = register(&mut contract, round_id, 600, vec![300, 300]);
+    let other_project_id = register(&mut contract, round_id, 100, vec![100]);
+    set_ctx(stranger(), NearToken::from_near(0), 50);
+    contract.open_declaration(round_id);
+
+    assert_eq!(contract.get_project_support(round_id, project_id), 0);
+
+    eligible_voter_seen_at(&mut contract, voter_a(), OPENS_AT - T_MIN);
+    let mut approved = BTreeSet::new();
+    approved.insert(project_id);
+    set_ctx(voter_a(), NearToken::from_near(0), OPENS_AT);
+    contract.submit_ballot(round_id, approved);
+
+    assert_eq!(contract.get_project_support(round_id, project_id), 1);
+    assert_eq!(contract.get_project_support(round_id, other_project_id), 0);
+}

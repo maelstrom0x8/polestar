@@ -50,4 +50,23 @@ impl Contract {
     pub fn get_remaining(&self, round_id: RoundId) -> Option<u128> {
         self.rounds.get(&round_id).map(|round| round.remaining)
     }
+
+    pub fn get_round_count(&self) -> RoundId {
+        self.next_round_id
+    }
+
+    pub fn get_project(&self, round_id: RoundId, project_id: ProjectId) -> Option<Project> {
+        self.rounds.get(&round_id)?.projects.get(&project_id)
+    }
+
+    pub fn get_project_support(&self, round_id: RoundId, project_id: ProjectId) -> u64 {
+        match self.rounds.get(&round_id) {
+            Some(round) => round
+                .ballots
+                .values()
+                .filter(|ballot| ballot.approved.contains(&project_id))
+                .count() as u64,
+            None => 0,
+        }
+    }
 }
