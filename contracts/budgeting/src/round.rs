@@ -17,10 +17,6 @@ impl Contract {
             .unwrap_or_else(|| env::panic_str("ERR_ROUND_NOT_FOUND"))
     }
 
-    // NEAR exposes no host function returning an account's real creation
-    // height, so age/prior-interaction eligibility is realized against
-    // this contract's own first-seen record, not the account's true
-    // NEAR-wide age. Both eligibility checks below read it.
     pub(crate) fn mark_first_seen(&mut self, account: &AccountId) {
         if !self.first_seen.contains_key(account) {
             self.first_seen.insert(account, &env::block_height());
@@ -135,10 +131,6 @@ impl Contract {
         project_id
     }
 
-    // The Registration -> Declaration transition has a stated guard
-    // (funded, >=1 project) but no operation that actually applies it.
-    // Permissionless and phase/condition-gated, matching close_declaration's
-    // shape, so it doesn't introduce anything resembling an admin role.
     pub fn open_declaration(&mut self, round_id: RoundId) {
         let mut round = self.get_round_or_panic(round_id);
         if round.phase != RoundPhase::Registration {
@@ -152,11 +144,6 @@ impl Contract {
         env::log_str(&format!("DeclarationOpened round_id={round_id}"));
     }
 
-    // Without this, an account whose first-ever contract call is a ballot
-    // could never pass has_prior_interaction (the call that would record
-    // first_seen is the same one the check would fail) - permanently
-    // locking out anyone who never registers a project. Free and
-    // idempotent; establishes no eligibility by itself, only a timestamp.
     pub fn register_voter(&mut self) {
         self.mark_first_seen(&env::predecessor_account_id());
     }

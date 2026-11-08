@@ -9,9 +9,6 @@ pub type RoundId = u64;
 pub type ProjectId = u64;
 pub type BlockHeight = u64;
 
-// finalize_allocation runs as a single atomic call, not chunked across
-// receipts, so its worst-case cost must stay bounded within one call's gas.
-// 50 gives headroom over realistically expected round sizes.
 pub const MAX_PROJECTS_PER_ROUND: u64 = 50;
 pub const MAX_TITLE_LEN: usize = 200;
 pub const MAX_SUMMARY_LEN: usize = 2000;

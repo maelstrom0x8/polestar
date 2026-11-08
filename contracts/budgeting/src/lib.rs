@@ -2,7 +2,10 @@ mod allocation;
 mod auth;
 mod escrow;
 mod round;
+#[cfg(test)]
+mod tests;
 mod types;
+mod views;
 
 use near_sdk::collections::LookupMap;
 use near_sdk::{near, AccountId, BorshStorageKey, PanicOnDefault};

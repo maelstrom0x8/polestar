@@ -116,6 +116,65 @@ where
     Ok(())
 }
 
+fn mes_select_one<P, V>(
+    cost_of: &BTreeMap<P, u128>,
+    supporters_of: &BTreeMap<P, Vec<V>>,
+    voter_budget: &mut BTreeMap<V, Rational>,
+    pending: &mut BTreeSet<P>,
+    funded: &mut Vec<FundingRecord<P>>,
+    remaining: &mut u128,
+) -> Result<bool, AllocationError>
+where
+    P: Ord + Clone,
+    V: Ord + Clone,
+{
+    let mut best: Option<(Rational, &P)> = None;
+
+    for project_id in pending.iter() {
+        let cost = cost_of[project_id];
+        let supporters = &supporters_of[project_id];
+        let Some(rho) = affordability_price(cost, supporters, voter_budget)? else {
+            continue;
+        };
+        best = Some(match best {
+            None => (rho, project_id),
+            Some((best_rho, best_id)) => {
+                if rho < best_rho || (rho == best_rho && project_id < best_id) {
+                    (rho, project_id)
+                } else {
+                    (best_rho, best_id)
+                }
+            }
+        });
+    }
+
+    let Some((rho, project_id)) = best else {
+        return Ok(false);
+    };
+    let project_id = project_id.clone();
+
+    for voter in &supporters_of[&project_id] {
+        let voter_remaining = voter_budget
+            .get_mut(voter)
+            .expect("every supporter has a tracked budget");
+        let payment = std::cmp::min(*voter_remaining, rho);
+        *voter_remaining = voter_remaining.checked_sub(payment)?;
+    }
+
+    let cost = cost_of[&project_id];
+    *remaining = remaining
+        .checked_sub(cost)
+        .expect("MES only ever selects a project it has just proven affordable");
+    funded.push(FundingRecord {
+        project: project_id.clone(),
+        stage: FundingStage::Mes,
+        amount: cost,
+    });
+    pending.remove(&project_id);
+
+    Ok(true)
+}
+
 fn run_mes_stage<P, V>(
     cost_of: &BTreeMap<P, u128>,
     supporters_of: &BTreeMap<P, Vec<V>>,
@@ -128,52 +187,14 @@ where
     P: Ord + Clone,
     V: Ord + Clone,
 {
-    loop {
-        let mut best: Option<(Rational, &P)> = None;
-
-        for project_id in pending.iter() {
-            let cost = cost_of[project_id];
-            let supporters = &supporters_of[project_id];
-            let Some(rho) = affordability_price(cost, supporters, voter_budget)? else {
-                continue;
-            };
-            best = Some(match best {
-                None => (rho, project_id),
-                Some((best_rho, best_id)) => {
-                    if rho < best_rho || (rho == best_rho && project_id < best_id) {
-                        (rho, project_id)
-                    } else {
-                        (best_rho, best_id)
-                    }
-                }
-            });
-        }
-
-        let Some((rho, project_id)) = best else {
-            break;
-        };
-        let project_id = project_id.clone();
-
-        for voter in &supporters_of[&project_id] {
-            let voter_remaining = voter_budget
-                .get_mut(voter)
-                .expect("every supporter has a tracked budget");
-            let payment = std::cmp::min(*voter_remaining, rho);
-            *voter_remaining = voter_remaining.checked_sub(payment)?;
-        }
-
-        let cost = cost_of[&project_id];
-        *remaining = remaining
-            .checked_sub(cost)
-            .expect("MES only ever selects a project it has just proven affordable");
-        funded.push(FundingRecord {
-            project: project_id.clone(),
-            stage: FundingStage::Mes,
-            amount: cost,
-        });
-        pending.remove(&project_id);
-    }
-
+    while mes_select_one(
+        cost_of,
+        supporters_of,
+        voter_budget,
+        pending,
+        funded,
+        remaining,
+    )? {}
     Ok(())
 }
 
@@ -227,4 +248,97 @@ where
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn scenario(
+        max_projects: usize,
+        max_voters: usize,
+    ) -> impl Strategy<Value = (Vec<Project<String>>, Vec<Ballot<String, String>>, u128)> {
+        (1..=max_projects)
+            .prop_flat_map(|num_projects| prop::collection::vec(1u128..=50, num_projects))
+            .prop_flat_map(move |costs| {
+                let num_projects = costs.len();
+                (Just(costs), 1..=max_voters).prop_flat_map(move |(costs, num_voters)| {
+                    prop::collection::vec(
+                        prop::collection::vec(any::<bool>(), num_projects)
+                            .prop_filter("at least one approval", |mask| mask.iter().any(|&b| b)),
+                        num_voters,
+                    )
+                    .prop_map(move |masks| (costs.clone(), masks))
+                })
+            })
+            .prop_flat_map(|(costs, masks)| (Just(costs), Just(masks), 1u128..=600))
+            .prop_map(|(costs, masks, budget)| {
+                let projects: Vec<Project<String>> = costs
+                    .iter()
+                    .enumerate()
+                    .map(|(i, &cost)| Project::new(format!("p{i}"), cost))
+                    .collect();
+                let ballots: Vec<Ballot<String, String>> = masks
+                    .iter()
+                    .enumerate()
+                    .map(|(v, mask)| {
+                        let approved: BTreeSet<String> = mask
+                            .iter()
+                            .enumerate()
+                            .filter(|(_, &approve)| approve)
+                            .map(|(i, _)| format!("p{i}"))
+                            .collect();
+                        Ballot::new(format!("v{v}"), approved)
+                    })
+                    .collect();
+                (projects, ballots, budget)
+            })
+    }
+
+    proptest! {
+        #[test]
+        fn prop_inv4_virtual_budget_bounds((projects, ballots, budget) in scenario(5, 8)) {
+            let cost_of = validate_and_index_projects(&projects).unwrap();
+            validate_ballots(&ballots, &cost_of).unwrap();
+
+            let mut supporters_of: BTreeMap<String, Vec<String>> =
+                cost_of.keys().cloned().map(|id| (id, Vec::new())).collect();
+            for ballot in &ballots {
+                for project_id in &ballot.approved {
+                    supporters_of.get_mut(project_id).unwrap().push(ballot.voter.clone());
+                }
+            }
+
+            let n = ballots.len() as u128;
+            let share = Rational::new(budget, n).unwrap();
+            let mut voter_budget: BTreeMap<String, Rational> =
+                ballots.iter().map(|b| (b.voter.clone(), share)).collect();
+
+            let mut pending: BTreeSet<String> = cost_of.keys().cloned().collect();
+            let mut funded: Vec<FundingRecord<String>> = Vec::new();
+            let mut remaining = budget;
+
+            loop {
+                let selected = mes_select_one(
+                    &cost_of,
+                    &supporters_of,
+                    &mut voter_budget,
+                    &mut pending,
+                    &mut funded,
+                    &mut remaining,
+                )
+                .unwrap();
+
+                for b in voter_budget.values() {
+                    prop_assert!(*b >= Rational::ZERO);
+                    prop_assert!(*b <= share);
+                }
+
+                if !selected {
+                    break;
+                }
+            }
+        }
+    }
 }
