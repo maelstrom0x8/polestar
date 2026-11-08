@@ -11,9 +11,19 @@ export function Nav() {
           POLESTAR
         </NavLink>
         <nav className="nav__links">
-        
+          <NavLink to="/rounds" className="nav__link">
+            Rounds
+          </NavLink>
         </nav>
         <div className="nav__actions">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            disabled
+            title="Wallet connection is not implemented yet (T5)"
+          >
+            Sign in
+          </button>
         </div>
       </div>
     </header>
