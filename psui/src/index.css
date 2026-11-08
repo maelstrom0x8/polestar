@@ -80,11 +80,17 @@
 :root {
   color-scheme: light;
 
-  /* Brand core — sampled from the PIA/Predictive Analytics reference system.
-     Electric's hex is read directly from the source file; Signal/Mist/Ink
-     are sampled from clean flat-color regions of the reference mockups. */
-  --electric: #f4fc09;
-  --signal: #0041fd;
+  /* Brand core — from the PRA/Predictive Analytics reference system
+     (docs/ui.md §4.5). Electric and Signal are the reference's own
+     authoritative swatch values ("Golden Fuse" / "Electric Blue"),
+     confirmed against its style-guide page, not sampled. Signal-deep
+     and Ink are sampled from clean flat-color regions of the reference
+     mockups (no swatch given for either). Mist intentionally does NOT
+     match the reference's "Powder Mist" swatch (#EBEBEB, neutral gray)
+     — kept as this warmer cream pending the decision in ui.md §4.5.1,
+     since every contrast-audited token below is measured against it. */
+  --electric: #f3fb09;
+  --signal: #003ffe;
   --signal-deep: #0131c1;
   --mist: #f6f3ee;
   --ink: #000115;
