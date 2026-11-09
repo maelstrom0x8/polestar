@@ -1,49 +1,59 @@
-import { useEffect, useState } from "react";
+import { CheckCircle2, FilePlus, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ParticleField } from "../components/ParticleField";
-import { Typewriter } from "../components/Typewriter";
-import { useMinViewport } from "../lib/useMinViewport";
-import { useReducedMotion } from "../lib/useReducedMotion";
+import { LandingFooter } from "../components/layout/LandingFooter";
 
-const HEADLINE_LINES = ["A DAO's treasury,", "split fairly by the community it funds."];
+const HEADLINE = "A DAO's treasury, split fairly by the community it funds.";
 const SUBHEAD =
-  "Polestar runs the Method of Equal Shares on registered projects and community ballots, then pays funded projects in milestone tranches — each one released only when the DAO confirms the work is done.";
+  "Community members back the projects they want to see funded. Polestar turns that support into a budget allocation, and pays funded teams in stages as the DAO confirms their progress.";
+
+const STEPS = [
+  {
+    Icon: FilePlus,
+    title: "Propose a project",
+    body: "Submit a funding proposal with a clear budget and a plan to deliver it.",
+  },
+  {
+    Icon: Users,
+    title: "Community support",
+    body: "Members back the projects they want to see funded.",
+  },
+  {
+    Icon: CheckCircle2,
+    title: "Paid as you deliver",
+    body: "Funded teams are paid in stages, released as the DAO confirms progress.",
+  },
+];
 
 export function LandingPage() {
-  const reducedMotion = useReducedMotion();
-  const isLargeViewport = useMinViewport(960);
-  const showParticleField = isLargeViewport && !reducedMotion;
-  // The typewriter clips each hardcoded line with white-space: nowrap, so
-  // it only fits where the hero's fixed two-line break was chosen for —
-  // desktop widths. Below that (and under reduced motion) the headline
-  // just renders, same as the particle field's own breakpoint.
-  const animateHeadline = isLargeViewport && !reducedMotion;
-  const [revealed, setRevealed] = useState(!animateHeadline);
-
-  useEffect(() => {
-    if (!animateHeadline) setRevealed(true);
-  }, [animateHeadline]);
-
   return (
     <div className="landing">
       <div className="landing__hero">
-        {showParticleField && <ParticleField className="landing__particles" />}
         <div className="landing__hero-content">
-          <h1 className="display landing__headline">
-            {animateHeadline ? (
-              <Typewriter lines={HEADLINE_LINES} onComplete={() => setRevealed(true)} />
-            ) : (
-              HEADLINE_LINES.join(" ")
-            )}
-          </h1>
-          <div className={`landing__reveal${revealed ? " landing__reveal--shown" : ""}`}>
-            <p className="landing__subhead">{SUBHEAD}</p>
-            <Link to="/rounds" className="btn btn-primary landing__cta">
-              Browse rounds
-            </Link>
-          </div>
+          <h1 className="display landing__headline">{HEADLINE}</h1>
+          <p className="landing__subhead">{SUBHEAD}</p>
+          <Link to="/rounds" className="btn btn-primary landing__cta">
+            Get started
+          </Link>
         </div>
       </div>
+
+      <section className="landing__how" id="how-it-works">
+        <h2 className="h2">How it works</h2>
+        <div className="landing__steps">
+          {STEPS.map((step, index) => (
+            <div className="landing__step" key={step.title}>
+              <div className="landing__step-icon">
+                <step.Icon aria-hidden="true" />
+              </div>
+              <span className="landing__step-number">{index + 1}</span>
+              <h3 className="h3 landing__step-title">{step.title}</h3>
+              <p className="landing__step-body">{step.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <LandingFooter />
     </div>
   );
 }

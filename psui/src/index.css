@@ -235,7 +235,7 @@ button {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(244, 252, 9, 0.25);
+  box-shadow: 0 8px 24px rgba(243, 251, 9, 0.25);
 }
 
 .btn-secondary {
@@ -345,67 +345,62 @@ button {
   width: 100%;
 }
 
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border);
-  transition: background-color var(--duration-hover) var(--ease-reveal),
-    border-color var(--duration-hover) var(--ease-reveal);
-}
+/* Transparent over the hero by default; condenses into a floating,
+   blurred capsule once scrolled past it — the page's content underneath
+   never sits in flow below the nav (it's a fixed overlay), so every page
+   that isn't the hero-led landing page needs its own top clearance. */
 
-.nav--scrolled {
-  background: var(--bg-secondary);
-  border-bottom-color: var(--border-strong);
-}
-
-/* Landing page — glass chrome, distinct from the flat app shell above */
-
-.landing-nav-wrap {
+.nav-wrap {
   position: fixed;
-  top: 24px;
+  top: 0;
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: 30;
   display: flex;
   justify-content: center;
-  padding: 0 24px;
+  padding: 20px 24px;
   pointer-events: none;
 }
 
-.landing-nav {
+.nav {
   pointer-events: auto;
   width: 100%;
-  max-width: 1040px;
+  max-width: 1200px;
   border-radius: 9999px;
-  background: color-mix(in srgb, var(--bg-primary) 62%, transparent);
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  transition: max-width var(--duration-hover) var(--ease-reveal),
+    background-color var(--duration-hover) var(--ease-reveal),
+    border-color var(--duration-hover) var(--ease-reveal),
+    box-shadow var(--duration-hover) var(--ease-reveal);
+}
+
+.nav--scrolled {
+  max-width: 920px;
+  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  border-color: var(--border);
+  box-shadow: 0 8px 30px rgba(0, 1, 21, 0.12);
 }
 
-.landing-nav__inner {
-  padding: 14px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.landing-main {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 180px 24px 0;
-}
+/* Full-bleed dark footer (same breakout technique as .landing__hero) —
+   deliberately heavier than the rest of the light page, distinguishing
+   it as the page's closing section the way a conventional product
+   site's footer does. */
 
 .landing-footer {
-  margin-top: 80px;
-  background: color-mix(in srgb, var(--bg-primary) 62%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border);
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: 120px;
+  background: var(--ink);
+  color: var(--mist);
+}
+
+.landing-footer .nav__brand {
+  color: var(--mist);
 }
 
 .landing-footer__inner {
@@ -422,7 +417,7 @@ button {
 }
 
 .landing-footer__brand {
-  max-width: 280px;
+  max-width: 320px;
 }
 
 .landing-footer__grid {
@@ -431,6 +426,10 @@ button {
   gap: 32px;
   flex: 1;
   max-width: 560px;
+}
+
+.landing-footer__column .label {
+  color: color-mix(in srgb, var(--mist) 56%, transparent);
 }
 
 .landing-footer__column nav {
@@ -443,18 +442,18 @@ button {
 .landing-footer__link {
   display: block;
   font-size: var(--text-small);
-  color: var(--text-secondary);
+  color: color-mix(in srgb, var(--mist) 72%, transparent);
   transition: color var(--duration-hover) var(--ease-reveal);
 }
 
 .landing-footer__link:hover {
-  color: var(--text-primary);
+  color: var(--mist);
 }
 
 .landing-footer__bottom {
   margin-top: 56px;
   padding-top: 24px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid color-mix(in srgb, var(--mist) 16%, transparent);
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -462,261 +461,21 @@ button {
 }
 
 .landing-footer__meta {
-  color: var(--text-muted);
+  color: color-mix(in srgb, var(--mist) 56%, transparent);
   font-size: var(--text-label);
-}
-
-.landing-hero {
-  position: relative;
-  min-height: 460px;
-}
-
-.landing-hero__content {
-  position: relative;
-  z-index: 1;
-}
-
-.landing-backdrop {
-  position: absolute;
-  inset: -40px;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-/* The backdrop's dozen-odd elements are positioned for a wide aspect
-   ratio; checked at 375px and they collide with the headline and read
-   as clutter rather than texture. It's pure decoration (aria-hidden,
-   no pointer-events) - hiding it below tablet width is a legitimate
-   choice, not a workaround, since mobile has no room for it to earn
-   its keep. */
-@media (max-width: 640px) {
-  .landing-backdrop {
-    display: none;
-  }
-
-  .landing-hero {
-    min-height: 0;
-  }
-}
-
-.landing-backdrop__ghost {
-  position: absolute;
-  top: -0.22em;
-  left: -0.02em;
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 11rem;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-  opacity: 0.05;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.landing-backdrop__block {
-  position: absolute;
-  border-radius: var(--radius-md);
-}
-
-.landing-backdrop__block--a {
-  top: 20px;
-  right: -40px;
-  width: 260px;
-  height: 180px;
-  background: color-mix(in srgb, var(--signal) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--signal) 28%, transparent);
-}
-
-.landing-backdrop__block--b {
-  bottom: 40px;
-  right: 180px;
-  width: 120px;
-  height: 120px;
-  background: color-mix(in srgb, var(--electric) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--electric) 26%, transparent);
-}
-
-.landing-backdrop__hatch {
-  position: absolute;
-  top: 70px;
-  right: 60px;
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--border-strong);
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--border-strong),
-    var(--border-strong) 1px,
-    transparent 1px,
-    transparent 7px
-  );
-}
-
-.landing-backdrop__dot {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--text-muted);
-}
-
-.landing-backdrop__tick {
-  position: absolute;
-  width: 16px;
-  height: 1px;
-  background: var(--border-strong);
-}
-
-.landing-backdrop__tag {
-  position: absolute;
-  font-size: var(--text-label);
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  opacity: 0.7;
-}
-
-.landing-backdrop__ghost-numeral {
-  position: absolute;
-  bottom: -0.18em;
-  right: 2%;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 9rem;
-  line-height: 1;
-  color: var(--signal);
-  opacity: 0.09;
-  user-select: none;
-}
-
-.landing-backdrop__ribbon {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 64px;
-  height: 64px;
-  opacity: 0.5;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--electric) 0,
-    var(--electric) 6px,
-    transparent 6px,
-    transparent 14px
-  );
-  mask-image: linear-gradient(to bottom left, black 0%, black 40%, transparent 70%);
-  -webkit-mask-image: linear-gradient(to bottom left, black 0%, black 40%, transparent 70%);
-}
-
-.landing-backdrop__rings {
-  position: absolute;
-  bottom: 6%;
-  left: 1%;
-  width: 28px;
-  height: 18px;
-  border-radius: 9999px;
-}
-
-.landing-backdrop__rings::before,
-.landing-backdrop__rings::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border-strong);
-}
-
-.landing-backdrop__rings::before {
-  left: 0;
-}
-
-.landing-backdrop__rings::after {
-  left: 10px;
-}
-
-.landing-backdrop__heatmap {
-  position: absolute;
-  top: 48%;
-  right: 4%;
-  display: grid;
-  grid-template-columns: repeat(4, 10px);
-  grid-template-rows: repeat(3, 10px);
-  gap: 3px;
-}
-
-.landing-backdrop__cell {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-}
-
-.landing-backdrop__cell--signal {
-  background: color-mix(in srgb, var(--signal) 55%, transparent);
-}
-
-.landing-backdrop__cell--electric {
-  background: color-mix(in srgb, var(--electric) 45%, transparent);
-}
-
-.landing-backdrop__cell--muted {
-  background: var(--border);
-}
-
-.landing-backdrop__barcode {
-  position: absolute;
-  bottom: 8%;
-  right: 2%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.landing-backdrop__bar {
-  height: 3px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--signal) 35%, transparent);
-}
-
-.landing-backdrop__cubes {
-  position: absolute;
-  bottom: 2%;
-  left: 14%;
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.landing-backdrop__cube-svg {
-  stroke: var(--border-strong);
-  stroke-width: 1.5;
-  opacity: 0.55;
-}
-
-.landing-backdrop__scatter-dot {
-  position: absolute;
-  border-radius: 50%;
-}
-
-.landing-backdrop__scatter-dot--signal {
-  background: color-mix(in srgb, var(--signal) 40%, transparent);
-}
-
-.landing-backdrop__scatter-dot--electric {
-  background: color-mix(in srgb, var(--electric) 40%, transparent);
 }
 
 .nav__inner {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 20px 24px;
+  padding: 18px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  transition: padding var(--duration-hover) var(--ease-reveal);
+}
+
+.nav--scrolled .nav__inner {
+  padding: 10px 24px;
 }
 
 .nav__brand {
@@ -731,6 +490,15 @@ button {
   display: flex;
   gap: 28px;
   flex: 1;
+}
+
+/* No hamburger menu for two links — below this width they're dropped
+   rather than causing the pill nav to overflow; both remain reachable
+   by scrolling the page or from the footer. */
+@media (max-width: 640px) {
+  .nav__links {
+    display: none;
+  }
 }
 
 .nav__link {
@@ -1022,53 +790,44 @@ button {
 
 /* Landing page hero (ui.md §4.6) */
 
+/* .app-main centers content at a 1040px/24px-padding gutter (x=144 at a
+   1280px viewport) — correct for ordinary app pages, wrong for a hero
+   meant to run edge to edge. .landing cancels .app-main's top padding
+   (so the hero starts at the literal top of the viewport, under the
+   transparent nav) and .landing__hero breaks out of the width
+   constraint entirely; .landing__hero-content then re-applies the same
+   gutter .app-main uses, so the hero's text aligns with every other
+   section on the page despite the hero itself being full-bleed. */
+
+.landing {
+  margin-top: -48px;
+  margin-bottom: -120px;
+}
+
 .landing__hero {
   position: relative;
-  min-height: calc(100vh - 73px);
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  min-height: 100vh;
   display: flex;
   align-items: center;
   overflow: hidden;
-}
-
-.landing__particles {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
+  padding-top: 96px;
 }
 
 .landing__hero-content {
   position: relative;
   z-index: 1;
-  max-width: 760px;
+  max-width: 1040px;
   padding: 0 24px;
   margin: 0 auto;
   width: 100%;
 }
 
-@media (min-width: 960px) {
-  .landing__hero-content {
-    margin: 0;
-    padding-left: 96px;
-  }
-}
-
 .landing__headline {
   color: var(--text-primary);
-}
-
-.landing__reveal {
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity var(--duration-hover) var(--ease-reveal),
-    transform var(--duration-hover) var(--ease-reveal);
-}
-
-.landing__reveal--shown {
-  opacity: 1;
-  transform: translateY(0);
+  max-width: 18ch;
 }
 
 .landing__subhead {
@@ -1080,6 +839,62 @@ button {
 
 .landing__cta {
   margin-top: 32px;
+}
+
+/* How it works */
+
+.landing__how {
+  max-width: 1040px;
+  margin: 120px auto 0;
+  padding: 0 24px;
+}
+
+.landing__steps {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 40px;
+}
+
+.landing__step {
+  position: relative;
+  padding-top: 8px;
+}
+
+.landing__step-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--accent);
+}
+
+.landing__step-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.landing__step-number {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-h3);
+  color: var(--border-strong);
+}
+
+.landing__step-title {
+  margin-top: 20px;
+}
+
+.landing__step-body {
+  margin-top: 10px;
+  color: var(--text-secondary);
+  font-size: var(--text-small);
 }
 
 /* Typewriter (ui.md §4.6 item 2) — the text node never changes; only a
