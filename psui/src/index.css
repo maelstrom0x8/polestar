@@ -1,4 +1,4 @@
-/* Titillium Web — local, all weights present in src/assets/fonts/Titillium_Web */
+/* Titillium Web, local, all weights present in src/assets/fonts/Titillium_Web */
 @font-face {
   font-family: "Titillium Web";
   src: url("./assets/fonts/Titillium_Web/TitilliumWeb-ExtraLight.ttf") format("truetype");
@@ -80,65 +80,68 @@
 :root {
   color-scheme: light;
 
-  /* Brand core — from the PRA/Predictive Analytics reference system
-     (docs/ui.md §4.5). Electric and Signal are the reference's own
-     authoritative swatch values ("Golden Fuse" / "Electric Blue"),
-     confirmed against its style-guide page, not sampled. Signal-deep
-     and Ink are sampled from clean flat-color regions of the reference
-     mockups (no swatch given for either). Mist intentionally does NOT
-     match the reference's "Powder Mist" swatch (#EBEBEB, neutral gray)
-     — kept as this warmer cream pending the decision in ui.md §4.5.1,
-     since every contrast-audited token below is measured against it. */
+  /* Palette. Golden Fuse, Electric Blue and Powder Mist are the PRA
+     reference's own swatch values; the rest were pixel-sampled from its
+     mockups. */
   --electric: #f3fb09;
+  --electric-shade: #dde508;
   --signal: #003ffe;
-  --signal-deep: #0131c1;
-  --mist: #f6f3ee;
+  --signal-deep: #0031c1;
+  --signal-tint: #ebf0ff;
+  --navy: #000066;
   --ink: #000115;
+  --paper: #f5f2ed;
+  --white: #ffffff;
+  --powder-mist: #ebebeb;
+  --danger: #b3261e;
+  --mist: var(--paper);
 
-  --bg-primary: var(--mist);
+  --bg-primary: var(--paper);
   --bg-secondary: #ece7dd;
 
+  /* Solid values, each measured (sRGB relative luminance) against white,
+     paper and Powder Mist: text-secondary >= 7.74:1, text-muted >= 4.65:1,
+     border-strong >= 3.37:1. Re-measure on all three before changing any. */
   --text-primary: var(--ink);
-  --text-secondary: rgba(0, 1, 21, 0.68);
-  /* 0.56, not the 0.42 this started at — measured at 2.96:1 against
-     --bg-primary, under the 4.5:1 WCAG AA floor for normal text. 0.56
-     measures 4.72:1. Re-derive this (python, sRGB relative-luminance
-     formula) before changing the alpha, don't retune by eye. */
-  --text-muted: rgba(0, 1, 21, 0.56);
+  --text-secondary: #45465a;
+  --text-muted: #66677a;
   --text-on-electric: var(--ink);
-  --text-on-signal: var(--mist);
+  --text-on-signal: var(--white);
   --text-on-mist: var(--ink);
 
-  /* Electric yellow fails contrast as foreground text no matter how
-     it's used — not fixable by tuning opacity. Signal blue carries the
-     "this is the active/highlighted one" role instead; --electric
-     stays reserved for use as a fill (e.g. .btn-primary's background),
-     where contrast isn't a problem. */
+  /* Electric fails as text on light surfaces; it passes on signal (5.92:1)
+     and navy (15.62:1), and is only used as text there. */
   --accent: var(--signal);
 
-  --border: rgba(0, 1, 21, 0.12);
-  /* 0.46, not 0.28 this started at — 0.28 measured 1.96:1 against
-     --bg-primary, under the 3:1 WCAG 1.4.11 floor for a meaningful UI
-     boundary (this token draws input/button/card borders, not just
-     decorative dividers — --border above is for those). 0.46 measures
-     3.36:1. */
-  --border-strong: rgba(0, 1, 21, 0.46);
+  --border: #dedcd7;
+  --border-strong: #7d7e8a;
 
   --radius-sm: 2px;
   --radius-md: 4px;
   --radius-lg: 8px;
+  --radius-control: 8px;
+  --radius-tile: 12px;
+  --radius-card: 16px;
+  --radius-pill: 9999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
 
   --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-hover: 0.4s;
 
   --font-display: "Titillium Web", system-ui, sans-serif;
   --font-body: "Titillium Web", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Scale pulled directly from trezu.org's computed styles (1440px desktop,
-     780px mobile breakpoint), then raised further — hero and major-heading
-     tiers fluid between two measured-then-scaled-up endpoints; smaller
-     tiers measured only at desktop and kept fixed. Only the size steps are
-     borrowed from Trezu, not its font, weights, or letter-spacing. */
+  /* Landing (marketing) scale. Steps borrowed from trezu.org's computed
+     styles, then enlarged. */
   --text-display: clamp(3rem, 2.1rem + 4.5vw, 5.75rem);
   --text-h1: clamp(2.25rem, 1.5rem + 3.5vw, 4rem);
   --text-h2: 3rem;
@@ -146,6 +149,14 @@
   --text-body: 1.5rem;
   --text-small: 1.125rem;
   --text-label: 1rem;
+
+  /* App (product) scale: denser, for pages people work in. */
+  --app-figure: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  --app-title: 2rem;
+  --app-h2: 1.25rem;
+  --app-body: 1rem;
+  --app-small: 0.875rem;
+  --app-label: 0.75rem;
 }
 
 * {
@@ -1021,7 +1032,7 @@ button {
 }
 
 .sign-in-page__account {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   word-break: break-all;
 }
 

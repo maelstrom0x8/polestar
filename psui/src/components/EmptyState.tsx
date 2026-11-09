@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import { Link } from "react-router-dom";
 
 interface EmptyStateProps {
   Icon: ComponentType<{ "aria-hidden"?: boolean }>;
@@ -12,11 +13,11 @@ export function EmptyState({ Icon, message, action }: EmptyStateProps) {
       <Icon aria-hidden />
       <p className="empty-state__message">{message}</p>
       {action && "to" in action ? (
-        <a href={action.to} className="btn btn-secondary">
+        <Link to={action.to} className="app-btn app-btn--secondary">
           {action.label}
-        </a>
+        </Link>
       ) : action ? (
-        <button type="button" className="btn btn-secondary" onClick={action.onClick}>
+        <button type="button" className="app-btn app-btn--secondary" onClick={action.onClick}>
           {action.label}
         </button>
       ) : null}

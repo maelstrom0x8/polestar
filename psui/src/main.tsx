@@ -4,8 +4,12 @@ import { BrowserRouter } from "react-router-dom";
 import { MotionConfig } from "motion/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import "@fontsource/ibm-plex-mono/latin-400.css";
+import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./index.css";
+import "./styles/app.css";
 import App from "./App";
+import { ContractPanicError } from "./lib/near";
 import { WalletProvider } from "./lib/wallet";
 
 const rootElement = document.getElementById("root");
@@ -23,7 +27,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 10_000,
-      retry: 1,
+      // A contract panic is deterministic; retrying it only delays the answer.
+      retry: (failures, error) => !(error instanceof ContractPanicError) && failures < 1,
     },
   },
 });

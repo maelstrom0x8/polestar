@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { LandingPage } from "./pages/LandingPage";
+import { RoundPage } from "./pages/RoundPage";
 import { RoundsPage } from "./pages/RoundsPage";
 import { SignInPage } from "./pages/SignInPage";
 
@@ -15,6 +16,7 @@ export default function App() {
       <Route element={<AppShell />}>
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/rounds" element={<RoundsPage />} />
+        <Route path="/rounds/:roundId" element={<RoundPage />} />
         <Route path="*" element={null} />
       </Route>
     </Routes>

@@ -1,4 +1,4 @@
-import type { NearConnector, WalletManifest } from "@hot-labs/near-connect";
+import type { NearConnector, NearWalletBase, WalletManifest } from "@hot-labs/near-connect";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { RPC_URL } from "./near";
 import { WALLET_MANIFEST } from "./walletManifest";
@@ -24,6 +24,32 @@ function getConnector(): Promise<NearConnector> {
       }),
   );
   return connectorPromise;
+}
+
+/** The wallet that signs writes; rejects when nobody is signed in. */
+export async function getConnectedWallet(): Promise<NearWalletBase> {
+  const connector = await getConnector();
+  const { wallet } = await connector.getConnectedWallet();
+  return wallet;
+}
+
+const MOCK_ACCOUNT_KEY = "psui:mock-account";
+
+function readMockAccount(): string | null {
+  try {
+    return sessionStorage.getItem(MOCK_ACCOUNT_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeMockAccount(accountId: string | null) {
+  try {
+    if (accountId) sessionStorage.setItem(MOCK_ACCOUNT_KEY, accountId);
+    else sessionStorage.removeItem(MOCK_ACCOUNT_KEY);
+  } catch {
+    // Mock sessions are a convenience; losing one only signs the viewer out.
+  }
 }
 
 function readLastWallet(): string | null {
@@ -55,7 +81,7 @@ interface WalletContextValue {
 
 const WalletContext = createContext<WalletContextValue | null>(null);
 
-export function WalletProvider({ children }: { children: ReactNode }) {
+function LiveWalletProvider({ children }: { children: ReactNode }) {
   const [connector, setConnector] = useState<NearConnector | null>(null);
   const [status, setStatus] = useState<WalletStatus>("loading");
   const [accountId, setAccountId] = useState<string | null>(null);
@@ -126,6 +152,43 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   );
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
+}
+
+/**
+ * Mock mode: the same wallet list, but choosing any wallet signs in as the
+ * sample account instantly, and writes go to the simulated wallet.
+ */
+function MockWalletProvider({ children }: { children: ReactNode }) {
+  const [accountId, setAccountId] = useState<string | null>(readMockAccount);
+  const [lastWalletId, setLastWalletId] = useState<string | null>(readLastWallet);
+
+  const value = useMemo<WalletContextValue>(
+    () => ({
+      status: "ready",
+      accountId,
+      wallets: WALLET_MANIFEST.wallets,
+      lastWalletId,
+      signIn: async (walletId: string) => {
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        const { MOCK_ACCOUNT } = await import("./mock/fixtures");
+        writeMockAccount(MOCK_ACCOUNT);
+        writeLastWallet(walletId);
+        setLastWalletId(walletId);
+        setAccountId(MOCK_ACCOUNT);
+      },
+      signOut: async () => {
+        writeMockAccount(null);
+        setAccountId(null);
+      },
+    }),
+    [accountId, lastWalletId],
+  );
+
+  return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
+}
+
+export function WalletProvider({ children }: { children: ReactNode }) {
+  return __MOCK_DATA__ ? <MockWalletProvider>{children}</MockWalletProvider> : <LiveWalletProvider>{children}</LiveWalletProvider>;
 }
 
 export function useWallet(): WalletContextValue {

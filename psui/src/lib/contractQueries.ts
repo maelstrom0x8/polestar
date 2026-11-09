@@ -9,7 +9,7 @@ import type {
   Round,
   RoundPhase,
 } from "../types/domain";
-import { viewFunction } from "./near";
+import { ContractPanicError, viewFunction } from "./near";
 
 // Raw wire shapes — field names and number-vs-string split exactly as the
 // contract's own JSON serializer sends them (snake_case; ids/counts/block
@@ -205,13 +205,8 @@ async function fetchRound(id: string): Promise<Round | null> {
 }
 
 /**
- * ui.md §5.2/§11 G1: the rounds list ranges 0..get_round_count() over
- * get_round. The count is dynamic, so this can't be N calls to
- * useRound — useQueries is the react-query-idiomatic way to run a
- * dynamic-length batch of queries. Shares the same ["round", id] query
- * key useRound itself uses, so a later round-detail page's useRound
- * call for an id already fetched here hits a warm cache, not a
- * redundant request.
+ * Every round, 0..get_round_count(). Shares the ["round", id] key with
+ * useRound so a detail page opened from the list hits a warm cache.
  */
 export function useAllRounds() {
   const countQuery = useRoundCount();
@@ -226,17 +221,24 @@ export function useAllRounds() {
     })),
   });
 
+  // A round the contract panics on (left over from an earlier contract
+  // version it can no longer deserialize) is "unreadable", reported once
+  // under the list. A transport failure is a real network error.
+  const unreadableIds = ids.filter((_, i) => roundQueries[i]?.error instanceof ContractPanicError);
+  const failedIds = ids.filter((_, i) => {
+    const error = roundQueries[i]?.error;
+    return error && !(error instanceof ContractPanicError);
+  });
+
   return {
     isLoading: countQuery.isLoading || (countQuery.isSuccess && roundQueries.some((q) => q.isLoading)),
-    // Only a failure to learn how many rounds even exist is a page-level
-    // error. A single round failing to load — e.g. one left over from
-    // before a contract redeploy, in a storage shape the current
-    // contract can no longer deserialize, a real and already-known
-    // situation, not a hypothetical — just means that round is left out
-    // of the list, not that the whole list is unavailable. Caught by
-    // actually running this against the live deployment's real,
-    // imperfect round history, not assumed from a clean dataset.
     isError: countQuery.isError,
     rounds: roundQueries.map((q) => q.data).filter((r): r is Round => r != null),
+    unreadableIds,
+    failedIds,
+    refetch: () => {
+      void countQuery.refetch();
+      roundQueries.forEach((q) => q.isError && !(q.error instanceof ContractPanicError) && void q.refetch());
+    },
   };
 }
