@@ -7,8 +7,6 @@ import { PhaseBadge } from "./PhaseBadge";
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 export function RoundCard({ round }: { round: Round }) {
-  const fundedCount = round.projects.filter((p) => p.status === "Funded").length;
-
   return (
     <Link to={`/rounds/${round.id}`} className="round-card-link">
       <motion.div
@@ -30,7 +28,7 @@ export function RoundCard({ round }: { round: Round }) {
         </div>
         <div className="round-card__stats">
           <div>
-            <span className="round-card__stat-value">{formatNear(round.budget)}</span>
+            <span className="round-card__stat-value">{formatNear(round.config.budget)}</span>
             <span className="round-card__stat-label">Budget</span>
           </div>
           <div>
@@ -38,10 +36,8 @@ export function RoundCard({ round }: { round: Round }) {
             <span className="round-card__stat-label">Remaining</span>
           </div>
           <div>
-            <span className="round-card__stat-value">
-              {fundedCount}/{round.projects.length}
-            </span>
-            <span className="round-card__stat-label">Funded</span>
+            <span className="round-card__stat-value">{round.projectCount}</span>
+            <span className="round-card__stat-label">Projects</span>
           </div>
           <div>
             <span className="round-card__stat-value">{round.ballotCount}</span>

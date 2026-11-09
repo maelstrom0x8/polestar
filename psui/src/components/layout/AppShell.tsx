@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
-import { Nav } from "./Nav";
+import { AppHeader } from "./AppHeader";
 
 export function AppShell() {
   return (
     <>
-      <Nav />
+      <AppHeader />
       <main className="app-main">
         <Outlet />
       </main>

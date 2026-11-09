@@ -225,6 +225,7 @@ button {
   font-weight: 600;
   letter-spacing: 0.02em;
   border: 1px solid transparent;
+  white-space: nowrap;
   transition: all var(--duration-hover) var(--ease-reveal);
 }
 
@@ -335,8 +336,70 @@ button {
 
 /* Layout */
 
+.app-header {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-header__actions .btn {
+  border-radius: 9999px;
+  padding: 8px 16px;
+}
+
+.account-button__id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 500;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 24ch;
+}
+
+@media (max-width: 640px) {
+  .app-header .app-header__brand-mark {
+    width: 140px;
+    height: auto;
+  }
+
+  .app-header .account-button__id {
+    max-width: 9ch;
+  }
+}
+
+/* Capped so a long (e.g. implicit, 64-char) id can't push the actions
+   into the centred links; the title attribute carries the whole id. */
+.nav__actions .account-button {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.nav__actions .account-button__id {
+  max-width: 16ch;
+}
+
+@media (max-width: 640px) {
+  .nav__actions .account-button__id {
+    max-width: 9ch;
+  }
+}
+
+.app-header__brand-mark {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
 .app-main {
-  max-width: 1040px;
+  /* ui.md §8: 960px, task-shaped not dashboard-shaped — this governs
+     every app page except the landing page, which sets its own wider
+     editorial content widths independently (and isn't affected by
+     this value changing, since it breaks out of .app-main entirely). */
+  max-width: 960px;
   margin: 0 auto;
   padding: 48px 24px 120px;
 }
@@ -360,12 +423,37 @@ button {
   justify-content: center;
   padding: 20px 24px;
   pointer-events: none;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--duration-hover) var(--ease-reveal),
+    transform var(--duration-hover) var(--ease-reveal);
+}
+
+/* The nav is a fixed overlay with no flow height, so it never
+   naturally scrolls away — without this it stays pinned over the
+   footer once you reach the bottom of the page. */
+.nav-wrap--hidden {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+.nav-wrap--hidden .nav {
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .nav-wrap {
+    padding: 12px;
+  }
 }
 
 .nav {
   pointer-events: auto;
   width: 100%;
-  max-width: 1200px;
+  /* Content (wordmark + 2 links + 2 buttons) measures ~700px; 1200px
+     left the grid's outer 1fr columns stretching far past their
+     content, reading as a mostly-empty pill rather than a nav. */
+  max-width: 880px;
   border-radius: 9999px;
   background: transparent;
   border: 1px solid transparent;
@@ -377,7 +465,7 @@ button {
 }
 
 .nav--scrolled {
-  max-width: 920px;
+  max-width: 760px;
   background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -418,6 +506,14 @@ button {
 
 .landing-footer__brand {
   max-width: 320px;
+}
+
+.landing-footer__brand-mark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: var(--mist);
 }
 
 .landing-footer__grid {
@@ -465,37 +561,79 @@ button {
   font-size: var(--text-label);
 }
 
+/* Three true columns — brand left, links centered in the bar as a
+   whole (not just in the leftover space), actions right — via equal
+   1fr outer columns rather than flex's space-between, which only
+   centers the links within whatever room is left after the brand. */
 .nav__inner {
-  padding: 18px 32px;
-  display: flex;
+  display: grid;
+  /* minmax(0, 1fr), not bare 1fr — the wordmark SVG's own aspect ratio
+     makes it wider than it looks (~212px at 22px tall), and a bare 1fr
+     column won't shrink below its content's width, which was forcing
+     the opposite actions column down to almost nothing on narrow
+     viewports and wrapping "Get started" inside its own pill. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 24px;
+  padding: 14px 32px;
   transition: padding var(--duration-hover) var(--ease-reveal);
 }
 
 .nav--scrolled .nav__inner {
-  padding: 10px 24px;
+  padding: 8px 24px;
+}
+
+@media (max-width: 640px) {
+  .nav__inner {
+    padding: 12px 18px;
+    gap: 12px;
+  }
 }
 
 .nav__brand {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.1rem;
-  letter-spacing: 0.04em;
-  color: var(--text-primary);
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  /* Capped on width, not just height — at 22px tall this wordmark's
+     own aspect ratio (~9.7:1) makes it ~212px wide, which left no room
+     for the actions column on a 390px viewport (it was clipping the
+     logo instead of wrapping the button, same shortage either way). */
+  min-width: 0;
+}
+
+.nav__brand-mark {
+  height: 22px;
+  width: auto;
+  max-width: 100%;
+  display: block;
+}
+
+.nav--scrolled .nav__brand-mark {
+  height: 18px;
+}
+
+@media (max-width: 640px) {
+  .nav__brand {
+    max-width: 140px;
+  }
+
+  .nav__brand-mark {
+    height: auto;
+    width: 100%;
+  }
 }
 
 .nav__links {
+  justify-self: center;
   display: flex;
   gap: 28px;
-  flex: 1;
 }
 
 /* No hamburger menu for two links — below this width they're dropped
-   rather than causing the pill nav to overflow; both remain reachable
-   by scrolling the page or from the footer. */
-@media (max-width: 640px) {
+   rather than colliding with the actions (measured: they already
+   overlapped from ~800px down); "Get started" still reaches Rounds and
+   How it works is the next section down. */
+@media (max-width: 860px) {
   .nav__links {
     display: none;
   }
@@ -517,19 +655,24 @@ button {
 }
 
 .nav__actions {
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.nav__actions .btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.nav__actions .btn {
+  border-radius: 9999px;
 }
 
-.nav__actions .btn:disabled:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
+/* Same reasoning as .nav__links below 640px — the secondary action is
+   the one to drop, not the primary CTA; both buttons together with the
+   wordmark overflowed the pill at this width. Sign-in stays reachable
+   from every app page's header. */
+@media (max-width: 640px) {
+  .nav__actions .btn-secondary:not(.account-button) {
+    display: none;
+  }
 }
 
 /* Forms */
@@ -681,8 +824,14 @@ button {
 
 .phase-badge--allocation {
   color: var(--text-on-signal);
-  background: var(--signal);
-  border-color: var(--signal);
+  background: var(--signal-deep);
+  border-color: var(--signal-deep);
+}
+
+.phase-badge--settlement {
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border-color: var(--border);
 }
 
 /* Projects */
@@ -788,6 +937,232 @@ button {
   color: var(--text-muted);
 }
 
+/* Rounds list (/rounds, ui.md §5.2/§6) */
+
+.rounds-page__subhead {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+}
+
+.rounds-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.chip {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all var(--duration-hover) var(--ease-reveal);
+}
+
+.chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.chip--active {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* .chip:hover's color rule otherwise wins on specificity (a class +
+   pseudo-class beats a single class) regardless of source order,
+   turning the active chip's light-on-dark text dark-on-dark —
+   invisible — the moment it's hovered. Caught by an actual screenshot
+   taken right after a Playwright click, which leaves the cursor
+   sitting on the clicked element. */
+.chip--active:hover {
+  color: var(--bg-primary);
+}
+
+.round-card--skeleton {
+  height: 132px;
+  background: var(--bg-secondary);
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .round-card--skeleton {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Sign in (/sign-in, ui.md §5.1) */
+
+.sign-in-page {
+  max-width: 560px;
+}
+
+.sign-in-page__lede {
+  margin-top: 12px;
+  font-size: var(--text-body);
+  color: var(--text-primary);
+}
+
+.sign-in-page__account {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}
+
+.sign-in-page__note {
+  margin-top: 12px;
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+}
+
+.sign-in-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.wallet-group {
+  margin-top: 32px;
+}
+
+.wallet-group__title {
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.wallet-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wallet-option {
+  width: 100%;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font: inherit;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color var(--duration-hover) var(--ease-reveal);
+}
+
+.wallet-option:hover:not(:disabled) {
+  border-color: var(--signal);
+}
+
+.wallet-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.wallet-option[aria-busy="true"] {
+  opacity: 1;
+  border-color: var(--signal);
+}
+
+.wallet-option__icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+}
+
+.wallet-option__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wallet-option__name {
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+
+.wallet-option__tag {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  background: var(--bg-secondary);
+  color: var(--signal-deep);
+  font-size: var(--text-label);
+  font-weight: 600;
+}
+
+.wallet-option__detail {
+  font-size: var(--text-label);
+  color: var(--text-secondary);
+}
+
+.sign-in-page__notice {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-small);
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.sign-in-page__notice--error {
+  border-color: var(--border-strong);
+  border-left: 3px solid var(--signal-deep);
+}
+
+/* EmptyState (ui.md §7) */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 64px 24px;
+  color: var(--text-muted);
+}
+
+.empty-state svg {
+  width: 32px;
+  height: 32px;
+}
+
+.empty-state__message {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  max-width: 40ch;
+}
+
 /* Landing page hero (ui.md §4.6) */
 
 /* .app-main centers content at a 1040px/24px-padding gutter (x=144 at a
@@ -809,11 +1184,15 @@ button {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  min-height: 100vh;
   display: flex;
   align-items: center;
   overflow: hidden;
-  padding-top: 96px;
+  /* Sized to its content, not forced to fill the viewport — this hero
+     has no product screenshot or visual to fill a full-height frame
+     with, so min-height: 100vh left a real empty gap below the CTA
+     before "How it works" even started (measured: ~170px of nothing
+     at a 900px viewport). */
+  padding: 160px 0 96px;
 }
 
 .landing__hero-content {
@@ -828,6 +1207,247 @@ button {
 .landing__headline {
   color: var(--text-primary);
   max-width: 18ch;
+  position: relative;
+  z-index: 1;
+}
+
+/* Restored from the pre-redesign hero (git 7644ce8) — accidentally
+   deleted as "unused stub cruft" during today's cleanup pass without
+   checking it against imports/'s PRA brand reference first. It isn't
+   decoration picked for its own sake: the ghost wordmark, hatch
+   swatch, heatmap grid, barcode bars, and isometric cubes are a direct
+   translation of that reference's own visual language (registration
+   marks, data-forward motifs, restrained low-opacity texture) into
+   Polestar's tokens. Re-positioned for the current full-bleed hero
+   (absolute within .landing__hero, which is already position:
+   relative) rather than the smaller boxed hero it was first built
+   for — sizes may need a pass once seen against the larger canvas. */
+
+.landing-backdrop {
+  position: absolute;
+  /* Top offset clears the fixed, transparent nav — its ghost wordmark
+     and top-right block would otherwise sit directly behind/across the
+     real nav content, since both start at the literal top of the
+     now-full-bleed hero. */
+  inset: 130px 0 0 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .landing-backdrop {
+    display: none;
+  }
+}
+
+.landing-backdrop__ghost {
+  position: absolute;
+  top: -0.22em;
+  left: -0.02em;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 11rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  opacity: 0.05;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.landing-backdrop__block {
+  position: absolute;
+  border-radius: var(--radius-md);
+}
+
+.landing-backdrop__block--a {
+  top: 20px;
+  right: -40px;
+  width: 260px;
+  height: 180px;
+  background: color-mix(in srgb, var(--signal) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--signal) 28%, transparent);
+}
+
+.landing-backdrop__block--b {
+  bottom: 40px;
+  right: 180px;
+  width: 120px;
+  height: 120px;
+  background: color-mix(in srgb, var(--electric) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--electric) 26%, transparent);
+}
+
+.landing-backdrop__hatch {
+  position: absolute;
+  top: 70px;
+  right: 60px;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border-strong);
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--border-strong),
+    var(--border-strong) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+}
+
+.landing-backdrop__dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.landing-backdrop__tick {
+  position: absolute;
+  width: 16px;
+  height: 1px;
+  background: var(--border-strong);
+}
+
+.landing-backdrop__tag {
+  position: absolute;
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.landing-backdrop__ghost-numeral {
+  position: absolute;
+  bottom: -0.18em;
+  right: 2%;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 9rem;
+  line-height: 1;
+  color: var(--signal);
+  opacity: 0.09;
+  user-select: none;
+}
+
+.landing-backdrop__ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 64px;
+  height: 64px;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--electric) 0,
+    var(--electric) 6px,
+    transparent 6px,
+    transparent 14px
+  );
+  mask-image: linear-gradient(to bottom left, black 0%, black 40%, transparent 70%);
+  -webkit-mask-image: linear-gradient(to bottom left, black 0%, black 40%, transparent 70%);
+}
+
+.landing-backdrop__rings {
+  position: absolute;
+  bottom: 6%;
+  left: 1%;
+  width: 28px;
+  height: 18px;
+  border-radius: 9999px;
+}
+
+.landing-backdrop__rings::before,
+.landing-backdrop__rings::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+}
+
+.landing-backdrop__rings::before {
+  left: 0;
+}
+
+.landing-backdrop__rings::after {
+  left: 10px;
+}
+
+.landing-backdrop__heatmap {
+  position: absolute;
+  top: 48%;
+  right: 4%;
+  display: grid;
+  grid-template-columns: repeat(4, 10px);
+  grid-template-rows: repeat(3, 10px);
+  gap: 3px;
+}
+
+.landing-backdrop__cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.landing-backdrop__cell--signal {
+  background: color-mix(in srgb, var(--signal) 55%, transparent);
+}
+
+.landing-backdrop__cell--electric {
+  background: color-mix(in srgb, var(--electric) 45%, transparent);
+}
+
+.landing-backdrop__cell--muted {
+  background: var(--border);
+}
+
+.landing-backdrop__barcode {
+  position: absolute;
+  bottom: 8%;
+  right: 2%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.landing-backdrop__bar {
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--signal) 35%, transparent);
+}
+
+.landing-backdrop__cubes {
+  position: absolute;
+  bottom: 2%;
+  left: 14%;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.landing-backdrop__cube-svg {
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+  opacity: 0.55;
+}
+
+.landing-backdrop__scatter-dot {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.landing-backdrop__scatter-dot--signal {
+  background: color-mix(in srgb, var(--signal) 40%, transparent);
+}
+
+.landing-backdrop__scatter-dot--electric {
+  background: color-mix(in srgb, var(--electric) 40%, transparent);
 }
 
 .landing__subhead {
@@ -847,6 +1467,42 @@ button {
   max-width: 1040px;
   margin: 120px auto 0;
   padding: 0 24px;
+}
+
+/* A deliberate change of rhythm from the left-aligned hero/how-it-works
+   above — centered, tinted, single statement — rather than another
+   left-aligned block that would read as more of the same. */
+
+.landing__authority {
+  margin-top: 140px;
+  background: var(--bg-secondary);
+}
+
+.landing__authority-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 96px 24px;
+  text-align: center;
+}
+
+.landing__authority-inner p {
+  margin-top: 20px;
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+}
+
+@media (max-width: 640px) {
+  .landing__how {
+    margin-top: 72px;
+  }
+
+  .landing__authority {
+    margin-top: 72px;
+  }
+
+  .landing__authority-inner {
+    padding: 64px 24px;
+  }
 }
 
 .landing__steps {

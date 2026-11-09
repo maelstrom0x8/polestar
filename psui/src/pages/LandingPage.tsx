@@ -1,6 +1,8 @@
 import { CheckCircle2, FilePlus, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { LandingBackdrop } from "../components/LandingBackdrop";
 import { LandingFooter } from "../components/layout/LandingFooter";
+import { Nav } from "../components/layout/Nav";
 
 const HEADLINE = "A DAO's treasury, split fairly by the community it funds.";
 const SUBHEAD =
@@ -27,7 +29,9 @@ const STEPS = [
 export function LandingPage() {
   return (
     <div className="landing">
+      <Nav />
       <div className="landing__hero">
+        <LandingBackdrop />
         <div className="landing__hero-content">
           <h1 className="display landing__headline">{HEADLINE}</h1>
           <p className="landing__subhead">{SUBHEAD}</p>
@@ -50,6 +54,17 @@ export function LandingPage() {
               <p className="landing__step-body">{step.body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="landing__authority">
+        <div className="landing__authority-inner">
+          <h2 className="h2">The DAO stays in control.</h2>
+          <p>
+            Community support shapes how a round's budget is shared — it doesn't replace the DAO's own
+            decisions. The DAO chooses whether to fund a round, and confirms every milestone before a
+            payment goes out.
+          </p>
         </div>
       </section>
 

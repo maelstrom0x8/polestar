@@ -14,3 +14,8 @@ export function nearToYocto(near: string): string {
   if (!Number.isFinite(value) || value < 0) return "0";
   return BigInt(Math.round(value * 1_000_000)).toString() + "0".repeat(18);
 }
+
+// Implicit accounts are 64 hex chars; named ones are usually short enough to show whole.
+export function truncateAccountId(accountId: string): string {
+  return accountId.length <= 24 ? accountId : `${accountId.slice(0, 10)}…${accountId.slice(-8)}`;
+}
