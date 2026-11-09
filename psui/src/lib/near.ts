@@ -1,5 +1,7 @@
 export const RPC_URL = import.meta.env.VITE_NEAR_RPC_URL ?? "https://test.rpc.fastnear.com";
 export const CONTRACT_ID = import.meta.env.VITE_CONTRACT_ID ?? "budgeting.polestar-dev.testnet";
+/** The SputnikDAO instance this deployment was initialized with. */
+export const DAO_ID = import.meta.env.VITE_DAO_ID ?? "dao.polestar-dev.testnet";
 
 
 /** The RPC itself failed (network, HTTP status, malformed response). */
@@ -60,7 +62,7 @@ export async function viewFunction<T>(
 ): Promise<T> {
   if (__MOCK_DATA__) {
     const { mockView } = await import("./mock/views");
-    return mockView(methodName, args) as T;
+    return mockView(methodName, args, contractId) as T;
   }
 
   const res = await fetch(RPC_URL, {

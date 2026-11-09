@@ -1,4 +1,6 @@
 import type { WalletManifest } from "@hot-labs/near-connect";
+import ethereumIcon from "../assets/wallets/ethereum.svg";
+import meteorIcon from "../assets/wallets/meteor.svg";
 
 /**
  * Entries copied verbatim from near-connect's public manifest (version 1.1.0,
@@ -187,3 +189,12 @@ export const WALLET_MANIFEST = {
 export const NEAR_WALLET_IDS = ["meteor-wallet", "intear-wallet", "near-cli"] as const;
 export const HARDWARE_WALLET_IDS = ["ledger"] as const;
 export const EVM_WALLET_IDS = ["ethereum-wallets"] as const;
+
+/**
+ * Local copies of the two icons the manifest points at third-party hosts,
+ * so showing the wallet list doesn't depend on (or ping) those hosts.
+ */
+export const LOCAL_WALLET_ICONS: Record<string, string> = {
+  "meteor-wallet": meteorIcon,
+  "ethereum-wallets": ethereumIcon,
+};

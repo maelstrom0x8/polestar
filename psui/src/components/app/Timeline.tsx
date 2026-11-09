@@ -1,7 +1,7 @@
 import { Check, X } from "lucide-react";
 import type { ReactNode } from "react";
 
-export type StepState = "done" | "current" | "working" | "upcoming" | "failed";
+export type StepState = "done" | "current" | "working" | "upcoming" | "failed" | "skipped";
 
 export interface TimelineStep {
   key: string;
@@ -16,6 +16,7 @@ const STATE_LABEL: Record<StepState, string> = {
   working: "in progress",
   upcoming: "not started",
   failed: "failed",
+  skipped: "did not happen",
 };
 
 export function Timeline({ steps, label }: { steps: TimelineStep[]; label: string }) {
@@ -29,7 +30,7 @@ export function Timeline({ steps, label }: { steps: TimelineStep[]; label: strin
         >
           <span className="timeline__marker" aria-hidden>
             {step.state === "done" && <Check strokeWidth={3} />}
-            {step.state === "failed" && <X strokeWidth={3} />}
+            {(step.state === "failed" || step.state === "skipped") && <X strokeWidth={3} />}
           </span>
           <div>
             <div className="timeline__title">

@@ -1,10 +1,11 @@
 import type { WalletManifest } from "@hot-labs/near-connect";
 import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Callout } from "../components/app/Callout";
 import { safeReturnPath } from "../lib/returnPath";
 import { useDelayedFlag } from "../lib/useDelayedFlag";
 import { useWallet } from "../lib/wallet";
-import { EVM_WALLET_IDS, HARDWARE_WALLET_IDS, NEAR_WALLET_IDS } from "../lib/walletManifest";
+import { EVM_WALLET_IDS, HARDWARE_WALLET_IDS, LOCAL_WALLET_ICONS, NEAR_WALLET_IDS } from "../lib/walletManifest";
 
 type Notice = { tone: "neutral" | "error"; text: string };
 
@@ -51,26 +52,24 @@ function WalletGroup({ title, ids, wallets, lastWalletId, pendingId, onSelect }:
   return (
     <section className="wallet-group" aria-label={title}>
       <h2 className="wallet-group__title">{title}</h2>
-      <ul className="wallet-list">
+      <ul className="option-grid">
         {members.map((wallet) => {
           const busy = pendingId === wallet.id;
           return (
             <li key={wallet.id}>
               <button
                 type="button"
-                className="wallet-option"
+                className="option-tile"
                 onClick={() => onSelect(wallet.id)}
                 disabled={pendingId !== null}
                 aria-busy={busy}
               >
-                <img src={wallet.icon} alt="" className="wallet-option__icon" />
-                <span className="wallet-option__text">
-                  <span className="wallet-option__name">{wallet.name}</span>
-                  <span className="wallet-option__detail">
-                    {busy ? "Waiting for your wallet…" : WALLET_DETAIL[wallet.id]}
-                  </span>
+                <span className="option-tile__top">
+                  <img src={LOCAL_WALLET_ICONS[wallet.id] ?? wallet.icon} alt="" className="option-tile__icon" />
+                  {wallet.id === lastWalletId && !busy && <span className="option-tile__tag">Recent</span>}
                 </span>
-                {wallet.id === lastWalletId && !busy && <span className="wallet-option__tag">Recent</span>}
+                <span className="option-tile__name">{wallet.name}</span>
+                <span className="option-tile__detail">{busy ? "Waiting for your wallet…" : WALLET_DETAIL[wallet.id]}</span>
               </button>
             </li>
           );
@@ -81,13 +80,15 @@ function WalletGroup({ title, ids, wallets, lastWalletId, pendingId, onSelect }:
 }
 
 export function SignInPage() {
-  const { status, accountId, wallets, lastWalletId, signIn, signOut } = useWallet();
+  const { status, accountId, wallets, lastWalletId, signIn } = useWallet();
   const [params] = useSearchParams();
   const next = safeReturnPath(params.get("next"));
   const navigate = useNavigate();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const showLoading = useDelayedFlag(status === "loading", 500);
+
+  if (accountId && pendingId === null) return <Navigate to={next} replace />;
 
   async function handleSelect(walletId: string) {
     setPendingId(walletId);
@@ -102,56 +103,33 @@ export function SignInPage() {
     }
   }
 
-  async function handleSignOut() {
-    setNotice(null);
-    try {
-      await signOut();
-    } catch (error) {
-      setNotice({ tone: "error", text: `Couldn't sign out: ${error instanceof Error ? error.message : String(error)}` });
-    }
-  }
-
   const groupProps = { wallets, lastWalletId, pendingId, onSelect: handleSelect };
 
   return (
-    <div className="page sign-in-page">
-      <h1 className="h1">Sign in</h1>
-
-      {accountId ? (
-        <>
-          <p className="sign-in-page__lede">
-            You're signed in as <strong className="sign-in-page__account">{accountId}</strong>.
-          </p>
-          <div className="sign-in-page__actions">
-            <Link to={next} className="btn btn-primary">
-              Continue
-            </Link>
-            <button type="button" className="btn btn-secondary" onClick={handleSignOut}>
-              Sign out
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <p className="sign-in-page__lede">
+    <div className="page sign-in">
+      <section className="container sign-in__card">
+        <div className="container__body">
+          <h1 className="sign-in__title">Choose how to sign in</h1>
+          <p className="sign-in__lede">
             Sign in with your NEAR account to register projects, vote, or help advance a round.
           </p>
 
           {notice && (
-            <p
-              className={`sign-in-page__notice sign-in-page__notice--${notice.tone}`}
+            <Callout
+              tone={notice.tone === "error" ? "error" : "neutral"}
+              title={notice.tone === "error" ? "Couldn't connect your wallet" : undefined}
               role={notice.tone === "error" ? "alert" : "status"}
             >
               {notice.text}
-            </p>
+            </Callout>
           )}
 
           {status === "error" ? (
-            <p className="sign-in-page__notice sign-in-page__notice--error" role="alert">
-              Wallet connection couldn't be started. Reload the page to try again.
-            </p>
+            <Callout tone="error" role="alert" title="Wallet connection couldn't start">
+              Reload the page to try again.
+            </Callout>
           ) : status === "loading" ? (
-            showLoading && <p className="sign-in-page__note">Loading wallets…</p>
+            showLoading && <p className="sign-in__lede">Loading wallets…</p>
           ) : (
             <>
               <WalletGroup title="NEAR wallets" ids={NEAR_WALLET_IDS} {...groupProps} />
@@ -159,8 +137,8 @@ export function SignInPage() {
               <WalletGroup title="Ethereum wallets" ids={EVM_WALLET_IDS} {...groupProps} />
             </>
           )}
-        </>
-      )}
+        </div>
+      </section>
     </div>
   );
 }

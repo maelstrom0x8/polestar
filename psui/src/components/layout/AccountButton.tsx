@@ -13,7 +13,7 @@ export function AccountButton() {
   if (accountId) {
     return (
       <Link
-        to={signInHref(location)}
+        to="/account"
         className="btn btn-secondary account-button"
         title={`Signed in as ${accountId}`}
       >

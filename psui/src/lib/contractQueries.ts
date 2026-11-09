@@ -138,16 +138,23 @@ export function useProjects(roundId: string | undefined) {
   });
 }
 
+export async function fetchProject(roundId: string, projectId: string): Promise<Project | null> {
+  const raw = await viewFunction<ProjectRaw | null>("get_project", {
+    round_id: Number(roundId),
+    project_id: Number(projectId),
+  });
+  return raw ? mapProject(raw) : null;
+}
+
+export async function fetchBallot(roundId: string, voter: string): Promise<Ballot | null> {
+  const raw = await viewFunction<BallotRaw | null>("get_ballot", { round_id: Number(roundId), voter });
+  return raw ? mapBallot(raw) : null;
+}
+
 export function useProject(roundId: string | undefined, projectId: string | undefined) {
   return useQuery({
     queryKey: ["project", roundId, projectId],
-    queryFn: async () => {
-      const raw = await viewFunction<ProjectRaw | null>("get_project", {
-        round_id: Number(roundId),
-        project_id: Number(projectId),
-      });
-      return raw ? mapProject(raw) : null;
-    },
+    queryFn: () => fetchProject(roundId as string, projectId as string),
     enabled: roundId !== undefined && projectId !== undefined,
   });
 }
@@ -167,10 +174,7 @@ export function useProjectSupport(roundId: string | undefined, projectId: string
 export function useBallot(roundId: string | undefined, voter: string | undefined) {
   return useQuery({
     queryKey: ["ballot", roundId, voter],
-    queryFn: async () => {
-      const raw = await viewFunction<BallotRaw | null>("get_ballot", { round_id: Number(roundId), voter });
-      return raw ? mapBallot(raw) : null;
-    },
+    queryFn: () => fetchBallot(roundId as string, voter as string),
     enabled: roundId !== undefined && voter !== undefined,
   });
 }

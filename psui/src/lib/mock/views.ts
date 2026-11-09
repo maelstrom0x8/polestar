@@ -1,4 +1,4 @@
-import { ContractPanicError, parsePreservingBigNumbers, type BlockRef } from "../near";
+import { CONTRACT_ID, ContractPanicError, parsePreservingBigNumbers, type BlockRef } from "../near";
 import { MOCK_HEAD, MOCK_MS_PER_BLOCK, createFixtures, type MockRound } from "./fixtures";
 
 export const store: { rounds: MockRound[] } = { rounds: createFixtures() };
@@ -31,8 +31,11 @@ function find(args: Record<string, unknown>, method: string): MockRound | undefi
   return round;
 }
 
-export async function mockView(method: string, args: Record<string, unknown>): Promise<unknown> {
+export async function mockView(method: string, args: Record<string, unknown>, contractId: string): Promise<unknown> {
   await latency();
+  if (method === "get_policy" && contractId !== CONTRACT_ID) {
+    return asContractJson({ proposal_bond: "1000000000000000000000000" });
+  }
   const pid = Number(args.project_id);
   switch (method) {
     case "get_round_count":

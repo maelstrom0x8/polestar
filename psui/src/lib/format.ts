@@ -7,20 +7,21 @@ function toBigInt(yocto: string | number | bigint): bigint {
 
 /**
  * Exact yoctoNEAR -> "1.25" style string: at least two decimals, up to
- * five when the amount needs them, never rounded up.
+ * five when the amount needs them (all of them with `exact`), never rounded up.
  */
-export function formatNearAmount(yocto: string | number | bigint): string {
+export function formatNearAmount(yocto: string | number | bigint, exact = false): string {
   const value = toBigInt(yocto);
   const negative = value < 0n;
   const abs = negative ? -value : value;
   const whole = abs / YOCTO_PER_NEAR;
-  const frac = (abs % YOCTO_PER_NEAR).toString().padStart(NEAR_DECIMALS, "0").slice(0, 5);
+  const frac = (abs % YOCTO_PER_NEAR).toString().padStart(NEAR_DECIMALS, "0").slice(0, exact ? NEAR_DECIMALS : 5);
   const trimmed = frac.replace(/0+$/, "").padEnd(2, "0");
   return `${negative ? "-" : ""}${whole.toLocaleString("en-US")}.${trimmed}`;
 }
 
-export function formatNear(yocto: string | number | bigint): string {
-  return `${formatNearAmount(yocto)} NEAR`;
+/** `exact` shows every significant decimal: use it wherever someone is about to sign. */
+export function formatNear(yocto: string | number | bigint, exact = false): string {
+  return `${formatNearAmount(yocto, exact)} NEAR`;
 }
 
 /**
