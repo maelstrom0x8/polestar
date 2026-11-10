@@ -4,6 +4,7 @@ use allocate::{
     AllocationError, AllocationState, Ballot as EngineBallot, Project as EngineProject,
 };
 use near_sdk::collections::UnorderedMap;
+use near_sdk::json_types::U128;
 use near_sdk::{env, near, AccountId, NearToken};
 
 use crate::types::{
@@ -70,9 +71,16 @@ impl Contract {
         recipient: AccountId,
         title: String,
         summary: String,
-        cost: u128,
-        milestone_amounts: Vec<u128>,
+        cost: U128,
+        milestone_amounts: Vec<U128>,
     ) -> ProjectId {
+        // Amounts cross the JSON boundary as strings (U128): wallet clients
+        // build arguments as JavaScript values, which can't hold u128 exactly.
+        let cost = cost.0;
+        let milestone_amounts: Vec<u128> = milestone_amounts
+            .into_iter()
+            .map(|amount| amount.0)
+            .collect();
         let mut round = self.get_round_or_panic(round_id);
         if round.phase != RoundPhase::Registration {
             env::panic_str("ERR_WRONG_PHASE");

@@ -95,8 +95,8 @@ async fn profile_process_allocation_step_gas() -> anyhow::Result<()> {
                         "recipient": proposer.id(),
                         "title": "Bench project",
                         "summary": "Gas-profiling fixture",
-                        "cost": per_project_cost.as_yoctonear(),
-                        "milestone_amounts": [per_project_cost.as_yoctonear()],
+                        "cost": per_project_cost.as_yoctonear().to_string(),
+                        "milestone_amounts": [per_project_cost.as_yoctonear().to_string()],
                     }))
                     .deposit(NearToken::from_millinear(10))
                     .gas(near_workspaces::types::Gas::from_tgas(100))
@@ -263,8 +263,8 @@ async fn worst_single_step_at_max_projects_per_round_fits() -> anyhow::Result<()
                 "recipient": proposer.id(),
                 "title": "Bench project",
                 "summary": "Gas-profiling fixture",
-                "cost": per_project_cost.as_yoctonear(),
-                "milestone_amounts": [per_project_cost.as_yoctonear()],
+                "cost": per_project_cost.as_yoctonear().to_string(),
+                "milestone_amounts": [per_project_cost.as_yoctonear().to_string()],
             }))
             .deposit(NearToken::from_millinear(10))
             .gas(near_workspaces::types::Gas::from_tgas(100))

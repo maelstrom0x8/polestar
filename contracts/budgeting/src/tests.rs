@@ -1,5 +1,6 @@
 use std::collections::{BTreeSet, HashMap};
 
+use near_sdk::json_types::U128;
 use near_sdk::test_utils::{accounts, VMContextBuilder};
 use near_sdk::{
     test_vm_config, testing_env, AccountId, NearToken, PromiseResult, RuntimeFeesConfig,
@@ -85,8 +86,8 @@ fn register(
         proposer(),
         "Title".to_string(),
         "Summary".to_string(),
-        cost,
-        milestones,
+        U128(cost),
+        milestones.into_iter().map(U128).collect(),
     )
 }
 
@@ -180,8 +181,8 @@ fn register_project_rejects_zero_deposit() {
         proposer(),
         "Title".to_string(),
         "Summary".to_string(),
-        600,
-        vec![600],
+        U128(600),
+        vec![U128(600)],
     );
 }
 
@@ -480,4 +481,26 @@ fn get_project_support_counts_approving_ballots_only() {
 
     assert_eq!(contract.get_project_support(round_id, project_id), 1);
     assert_eq!(contract.get_project_support(round_id, other_project_id), 0);
+}
+
+#[test]
+fn get_first_seen_reports_only_the_first_interaction() {
+    let mut contract = new_contract();
+    assert_eq!(contract.get_first_seen(stranger()), None);
+
+    set_ctx(stranger(), NearToken::from_near(0), 40);
+    contract.register_voter();
+    assert_eq!(contract.get_first_seen(stranger()), Some(40));
+
+    set_ctx(stranger(), NearToken::from_near(0), 90);
+    contract.register_voter();
+    assert_eq!(contract.get_first_seen(stranger()), Some(40));
+}
+
+#[test]
+fn get_first_seen_is_set_by_registering_a_project() {
+    let mut contract = new_contract();
+    let round_id = fund(&mut contract);
+    register(&mut contract, round_id, 600, vec![600]);
+    assert_eq!(contract.get_first_seen(proposer()), Some(20));
 }

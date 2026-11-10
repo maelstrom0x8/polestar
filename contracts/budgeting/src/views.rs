@@ -1,7 +1,7 @@
 use allocate::AllocationResult;
 use near_sdk::{near, AccountId};
 
-use crate::types::{Ballot, Project, ProjectId, RoundConfig};
+use crate::types::{Ballot, BlockHeight, Project, ProjectId, RoundConfig};
 use crate::{Contract, ContractExt, RoundId, RoundPhase};
 
 #[near(serializers = [json])]
@@ -57,6 +57,12 @@ impl Contract {
 
     pub fn get_project(&self, round_id: RoundId, project_id: ProjectId) -> Option<Project> {
         self.rounds.get(&round_id)?.projects.get(&project_id)
+    }
+
+    /// The block at which an account first interacted with the contract, if
+    /// it has; what `submit_ballot`'s eligibility checks compare against.
+    pub fn get_first_seen(&self, account_id: AccountId) -> Option<BlockHeight> {
+        self.first_seen.get(&account_id)
     }
 
     pub fn get_project_support(&self, round_id: RoundId, project_id: ProjectId) -> u64 {

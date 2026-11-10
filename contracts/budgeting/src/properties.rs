@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use allocate::AllocationResult;
+use near_sdk::json_types::U128;
 use near_sdk::test_utils::{accounts, VMContextBuilder};
 use near_sdk::{testing_env, AccountId, NearToken};
 use proptest::prelude::*;
@@ -114,8 +115,8 @@ fn run_scenario(
             synthetic_account("recipient", logical_index),
             "t".to_string(),
             "s".to_string(),
-            cost,
-            vec![cost],
+            U128(cost),
+            vec![U128(cost)],
         );
         project_ids[logical_index] = pid;
     }
@@ -257,8 +258,8 @@ proptest! {
             synthetic_account("recipient", 0),
             "t".to_string(),
             "s".to_string(),
-            cost,
-            milestones.clone(),
+            U128(cost),
+            milestones.iter().copied().map(U128).collect(),
         );
 
         let projects = contract.get_projects(round_id);
