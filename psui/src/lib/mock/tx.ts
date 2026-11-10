@@ -11,8 +11,7 @@ import { store } from "./views";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// When each mock account first used the contract (drives voter eligibility).
-const firstSeen = new Map<string, number>([[MOCK_ACCOUNT, MOCK_HEAD - 50_000]]);
+const firstSeen = store.firstSeen;
 
 function refuse(code: string): never {
   throw new TxRefusedError(code, `Smart contract panicked: ${code}`);

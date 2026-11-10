@@ -1,7 +1,11 @@
 import { CONTRACT_ID, ContractPanicError, parsePreservingBigNumbers, type BlockRef } from "../near";
-import { MOCK_HEAD, MOCK_MS_PER_BLOCK, createFixtures, type MockRound } from "./fixtures";
+import { MOCK_ACCOUNT, MOCK_HEAD, MOCK_MS_PER_BLOCK, createFixtures, type MockRound } from "./fixtures";
 
-export const store: { rounds: MockRound[] } = { rounds: createFixtures() };
+// firstSeen: when each mock account first used the contract (voter eligibility).
+export const store: { rounds: MockRound[]; firstSeen: Map<string, number> } = {
+  rounds: createFixtures(),
+  firstSeen: new Map([[MOCK_ACCOUNT, MOCK_HEAD - 50_000]]),
+};
 
 const latency = () =>
   new Promise((resolve) => setTimeout(resolve, new URLSearchParams(location.search).has("slow") ? 2500 : 250));
@@ -56,6 +60,8 @@ export async function mockView(method: string, args: Record<string, unknown>, co
       return asContractJson(find(args, method)?.ballots.find((b) => b.voter === args.voter) ?? null);
     case "get_allocation_result":
       return asContractJson(find(args, method)?.result ?? null);
+    case "get_first_seen":
+      return asContractJson(store.firstSeen.get(String(args.account_id)) ?? null);
     case "get_remaining": {
       const round = find(args, method);
       return asContractJson(round ? round.remaining : null);

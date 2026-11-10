@@ -179,6 +179,16 @@ export function useBallot(roundId: string | undefined, voter: string | undefined
   });
 }
 
+/** null: never interacted. Errors (e.g. a deployment without this view) leave it unknown. */
+export function useFirstSeen(accountId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["firstSeen", accountId],
+    queryFn: () => viewFunction<number | null>("get_first_seen", { account_id: accountId }),
+    enabled: !!accountId,
+    retry: false,
+  });
+}
+
 export function useAllocationResult(roundId: string | undefined) {
   return useQuery({
     queryKey: ["allocationResult", roundId],

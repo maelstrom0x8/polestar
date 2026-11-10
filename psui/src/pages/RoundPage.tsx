@@ -14,7 +14,9 @@ import { ProjectsTable } from "../components/round/ProjectsTable";
 import { ResultsSection } from "../components/round/ResultsSection";
 import { useAllocationRunner } from "../lib/allocationRunner";
 import { useChainClock } from "../lib/chainClock";
-import { useAllocationResult, useProjects, useRound } from "../lib/contractQueries";
+import { useAllocationResult, useFirstSeen, useProjects, useRound } from "../lib/contractQueries";
+import { voterStatus, type VoterStatus } from "../lib/eligibility";
+import { useWallet } from "../lib/wallet";
 import { formatNearAmount } from "../lib/format";
 import { ContractPanicError } from "../lib/near";
 import { useDelayedFlag } from "../lib/useDelayedFlag";
@@ -65,7 +67,7 @@ function RoundFigure({ round, projects }: { round: Round; projects: Project[] })
   );
 }
 
-function PhaseContent({ round, projects }: { round: Round; projects: Project[] }) {
+function PhaseContent({ round, projects, status }: { round: Round; projects: Project[]; status: VoterStatus | null }) {
   const { data: clock } = useChainClock();
   const resultQuery = useAllocationResult(round.phase === "Settlement" ? round.id : undefined);
 
@@ -85,7 +87,14 @@ function PhaseContent({ round, projects }: { round: Round; projects: Project[] }
         </Container>
       );
     case "Declaration":
-      return <BallotSection round={round} projects={projects} clock={clock} />;
+      // A known-ineligible account sees the proposals, not a ballot it can't cast.
+      return status === "too-late" || status === "not-registered" ? (
+        <Container title="Proposals">
+          <ProjectsTable roundId={round.id} projects={projects} showStatus={false} />
+        </Container>
+      ) : (
+        <BallotSection round={round} projects={projects} clock={clock} />
+      );
     case "Allocation":
       return null;
     case "Settlement":
@@ -105,6 +114,8 @@ export function RoundPage() {
   const loading = roundQuery.isLoading || projectsQuery.isLoading;
   const showSkeleton = useDelayedFlag(loading, 500);
   const wide = useMediaQuery("(min-width: 960px)");
+  const { accountId } = useWallet();
+  const firstSeenQuery = useFirstSeen(accountId);
 
   const crumbs = [{ label: "Rounds", to: "/rounds" }, { label: `Round ${roundId}` }];
 
@@ -166,8 +177,9 @@ export function RoundPage() {
     );
   }
 
-  // Only while registering is still possible; during voting there is nothing to act on.
-  const showEligibility = round.phase === "Registration";
+  const status = accountId && firstSeenQuery.isSuccess ? voterStatus(round, firstSeenQuery.data ?? null) : null;
+  // During voting, only a known "you can't vote" is worth saying; the notice returns null otherwise.
+  const showEligibility = round.phase === "Registration" || round.phase === "Declaration";
 
   return (
     <div className="page">
@@ -187,11 +199,11 @@ export function RoundPage() {
         <div className="detail__main">
           <RoundFigure round={round} projects={projects} />
           {!wide && <PhaseCard round={round} clock={clock} runner={runner} />}
-          {showEligibility && <EligibilityNotice round={round} clock={clock} />}
+          {showEligibility && <EligibilityNotice round={round} clock={clock} status={status} />}
           {round.phase === "Allocation" ? (
             <AllocationLog roundId={round.id} projects={projects} log={runner.log} />
           ) : (
-            <PhaseContent round={round} projects={projects} />
+            <PhaseContent round={round} projects={projects} status={status} />
           )}
         </div>
         {wide && (
