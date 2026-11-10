@@ -1,22 +1,22 @@
 /** Plain-language rendering of the contract's refusal codes. */
 const COPY: Record<string, string> = {
-  ERR_WRONG_PHASE: "This round has moved on since you loaded this page.",
-  ERR_NO_DEPOSIT: "A small deposit is required to register a project.",
+  ERR_WRONG_PHASE: "This round has moved to a new stage since you opened this page.",
+  ERR_NO_DEPOSIT: "A deposit is required to propose a project.",
   ERR_ZERO_COST: "Cost must be greater than zero.",
-  ERR_TITLE_TOO_LONG: "The title is longer than the contract allows.",
-  ERR_SUMMARY_TOO_LONG: "The summary is longer than the contract allows.",
-  ERR_TOO_MANY_PROJECTS: "This round has reached its project limit.",
-  ERR_MILESTONE_SUM_MISMATCH: "Milestone amounts must add up to exactly the project's cost.",
-  ERR_NO_PROJECTS: "At least one project must be registered before declaration can open.",
-  ERR_NO_PRIOR_INTERACTION: "This account wasn't registered as a voter early enough to support projects in this round.",
-  ERR_ACCOUNT_TOO_NEW: "This account wasn't registered as a voter early enough to support projects in this round.",
-  ERR_ALREADY_VOTED: "This account has already declared its support in this round.",
-  ERR_EMPTY_APPROVAL: "Choose at least one project to support.",
-  ERR_UNREGISTERED_PROJECT: "One of the selected projects isn't registered in this round.",
-  ERR_DECLARATION_CLOSED: "Declaration has closed for this round.",
-  ERR_DECLARATION_NOT_YET_CLOSED: "Declaration can't be closed yet; its closing block hasn't passed.",
+  ERR_TITLE_TOO_LONG: "The title is too long.",
+  ERR_SUMMARY_TOO_LONG: "The summary is too long.",
+  ERR_TOO_MANY_PROJECTS: "This round isn't taking more proposals; it's full.",
+  ERR_MILESTONE_SUM_MISMATCH: "The milestones must add up to the total cost.",
+  ERR_NO_PROJECTS: "Voting can only start once there's at least one proposal.",
+  ERR_NO_PRIOR_INTERACTION: "This account didn't register as a voter in time to vote in this round.",
+  ERR_ACCOUNT_TOO_NEW: "This account didn't register as a voter in time to vote in this round.",
+  ERR_ALREADY_VOTED: "You've already voted in this round.",
+  ERR_EMPTY_APPROVAL: "Pick at least one project.",
+  ERR_UNREGISTERED_PROJECT: "One of the selected projects isn't part of this round.",
+  ERR_DECLARATION_CLOSED: "Voting has closed for this round.",
+  ERR_DECLARATION_NOT_YET_CLOSED: "Voting can't be ended before it closes.",
   ERR_ROUND_NOT_FOUND: "This round doesn't exist.",
-  ERR_ARITHMETIC_OVERFLOW: "The amounts are too large for the contract to add up.",
+  ERR_ARITHMETIC_OVERFLOW: "The amounts are too large.",
 };
 
 /** Codes that point at an anomaly rather than a designed refusal. */
@@ -24,7 +24,7 @@ const ANOMALIES = new Set(["ERR_RATIONAL_OVERFLOW", "ERR_ALLOCATION_INVARIANT_VI
 
 export function describeRefusal(code: string): { text: string; anomaly: boolean } {
   if (ANOMALIES.has(code)) {
-    return { text: "The contract hit an unexpected condition and stopped. Nothing was changed.", anomaly: true };
+    return { text: "Something went wrong on our side. Nothing was changed.", anomaly: true };
   }
-  return { text: COPY[code] ?? "The contract refused this request. Nothing was changed.", anomaly: false };
+  return { text: COPY[code] ?? "This couldn't be completed. Nothing was changed.", anomaly: false };
 }

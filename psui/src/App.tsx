@@ -4,7 +4,8 @@ import { LandingPage } from "./pages/LandingPage";
 import { AccountPage } from "./pages/AccountPage";
 import { DaoProposePage } from "./pages/DaoProposePage";
 import { ProjectPage } from "./pages/ProjectPage";
-import { RegisterProjectPage } from "./pages/RegisterProjectPage";
+import { ProposePage } from "./pages/ProposePage";
+import { ProposeProjectPage } from "./pages/ProposeProjectPage";
 import { RoundPage } from "./pages/RoundPage";
 import { RoundsPage } from "./pages/RoundsPage";
 import { SignInPage } from "./pages/SignInPage";
@@ -23,7 +24,8 @@ export default function App() {
         <Route path="/dao/propose" element={<DaoProposePage />} />
         <Route path="/rounds" element={<RoundsPage />} />
         <Route path="/rounds/:roundId" element={<RoundPage />} />
-        <Route path="/rounds/:roundId/register" element={<RegisterProjectPage />} />
+        <Route path="/propose" element={<ProposePage />} />
+        <Route path="/rounds/:roundId/propose" element={<ProposeProjectPage />} />
         <Route path="/rounds/:roundId/projects/:projectId" element={<ProjectPage />} />
         <Route path="*" element={null} />
       </Route>

@@ -1,6 +1,5 @@
 import { ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { STAGE_LABEL } from "../../lib/roundData";
 import type { AllocationResult, Project } from "../../types/domain";
 import { Amount } from "../app/Amount";
 import { Container } from "../app/Container";
@@ -43,10 +42,8 @@ export function ResultsSection({ roundId, projects, result }: { roundId: string;
                     {project.title}
                   </Link>
                   <span className="dtable__secondary">
-                    {record ? (
-                      `via ${STAGE_LABEL[record.stage]}`
-                    ) : isFunded ? (
-                      "Funded"
+                    {isFunded ? (
+                      <span className="mono">{project.proposer}</span>
                     ) : (
                       <>
                         Asked for <Amount yocto={project.cost} />

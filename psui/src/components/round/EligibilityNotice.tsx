@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { describeBlock, type ChainClock } from "../../lib/chainClock";
+import { relativeTime, type ChainClock } from "../../lib/chainClock";
 import { useRefreshRound } from "../../lib/roundData";
 import { TGAS } from "../../lib/tx";
 import type { Round } from "../../types/domain";
@@ -26,13 +26,13 @@ export function EligibilityNotice({ round, clock }: { round: Round; clock: Chain
             progressTitle="Registering you as a voter"
             figure="No deposit"
             figureCaption="Network fee shown by your wallet"
-            summary="You're recording this account with Polestar so it can support projects in rounds that open later. It's a one-time step."
+            summary="You're registering this account as a voter. It's a one-time step, and it lets you vote in this round and later ones."
             call={{ method: "register_voter", args: {}, deposit: 0n, gas: 30n * TGAS }}
             onBack={() => setRegistering(false)}
             onConfirmed={refresh}
             renderDone={() => (
               <p>
-                You're registered. You can support projects in this round once declaration opens.{" "}
+                You're registered. You can vote in this round once voting starts.{" "}
                 <button type="button" className="app-btn app-btn--ghost" onClick={() => setRegistering(false)}>
                   Close
                 </button>
@@ -44,22 +44,23 @@ export function EligibilityNotice({ round, clock }: { round: Round; clock: Chain
     );
   }
 
+  const when = relativeTime(deadline, clock);
   return open ? (
     <Callout
       tone="attention"
-      title="Want to support projects in this round?"
+      title="Want to vote in this round?"
       action={
         <button type="button" className="app-btn app-btn--secondary" onClick={() => setRegistering(true)}>
           Register as a voter
         </button>
       }
     >
-      An account has to be registered as a voter by {describeBlock(deadline, clock)}. If this account has used Polestar
-      before (registered as a voter or proposed a project), it's already registered.
+      Register as a voter {when ? `before registration closes ${when}` : "before voter registration closes"}. If you've
+      registered before, or proposed a project, you're already set.
     </Callout>
   ) : (
-    <Callout tone="info" title="Who can support projects here">
-      Only accounts registered with Polestar by {describeBlock(deadline, clock)} can support projects in this round.
+    <Callout tone="info" title="Voter registration has closed">
+      Only accounts that registered as voters before it closed{when ? ` (${when})` : ""} can vote in this round.
     </Callout>
   );
 }

@@ -226,9 +226,8 @@ export function useAllRounds() {
   });
 
   // A round the contract panics on (left over from an earlier contract
-  // version it can no longer deserialize) is "unreadable", reported once
-  // under the list. A transport failure is a real network error.
-  const unreadableIds = ids.filter((_, i) => roundQueries[i]?.error instanceof ContractPanicError);
+  // version it can no longer deserialize) is simply left out. A transport
+  // failure is a real network error.
   const failedIds = ids.filter((_, i) => {
     const error = roundQueries[i]?.error;
     return error && !(error instanceof ContractPanicError);
@@ -238,7 +237,6 @@ export function useAllRounds() {
     isLoading: countQuery.isLoading || (countQuery.isSuccess && roundQueries.some((q) => q.isLoading)),
     isError: countQuery.isError,
     rounds: roundQueries.map((q) => q.data).filter((r): r is Round => r != null),
-    unreadableIds,
     failedIds,
     refetch: () => {
       void countQuery.refetch();

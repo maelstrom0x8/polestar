@@ -27,16 +27,15 @@ export function useChainClock() {
   });
 }
 
-function formatDuration(ms: number): string {
+function humanDuration(ms: number): string {
   const minutes = Math.round(ms / 60_000);
-  if (minutes < 1) return "under a minute";
-  if (minutes < 60) return `${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 48) {
-    const rest = minutes % 60;
-    return rest ? `${hours} h ${rest} min` : `${hours} h`;
-  }
-  return `${Math.round(hours / 24)} days`;
+  if (minutes < 2) return "a minute";
+  if (minutes < 60) return `${minutes} minutes`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 2) return "an hour";
+  if (hours < 36) return `${hours} hours`;
+  const days = Math.round(hours / 24);
+  return days < 2 ? "a day" : `${days} days`;
 }
 
 export function formatBlock(height: number): string {
@@ -44,18 +43,19 @@ export function formatBlock(height: number): string {
 }
 
 /**
- * "≈ 2 h 10 min" / "≈ 3 days ago" for a block height, or null when the
- * clock or its block time isn't known yet (callers then show the height alone).
+ * "in about 2 hours" / "about 3 days ago" for a block height, or null when
+ * the block time isn't known yet (callers then leave the time out).
  */
-export function blockDistance(target: number, clock: ChainClock | undefined): string | null {
+export function relativeTime(target: number, clock: ChainClock | undefined): string | null {
   if (!clock || clock.msPerBlock === null) return null;
   const deltaMs = (target - clock.height) * clock.msPerBlock;
-  if (Math.abs(deltaMs) < 60_000) return "about now";
-  return deltaMs > 0 ? `≈ ${formatDuration(deltaMs)}` : `≈ ${formatDuration(-deltaMs)} ago`;
+  if (Math.abs(deltaMs) < 90_000) return "about now";
+  return deltaMs > 0 ? `in about ${humanDuration(deltaMs)}` : `about ${humanDuration(-deltaMs)} ago`;
 }
 
-/** "block 1,234,567 (≈ 2 h 10 min)" with the estimate only when one exists. */
-export function describeBlock(target: number, clock: ChainClock | undefined): string {
-  const distance = blockDistance(target, clock);
-  return distance ? `block ${formatBlock(target)} (${distance})` : `block ${formatBlock(target)}`;
+/** Block-precise distance, for the DAO helper where block heights are the input. */
+export function blockDistance(target: number, clock: ChainClock | undefined): string | null {
+  const relative = relativeTime(target, clock);
+  if (!relative) return null;
+  return relative === "about now" ? "about now" : relative.replace("in about ", "≈ ").replace("about ", "≈ ");
 }

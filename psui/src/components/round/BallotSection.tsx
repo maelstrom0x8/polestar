@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { recordActivity } from "../../lib/activity";
-import { describeBlock, type ChainClock } from "../../lib/chainClock";
+import type { ChainClock } from "../../lib/chainClock";
 import { useBallot } from "../../lib/contractQueries";
 import { formatNear } from "../../lib/format";
 import { useRefreshRound } from "../../lib/roundData";
@@ -51,11 +51,11 @@ export function BallotSection({ round, projects, clock }: { round: Round; projec
   if (ballot) {
     const supported = projects.filter((p) => ballot.approved.includes(p.id));
     return (
-      <Container title="Your support">
+      <Container title="Your vote">
         <div className="container__body">
           <p>
-            You supported {supported.length} {supported.length === 1 ? "project" : "projects"} in this round. Ballots
-            are final once recorded.
+            You supported {supported.length} {supported.length === 1 ? "project" : "projects"} in this round. Votes
+            can't be changed once cast.
           </p>
           <ul className="plain-list">
             {supported.map((p) => (
@@ -74,9 +74,8 @@ export function BallotSection({ round, projects, clock }: { round: Round; projec
 
   if (ended) {
     return (
-      <Callout tone="info" title="Declaration has ended">
-        Ballots were accepted until {describeBlock(round.config.closesAt, clock)}. The round is waiting for someone to
-        close declaration so its budget can be allocated.
+      <Callout tone="info" title="Voting has ended">
+        The votes are in. They'll be counted once someone ends voting for this round.
       </Callout>
     );
   }
@@ -89,11 +88,11 @@ export function BallotSection({ round, projects, clock }: { round: Round; projec
       <Container>
         <div className="container__body">
           <TxFlow
-            title="Review your support"
-            progressTitle="Submitting your support"
+            title="Review your vote"
+            progressTitle="Casting your vote"
             figure="No deposit"
             figureCaption="Network fee shown by your wallet"
-            summary={`You're supporting ${chosen.length} ${chosen.length === 1 ? "project" : "projects"} in Round ${round.id}. A ballot can't be changed once it's recorded.`}
+            summary={`You're voting for ${chosen.length} ${chosen.length === 1 ? "project" : "projects"} in Round ${round.id}. Your vote can't be changed once it's cast.`}
             lines={chosen.map((p) => ({ label: p.title, value: formatNear(p.cost) }))}
             call={{
               method: "submit_ballot",
@@ -106,7 +105,7 @@ export function BallotSection({ round, projects, clock }: { round: Round; projec
               if (accountId) recordActivity(accountId, { kind: "ballot", roundId: round.id, count: chosen.length, at: Date.now() });
               await refresh();
             }}
-            renderDone={() => <p>Your support for {chosen.length} {chosen.length === 1 ? "project" : "projects"} is recorded.</p>}
+            renderDone={() => <p>Your vote is in.</p>}
           />
         </div>
       </Container>
@@ -114,7 +113,7 @@ export function BallotSection({ round, projects, clock }: { round: Round; projec
   }
 
   return (
-    <Container title="Your support" headerAction={<span className="muted" style={{ fontSize: "var(--app-small)" }}>Choose any number</span>}>
+    <Container title="Your vote" headerAction={<span className="muted" style={{ fontSize: "var(--app-small)" }}>Pick every project you support</span>}>
       <ul className="choice-list">
         {projects.map((project) => (
           <ProjectChoice
@@ -137,7 +136,7 @@ export function BallotSection({ round, projects, clock }: { round: Round; projec
         <p className="choice-footer__summary" aria-live="polite">
           {chosen.length === 0
             ? "Nothing selected yet."
-            : `${chosen.length} selected, asking ${formatNear(asked)} in total against a ${formatNear(round.config.budget)} budget.`}
+            : `${chosen.length} selected, asking ${formatNear(asked)} in total. The round's budget is ${formatNear(round.config.budget)}.`}
         </p>
         <button type="button" className="app-btn app-btn--primary" disabled={chosen.length === 0} onClick={() => setReviewing(true)}>
           Review

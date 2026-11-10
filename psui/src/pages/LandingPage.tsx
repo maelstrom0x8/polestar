@@ -13,11 +13,13 @@ const STEPS = [
     Icon: FilePlus,
     title: "Propose a project",
     body: "Submit a funding proposal with a clear budget and a plan to deliver it.",
+    link: { to: "/propose", label: "Propose a project" },
   },
   {
     Icon: Users,
     title: "Community support",
     body: "Members back the projects they want to see funded.",
+    link: { to: "/rounds", label: "See rounds" },
   },
   {
     Icon: CheckCircle2,
@@ -52,6 +54,11 @@ export function LandingPage() {
               <span className="landing__step-number">{index + 1}</span>
               <h3 className="h3 landing__step-title">{step.title}</h3>
               <p className="landing__step-body">{step.body}</p>
+              {"link" in step && step.link && (
+                <Link to={step.link.to} className="landing__step-link">
+                  {step.link.label} <span aria-hidden>→</span>
+                </Link>
+              )}
             </div>
           ))}
         </div>

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import type { AllocationRunner } from "../../lib/allocationRunner";
-import { describeBlock, type ChainClock } from "../../lib/chainClock";
+import { relativeTime, type ChainClock } from "../../lib/chainClock";
+import { PHASE_LABEL } from "../../lib/phaseCopy";
 import { CONTRACT_ID } from "../../lib/near";
 import { signInHref } from "../../lib/returnPath";
 import { useRefreshRound } from "../../lib/roundData";
@@ -19,43 +20,38 @@ function steps(round: Round, clock: ChainClock | undefined): TimelineStep[] {
   const current = ORDER.indexOf(round.phase);
   const state = (i: number): StepState => (i < current ? "done" : i === current ? "current" : "upcoming");
   const ended = clock !== undefined && clock.height > round.config.closesAt;
+  const closes = relativeTime(round.config.closesAt, clock);
   return [
     {
       key: "Registration",
-      title: "Registration",
+      title: PHASE_LABEL.Registration,
       state: state(0),
-      detail:
-        current === 0
-          ? round.projectCount === 0
-            ? "Projects can be proposed. Declaration can open once there's at least one."
-            : `${round.projectCount} ${round.projectCount === 1 ? "project" : "projects"} proposed so far.`
-          : undefined,
+      detail: current === 0 && round.projectCount === 0 ? "No proposals yet." : undefined,
     },
     {
       key: "Declaration",
-      title: "Declaration",
+      title: PHASE_LABEL.Declaration,
       state: state(1),
       detail:
         current === 1
           ? ended
-            ? `Ended at ${describeBlock(round.config.closesAt, clock)}. Anyone can close it now.`
-            : `Supporters declare until ${describeBlock(round.config.closesAt, clock)}.`
-          : current < 1
-            ? `Runs until ${describeBlock(round.config.closesAt, clock)}.`
-            : undefined,
+            ? "Voting has ended."
+            : closes
+              ? `Closes ${closes}.`
+              : undefined
+          : undefined,
     },
     {
       key: "Allocation",
-      title: "Allocation",
+      title: PHASE_LABEL.Allocation,
       state: state(2),
-      detail: current === 2 ? "The budget is split one step at a time. Anyone can advance it." : undefined,
+      detail: current === 2 ? "The budget is being shared out, one project at a time." : undefined,
     },
     {
       key: "Settlement",
-      title: "Settlement",
+      title: PHASE_LABEL.Settlement,
       state: round.phase === "Settlement" ? "done" : "upcoming",
-      detail:
-        current === 3 ? "Funded teams are paid as the DAO confirms each milestone." : undefined,
+      detail: current === 3 ? "Funded projects are paid milestone by milestone." : undefined,
     },
   ];
 }
@@ -75,7 +71,7 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
               key: "step",
               title: `Step ${runner.running.step}: confirm in your wallet`,
               state: "working",
-              detail: runner.running.mode === "all" ? "Each step is its own transaction." : undefined,
+              detail: runner.running.mode === "all" ? "Each step needs its own confirmation." : undefined,
             },
           ]}
         />
@@ -105,7 +101,7 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
           <strong>No deposit.</strong>{" "}
           {reviewing === "all"
             ? "Your wallet will ask you to confirm each step. You can stop between steps."
-            : "You're advancing the allocation by one step."}
+            : "You're running one step of the count."}
         </p>
         <details className="tx__sign">
           <summary>What you'll sign</summary>
@@ -139,18 +135,21 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
 
   return (
     <div className="phase-card__action">
+      <div className="section-label">Keep this round moving</div>
       {runner.notice && (
         <Callout tone={runner.notice.tone} title={runner.notice.title} technical={runner.notice.technical}>
           {runner.notice.text}
         </Callout>
       )}
-      <button type="button" className="app-btn app-btn--primary app-btn--block" onClick={() => setReviewing("one")}>
-        Advance allocation
-      </button>
+      <p className="phase-card__caption">
+        Counting happens one step at a time, and anyone can run it. Each step is a separate confirmation in your wallet.
+      </p>
       <button type="button" className="app-btn app-btn--secondary app-btn--block" onClick={() => setReviewing("all")}>
-        Advance to completion
+        Finish counting
       </button>
-      <p className="phase-card__caption">Each step is its own transaction.</p>
+      <button type="button" className="app-btn app-btn--ghost" onClick={() => setReviewing("one")}>
+        Count one step
+      </button>
     </div>
   );
 }
@@ -159,14 +158,14 @@ function TransitionAction({
   round,
   method,
   label,
-  disabledReason,
   summary,
+  caption,
 }: {
   round: Round;
   method: "open_declaration" | "close_declaration";
   label: string;
-  disabledReason: string | null;
   summary: string;
+  caption: string;
 }) {
   const [reviewing, setReviewing] = useState(false);
   const refresh = useRefreshRound(round.id);
@@ -183,7 +182,7 @@ function TransitionAction({
           call={{ method, args: { round_id: Number(round.id) }, deposit: 0n, gas: 300n * TGAS }}
           onBack={() => setReviewing(false)}
           onConfirmed={refresh}
-          renderDone={() => <p>Round {round.id} has moved on. The page shows its new state.</p>}
+          renderDone={() => <p>Done. The page now shows the round's new stage.</p>}
         />
       </div>
     );
@@ -191,15 +190,11 @@ function TransitionAction({
 
   return (
     <div className="phase-card__action">
-      <button
-        type="button"
-        className="app-btn app-btn--primary app-btn--block"
-        disabled={disabledReason !== null}
-        onClick={() => setReviewing(true)}
-      >
+      <div className="section-label">Keep this round moving</div>
+      <p className="phase-card__caption">{caption}</p>
+      <button type="button" className="app-btn app-btn--secondary app-btn--block" onClick={() => setReviewing(true)}>
         {label}
       </button>
-      {disabledReason && <p className="phase-card__caption">{disabledReason}</p>}
     </div>
   );
 }
@@ -215,29 +210,27 @@ export function PhaseCard({ round, clock, runner }: PhaseCardProps) {
   return (
     <section className="container phase-card">
       <div className="container__header">
-        <h2 className="container__title">Round progress</h2>
+        <h2 className="container__title">Where this round is</h2>
       </div>
       <div className="container__body">
         <Timeline label="Round phases" steps={steps(round, clock)} />
       </div>
-      {round.phase === "Registration" && (
+      {round.phase === "Registration" && round.projectCount > 0 && (
         <TransitionAction
           round={round}
           method="open_declaration"
-          label="Open declaration"
-          disabledReason={round.projectCount === 0 ? "Needs at least one registered project." : null}
-          summary={`You're closing registration for Round ${round.id} and opening it to supporters. Anyone can do this once a project is registered.`}
+          label="Start voting"
+          caption="Anyone can start voting. It closes this round to new proposals for everyone."
+          summary={`You're starting voting in Round ${round.id}. No more projects can be proposed after this.`}
         />
       )}
-      {round.phase === "Declaration" && (
+      {round.phase === "Declaration" && (ended || !clock) && (
         <TransitionAction
           round={round}
           method="close_declaration"
-          label="Close declaration"
-          disabledReason={
-            clock && !ended ? `Available after ${describeBlock(round.config.closesAt, clock)}.` : null
-          }
-          summary={`You're closing declaration for Round ${round.id} so its budget can be allocated. Anyone can do this once the closing block has passed.`}
+          label="End voting"
+          caption="Voting has closed. Anyone can end it so the votes get counted."
+          summary={`You're ending voting in Round ${round.id} so the votes can be counted.`}
         />
       )}
       {round.phase === "Allocation" && runner && <AllocationActions runner={runner} roundId={round.id} />}

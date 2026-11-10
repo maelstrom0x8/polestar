@@ -143,14 +143,14 @@ function FundRoundForm() {
             error={errors.budget}
           />
           <TextField
-            label="Declaration opens at block"
+            label="Voting opens at block"
             value={opensText}
             inputMode="numeric"
             onChange={(e) => setOpens(e.target.value)}
             hint={estimate(opensAt, clock) ?? "Block height"}
           />
           <TextField
-            label="Declaration closes after block"
+            label="Voting closes after block"
             value={closesText}
             inputMode="numeric"
             onChange={(e) => setCloses(e.target.value)}
@@ -165,7 +165,7 @@ function FundRoundForm() {
             hint={
               deadline !== null
                 ? `Voters must register by block ${formatBlock(deadline)}${estimate(deadline, clock) ? ` (${estimate(deadline, clock)})` : ""}.`
-                : "How long before declaration opens a voter must already be registered."
+                : "How long before voting opens a voter must already be registered."
             }
           />
           <TextField label="Proposal description" value={desc} onChange={(e) => setDescription(e.target.value)} />
@@ -178,7 +178,7 @@ function FundRoundForm() {
           deposit={budgetYocto as bigint}
         />
       ) : (
-        <Callout tone="info">Fill in the budget and the declaration window to get the proposal.</Callout>
+        <Callout tone="info">Fill in the budget and the voting window to get the proposal.</Callout>
       )}
     </>
   );

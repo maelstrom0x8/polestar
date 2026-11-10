@@ -1056,6 +1056,18 @@ button {
   font-size: var(--text-small);
 }
 
+.landing__step-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--signal);
+}
+
+.landing__step-link:hover {
+  color: var(--signal-deep);
+}
+
 /* Typewriter. The text node never changes; only a
    clip width animates, so assistive tech sees the complete headline
    immediately regardless of animation state. Each line is its own block

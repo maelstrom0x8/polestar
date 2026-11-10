@@ -29,19 +29,19 @@ function SupportedRounds({ accountId }: { accountId: string }) {
     .sort((a, b) => Number(b.round.id) - Number(a.round.id));
 
   return (
-    <Container title="Rounds you supported" note="Checked against the contract for every round it can read.">
+    <Container title="Rounds you voted in">
       {loading ? (
         showSkeleton && <div className="skeleton" style={{ height: 120, margin: 24 }} aria-hidden />
       ) : supported.length === 0 ? (
-        <EmptyState Icon={Vote} message="This account hasn't supported projects in any round yet." action={{ label: "Browse rounds", to: "/rounds" }} />
+        <EmptyState Icon={Vote} message="You haven't voted in any round yet." action={{ label: "Browse rounds", to: "/rounds" }} />
       ) : (
         <table className="dtable">
           <thead>
             <tr>
               <th scope="col">Round</th>
-              <th scope="col">Phase</th>
+              <th scope="col">Stage</th>
               <th scope="col" className="dtable__num">
-                Projects supported
+                Projects you backed
               </th>
               <th scope="col">
                 <span className="visually-hidden">Open</span>
@@ -59,7 +59,7 @@ function SupportedRounds({ accountId }: { accountId: string }) {
                 <td className="dtable__cell--plain">
                   <PhasePill phase={round.phase} />
                 </td>
-                <td className="dtable__num" data-label="Projects supported">
+                <td className="dtable__num" data-label="Projects you backed">
                   {ballot?.approved.length}
                 </td>
                 <td className="dtable__chevron" aria-hidden>
@@ -89,9 +89,9 @@ function RegisteredProjects({ accountId }: { accountId: string }) {
   });
 
   return (
-    <Container title="Projects you registered" note="From this browser only. The contract keeps no list of projects by proposer.">
+    <Container title="Projects you proposed" note="Projects proposed from this browser.">
       {entries.length === 0 ? (
-        <EmptyState Icon={FolderOpen} message="No projects registered from this browser." />
+        <EmptyState Icon={FolderOpen} message="You haven't proposed a project from this browser." />
       ) : (
         <table className="dtable">
           <thead>

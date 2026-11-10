@@ -111,7 +111,7 @@ export function SignInPage() {
         <div className="container__body">
           <h1 className="sign-in__title">Choose how to sign in</h1>
           <p className="sign-in__lede">
-            Sign in with your NEAR account to register projects, vote, or help advance a round.
+            Sign in with your NEAR account to propose projects, vote, or help move a round along.
           </p>
 
           {notice && (

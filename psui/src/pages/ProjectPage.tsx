@@ -1,36 +1,30 @@
 import { Check, CircleDashed, SearchX } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Amount } from "../components/app/Amount";
 import { Callout } from "../components/app/Callout";
 import { Container } from "../components/app/Container";
 import { KeyValueList } from "../components/app/KeyValueList";
 import { PageHeader } from "../components/app/PageHeader";
-import { PhasePill, ProjectStatusPill } from "../components/app/StatusPill";
+import { ProjectStatusPill } from "../components/app/StatusPill";
 import { Timeline, type TimelineStep } from "../components/app/Timeline";
 import { EmptyState } from "../components/EmptyState";
 import { useAllocationResult, useProject, useProjectSupport, useRound } from "../lib/contractQueries";
 import { formatNear } from "../lib/format";
 import { ContractPanicError } from "../lib/near";
-import { STAGE_LABEL } from "../lib/roundData";
 import { useDelayedFlag } from "../lib/useDelayedFlag";
 import type { Project, Round } from "../types/domain";
 
-function projectSteps(project: Project, round: Round, support: number | undefined): TimelineStep[] {
+function projectSteps(project: Project, round: Round): TimelineStep[] {
   const votingDone = round.phase === "Allocation" || round.phase === "Settlement";
   const paid = project.milestones.filter((m) => m.attested).length;
   const decided = project.status !== "Pending";
   const steps: TimelineStep[] = [
-    { key: "registered", title: "Registered", state: "done" },
+    { key: "registered", title: "Proposed", state: "done" },
     {
       key: "support",
-      title: "Community support",
+      title: "Voting",
       state: votingDone ? "done" : round.phase === "Declaration" ? "current" : "upcoming",
-      detail:
-        round.phase === "Registration"
-          ? "Opens when the round moves to declaration."
-          : support === undefined
-            ? undefined
-            : `Supported by ${support} ${support === 1 ? "person" : "people"}${votingDone ? "" : " so far"}.`,
+      detail: round.phase === "Registration" ? "Starts when the round moves to voting." : undefined,
     },
     {
       key: "decision",
@@ -38,9 +32,9 @@ function projectSteps(project: Project, round: Round, support: number | undefine
       state: project.status === "Unfunded" ? "skipped" : decided ? "done" : round.phase === "Allocation" ? "current" : "upcoming",
       detail:
         project.status === "Unfunded"
-          ? "What was left of the budget couldn't cover it. That's an expected outcome of the allocation, not an error."
+          ? "There wasn't enough budget left to cover it."
           : round.phase === "Allocation" && !decided
-            ? "The allocation is still running."
+            ? "Votes are still being counted."
             : undefined,
     },
   ];
@@ -53,7 +47,7 @@ function projectSteps(project: Project, round: Round, support: number | undefine
         project.status === "Funded"
           ? paid === project.milestones.length
             ? "Every milestone has been paid."
-            : `${paid} of ${project.milestones.length} milestones paid. Waiting for the DAO to confirm milestone ${paid + 1}.`
+            : "Each milestone is paid once it's confirmed as done."
           : undefined,
     });
   }
@@ -97,9 +91,9 @@ export function ProjectPage() {
     return (
       <div className="page">
         <PageHeader crumbs={crumbs} title={`Project ${projectId}`} />
-        <Callout tone="info" title="This project can't be shown">
-          Its round was created by an earlier version of the contract, which the current one can no longer read.
-        </Callout>
+        <Container>
+          <EmptyState Icon={SearchX} message="This project isn't available." action={{ label: "See all rounds", to: "/rounds" }} />
+        </Container>
       </div>
     );
   }
@@ -111,7 +105,7 @@ export function ProjectPage() {
         <Callout
           tone="error"
           role="alert"
-          title="Couldn't reach the NEAR network"
+          title="Couldn't load this project"
           action={
             <button
               type="button"
@@ -152,24 +146,10 @@ export function ProjectPage() {
               <div style={{ marginTop: 24 }}>
                 <KeyValueList
                   rows={[
-                    { label: "Asking for", value: formatNear(project.cost, true), mono: true },
-                    ...(record ? [{ label: "Funded via", value: STAGE_LABEL[record.stage] }] : []),
+                    { label: project.status === "Funded" ? "Funded" : "Asking for", value: formatNear(record?.amount ?? project.cost, true), mono: true },
                     { label: "Proposed by", value: project.proposer, mono: true },
-                    { label: "Paid to", value: project.recipient, mono: true },
-                    {
-                      label: "Supporters",
-                      value: support === undefined ? "Not open yet" : support,
-                    },
-                    {
-                      label: "Round",
-                      value: (
-                        <Link to={`/rounds/${round.id}`} className="app-link">
-                          Round {round.id}
-                        </Link>
-                      ),
-                    },
-                    { label: "Round phase", value: <PhasePill phase={round.phase} /> },
-                    { label: "Project id", value: `#${project.id}`, mono: true },
+                    ...(project.recipient !== project.proposer ? [{ label: "Paid to", value: project.recipient, mono: true }] : []),
+                    { label: "Votes", value: support === undefined ? "Voting hasn't started" : support },
                   ]}
                 />
               </div>
@@ -190,7 +170,7 @@ export function ProjectPage() {
                       </>
                     ) : project.status === "Funded" ? (
                       <>
-                        <CircleDashed aria-hidden size={16} /> Awaiting DAO confirmation
+                        <CircleDashed aria-hidden size={16} /> Not paid yet
                       </>
                     ) : project.status === "Unfunded" ? (
                       "Not funded"
@@ -209,7 +189,7 @@ export function ProjectPage() {
               <h2 className="container__title">Progress</h2>
             </div>
             <div className="container__body">
-              <Timeline label="Project progress" steps={projectSteps(project, round, support)} />
+              <Timeline label="Project progress" steps={projectSteps(project, round)} />
             </div>
           </section>
         </aside>

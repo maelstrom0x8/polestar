@@ -51,7 +51,7 @@ export function noticeFor(error: unknown): Notice {
     const { text, anomaly } = describeRefusal(error.code);
     return {
       tone: anomaly ? "error" : "attention",
-      title: anomaly ? "Something unexpected happened" : "The contract didn't accept this",
+      title: anomaly ? "Something unexpected happened" : "That didn't go through",
       text,
       technical: error.code,
     };

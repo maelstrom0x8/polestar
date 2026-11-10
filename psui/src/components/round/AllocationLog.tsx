@@ -8,16 +8,15 @@ export function AllocationLog({ roundId, projects, log }: { roundId: string; pro
   const funded = projects.filter((p) => p.status === "Funded").length;
   return (
     <>
-      <Container title="Allocation">
+      <Container title="Counting">
         <div className="container__body">
           <p style={{ color: "var(--text-secondary)", fontSize: "var(--app-small)" }}>
             {funded === 0
               ? "No project has been funded yet."
-              : `${funded} of ${projects.length} projects funded so far.`}{" "}
-            The order of earlier steps isn't recorded on chain; steps taken from this page are listed as they happen.
+              : `${funded} of ${projects.length} projects funded so far.`}
           </p>
           {log.length > 0 && (
-            <ol className="step-log" aria-label="Steps taken from this page">
+            <ol className="step-log" aria-label="Counting steps">
               {log.map((entry) => (
                 <li key={entry.key} className={`step-log__item step-log__item--${entry.tone}`}>
                   {entry.tone === "funded" ? <Check aria-hidden /> : entry.tone === "unfunded" ? <X aria-hidden /> : <Info aria-hidden />}

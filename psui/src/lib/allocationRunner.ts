@@ -36,7 +36,7 @@ export function useAllocationRunner(roundId: string, projects: Project[]) {
         done = outcome.value === true;
         const entries = readAllocationLogs(outcome.logs, titleOf);
         setLog((prev) => [
-          ...(entries.length ? entries.reverse() : [{ key: `${Date.now()}`, text: "Allocation moved to its next stage", tone: "info" as const }]),
+          ...(entries.length ? entries.reverse() : [{ key: `${Date.now()}`, text: "Counting moved to its next stage", tone: "info" as const }]),
           ...prev,
         ]);
         await refresh();

@@ -1652,3 +1652,10 @@ th.dtable__num {
 .form-input select:focus {
   outline: none;
 }
+
+.sign-in-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}

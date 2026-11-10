@@ -13,8 +13,6 @@ export function useRefreshRound(roundId: string) {
   }, [client, roundId]);
 }
 
-export const STAGE_LABEL = { Mes: "Method of Equal Shares", Completion: "Remaining-budget allocation" } as const;
-
 export interface StepLogEntry {
   key: string;
   text: string;
@@ -26,13 +24,12 @@ export function readAllocationLogs(logs: string[], titleOf: (projectId: string) 
   return logs.flatMap((line, i): StepLogEntry[] => {
     const funded = /ProjectFunded .*project_id=(\d+) stage=(\w+) amount=(\d+)/.exec(line);
     if (funded) {
-      const stage = funded[2] === "Completion" ? STAGE_LABEL.Completion : STAGE_LABEL.Mes;
-      return [{ key: `${Date.now()}-${i}`, text: `${titleOf(funded[1])} funded, via ${stage}`, tone: "funded" }];
+      return [{ key: `${Date.now()}-${i}`, text: `${titleOf(funded[1])} funded`, tone: "funded" }];
     }
     const unfunded = /ProjectUnfunded .*project_id=(\d+)/.exec(line);
     if (unfunded) return [{ key: `${Date.now()}-${i}`, text: `${titleOf(unfunded[1])} not funded`, tone: "unfunded" }];
     if (/AllocationFinalized/.test(line)) {
-      return [{ key: `${Date.now()}-${i}`, text: "Allocation finished; the round is settled", tone: "info" }];
+      return [{ key: `${Date.now()}-${i}`, text: "Counting finished. The results are in.", tone: "info" }];
     }
     return [];
   });

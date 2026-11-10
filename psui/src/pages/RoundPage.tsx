@@ -8,19 +8,17 @@ import { PhasePill } from "../components/app/StatusPill";
 import { EmptyState } from "../components/EmptyState";
 import { AllocationLog } from "../components/round/AllocationLog";
 import { BallotSection } from "../components/round/BallotSection";
-import { DaoCard } from "../components/round/DaoCard";
 import { EligibilityNotice } from "../components/round/EligibilityNotice";
 import { PhaseCard } from "../components/round/PhaseCard";
 import { ProjectsTable } from "../components/round/ProjectsTable";
 import { ResultsSection } from "../components/round/ResultsSection";
 import { useAllocationRunner } from "../lib/allocationRunner";
 import { useChainClock } from "../lib/chainClock";
-import { useAllocationResult, useBallot, useProjects, useRound } from "../lib/contractQueries";
+import { useAllocationResult, useProjects, useRound } from "../lib/contractQueries";
 import { formatNearAmount } from "../lib/format";
 import { ContractPanicError } from "../lib/near";
 import { useDelayedFlag } from "../lib/useDelayedFlag";
 import { useMediaQuery } from "../lib/useMediaQuery";
-import { useWallet } from "../lib/wallet";
 import type { Project, Round } from "../types/domain";
 
 function RoundSkeleton() {
@@ -43,13 +41,12 @@ function RoundFigure({ round, projects }: { round: Round; projects: Project[] })
     const funded = projects.filter((p) => p.status === "Funded").length;
     return (
       <KeyFigure
-        label="Allocated"
+        label="Awarded"
         value={formatNearAmount(allocated)}
         unit={`of ${formatNearAmount(round.config.budget)} NEAR`}
         items={[
-          { label: "Remaining", value: formatNearAmount(round.remaining) },
-          { label: "Funded", value: `${funded} of ${round.projectCount}` },
-          { label: "Supporters", value: round.ballotCount },
+          { label: "Projects funded", value: `${funded} of ${round.projectCount}` },
+          { label: "Voters", value: round.ballotCount },
         ]}
       />
     );
@@ -60,9 +57,9 @@ function RoundFigure({ round, projects }: { round: Round; projects: Project[] })
       value={formatNearAmount(round.config.budget)}
       unit="NEAR"
       items={[
-        { label: "Remaining", value: formatNearAmount(round.remaining) },
+        ...(round.phase === "Allocation" ? [{ label: "Still to share", value: formatNearAmount(round.remaining) }] : []),
         { label: "Projects", value: round.projectCount },
-        { label: "Supporters", value: round.ballotCount },
+        ...(round.phase === "Registration" ? [] : [{ label: "Voters", value: round.ballotCount }]),
       ]}
     />
   );
@@ -75,12 +72,12 @@ function PhaseContent({ round, projects }: { round: Round; projects: Project[] }
   switch (round.phase) {
     case "Registration":
       return (
-        <Container title="Projects" headerAction={<span className="muted" style={{ fontSize: "var(--app-small)" }}>{projects.length} of 50</span>}>
+        <Container title="Proposals">
           {projects.length === 0 ? (
             <EmptyState
               Icon={FolderOpen}
-              message="No projects yet. Be the first to propose one."
-              action={{ label: "Register a project", to: `/rounds/${round.id}/register` }}
+              message="No proposals yet. Be the first."
+              action={{ label: "Propose a project", to: `/rounds/${round.id}/propose` }}
             />
           ) : (
             <ProjectsTable roundId={round.id} projects={projects} showStatus={false} />
@@ -102,8 +99,6 @@ export function RoundPage() {
   const roundQuery = useRound(validId);
   const projectsQuery = useProjects(validId);
   const { data: clock } = useChainClock();
-  const { accountId } = useWallet();
-  const ballotQuery = useBallot(validId, accountId ?? undefined);
   const round = roundQuery.data;
   const projects = projectsQuery.data ?? [];
   const runner = useAllocationRunner(roundId, projects);
@@ -128,12 +123,9 @@ export function RoundPage() {
     return (
       <div className="page">
         <PageHeader crumbs={crumbs} title={`Round ${roundId}`} />
-        <Callout tone="info" title="This round can't be shown">
-          It was created by an earlier version of the contract, which the current one can no longer read.{" "}
-          <Link to="/rounds" className="app-link">
-            See current rounds
-          </Link>
-        </Callout>
+        <Container>
+          <EmptyState Icon={SearchX} message="This round isn't available." action={{ label: "See all rounds", to: "/rounds" }} />
+        </Container>
       </div>
     );
   }
@@ -145,7 +137,7 @@ export function RoundPage() {
         <Callout
           tone="error"
           role="alert"
-          title="Couldn't reach the NEAR network"
+          title="Couldn't load this round"
           action={
             <button
               type="button"
@@ -159,7 +151,7 @@ export function RoundPage() {
             </button>
           }
         >
-          This page reads the round straight from the contract.
+          Check your connection and try again.
         </Callout>
       </div>
     );
@@ -174,7 +166,8 @@ export function RoundPage() {
     );
   }
 
-  const showEligibility = (round.phase === "Registration" || round.phase === "Declaration") && !ballotQuery.data;
+  // Only while registering is still possible; during voting there is nothing to act on.
+  const showEligibility = round.phase === "Registration";
 
   return (
     <div className="page">
@@ -184,8 +177,8 @@ export function RoundPage() {
         badge={<PhasePill phase={round.phase} />}
         actions={
           round.phase === "Registration" ? (
-            <Link to={`/rounds/${round.id}/register`} className="app-btn app-btn--primary">
-              Register a project
+            <Link to={`/rounds/${round.id}/propose`} className="app-btn app-btn--primary">
+              Propose a project
             </Link>
           ) : undefined
         }
@@ -201,10 +194,11 @@ export function RoundPage() {
             <PhaseContent round={round} projects={projects} />
           )}
         </div>
-        <aside className="detail__aside">
-          {wide && <PhaseCard round={round} clock={clock} runner={runner} />}
-          <DaoCard roundId={round.id} />
-        </aside>
+        {wide && (
+          <aside className="detail__aside">
+            <PhaseCard round={round} clock={clock} runner={runner} />
+          </aside>
+        )}
       </div>
     </div>
   );
