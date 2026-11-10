@@ -261,90 +261,6 @@ button {
   color: var(--accent);
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-label);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: 1px solid var(--border-strong);
-}
-
-.badge-electric {
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-}
-
-.badge-signal {
-  color: var(--signal);
-  border-color: rgba(0, 63, 254, 0.4);
-}
-
-.card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 28px;
-}
-
-.reveal-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  background: var(--bg-secondary);
-  padding: 28px;
-  min-height: 220px;
-  cursor: pointer;
-}
-
-.reveal-card__panel {
-  position: absolute;
-  inset: 0;
-  background: var(--signal);
-  z-index: 0;
-}
-
-.reveal-card__content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.reveal-card__index,
-.reveal-card__title,
-.reveal-card__body {
-  transition: color var(--duration-hover) var(--ease-reveal);
-}
-
-.reveal-card__index {
-  color: var(--text-muted);
-}
-
-.reveal-card__title {
-  margin-top: 16px;
-  color: var(--text-primary);
-}
-
-.reveal-card__body {
-  margin-top: 12px;
-  font-size: var(--text-small);
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-
-.reveal-card:hover .reveal-card__index,
-.reveal-card:hover .reveal-card__title,
-.reveal-card:hover .reveal-card__body {
-  color: var(--text-on-signal);
-}
-
 /* Layout */
 
 .app-header {
@@ -406,7 +322,7 @@ button {
 }
 
 .app-main {
-  /* ui.md §8: 960px, task-shaped not dashboard-shaped — this governs
+  /* 960px, task-shaped not dashboard-shaped. This governs
      every app page except the landing page, which sets its own wider
      editorial content widths independently (and isn't affected by
      this value changing, since it breaks out of .app-main entirely). */
@@ -686,30 +602,6 @@ button {
   }
 }
 
-/* Forms */
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.field__label {
-  font-size: var(--text-small);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.field__hint {
-  font-size: var(--text-label);
-  color: var(--text-muted);
-}
-
-.field__error {
-  font-size: var(--text-label);
-  color: #ff5c7a;
-}
-
 .input,
 .textarea {
   font-family: var(--font-body);
@@ -729,279 +621,6 @@ button {
   border-color: var(--accent);
 }
 
-.textarea {
-  resize: vertical;
-  min-height: 72px;
-}
-
-.checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.checkbox input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--signal);
-  cursor: pointer;
-}
-
-/* Rounds */
-
-.round-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.round-card-link {
-  display: block;
-  text-decoration: none;
-}
-
-.round-card {
-  position: relative;
-  overflow: hidden;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px 28px 24px 34px;
-  transition: border-color var(--duration-hover) var(--ease-reveal);
-}
-
-.round-card:hover {
-  border-color: var(--border-strong);
-}
-
-.round-card__accent {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--signal);
-  transform-origin: top;
-}
-
-.round-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.round-card__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 16px;
-}
-
-.round-card__stat-value {
-  display: block;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.25rem;
-}
-
-.round-card__stat-label {
-  display: block;
-  font-size: var(--text-label);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 2px;
-}
-
-.phase-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-label);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: 1px solid var(--border-strong);
-  color: var(--text-secondary);
-}
-
-.phase-badge--declaration {
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-}
-
-.phase-badge--allocation {
-  color: var(--text-on-signal);
-  background: var(--signal-deep);
-  border-color: var(--signal-deep);
-}
-
-.phase-badge--settlement {
-  color: var(--text-muted);
-  background: var(--bg-secondary);
-  border-color: var(--border);
-}
-
-/* Projects */
-
-.project-list {
-  border-top: 1px solid var(--border);
-  margin-top: 16px;
-}
-
-.project-row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 4px 18px 16px;
-  border-bottom: 1px solid var(--border);
-  transition: background-color var(--duration-hover) var(--ease-reveal);
-}
-
-/* At 480px+ a wrapping title and the status/cost column fight for the
-   same line and overlap - checked, not assumed. Stacking avoids it
-   regardless of title length or whether the approval checkbox is
-   present, rather than chasing exact widths. */
-@media (max-width: 480px) {
-  .project-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .project-row__meta {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-.project-row:hover {
-  background: color-mix(in srgb, var(--text-primary) 4%, transparent);
-}
-
-.project-row__accent {
-  position: absolute;
-  left: 0;
-  top: 10px;
-  bottom: 10px;
-  width: 3px;
-  border-radius: var(--radius-sm);
-  background: var(--signal);
-  transform-origin: top;
-}
-
-.project-row__main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.project-row__title {
-  font-weight: 600;
-  font-size: var(--text-body);
-}
-
-.project-row__summary {
-  font-size: var(--text-small);
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.project-row__meta {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-shrink: 0;
-}
-
-.project-row__milestones {
-  font-size: var(--text-label);
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.project-row__cost {
-  font-weight: 600;
-  font-size: var(--text-small);
-  min-width: 90px;
-  text-align: right;
-}
-
-.status-badge--pending {
-  color: var(--text-secondary);
-}
-
-.status-badge--funded {
-  color: var(--signal);
-  border-color: rgba(0, 63, 254, 0.4);
-}
-
-.status-badge--unfunded {
-  color: var(--text-muted);
-}
-
-/* Rounds list (/rounds, ui.md §5.2/§6) */
-
-.rounds-page__subhead {
-  margin-top: 8px;
-  color: var(--text-secondary);
-  font-size: var(--text-small);
-}
-
-.rounds-page__filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 24px;
-}
-
-.chip {
-  padding: 6px 14px;
-  border-radius: 9999px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--text-label);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  transition: all var(--duration-hover) var(--ease-reveal);
-}
-
-.chip:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
-.chip--active {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-/* .chip:hover's color rule otherwise wins on specificity (a class +
-   pseudo-class beats a single class) regardless of source order,
-   turning the active chip's light-on-dark text dark-on-dark —
-   invisible — the moment it's hovered. Caught by an actual screenshot
-   taken right after a Playwright click, which leaves the cursor
-   sitting on the clicked element. */
-.chip--active:hover {
-  color: var(--bg-primary);
-}
-
-.round-card--skeleton {
-  height: 132px;
-  background: var(--bg-secondary);
-  animation: skeleton-pulse 1.6s ease-in-out infinite;
-}
-
 @keyframes skeleton-pulse {
   0%,
   100% {
@@ -1010,43 +629,6 @@ button {
   50% {
     opacity: 0.5;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .round-card--skeleton {
-    animation: none;
-    opacity: 0.7;
-  }
-}
-
-/* Sign in (/sign-in, ui.md §5.1) */
-
-.sign-in-page {
-  max-width: 560px;
-}
-
-.sign-in-page__lede {
-  margin-top: 12px;
-  font-size: var(--text-body);
-  color: var(--text-primary);
-}
-
-.sign-in-page__account {
-  font-family: var(--font-mono);
-  word-break: break-all;
-}
-
-.sign-in-page__note {
-  margin-top: 12px;
-  font-size: var(--text-small);
-  color: var(--text-secondary);
-}
-
-.sign-in-page__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 32px;
 }
 
 .wallet-group {
@@ -1061,97 +643,7 @@ button {
   color: var(--text-secondary);
 }
 
-.wallet-list {
-  list-style: none;
-  margin: 12px 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.wallet-option {
-  width: 100%;
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 18px;
-  text-align: left;
-  background: transparent;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  font: inherit;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: border-color var(--duration-hover) var(--ease-reveal);
-}
-
-.wallet-option:hover:not(:disabled) {
-  border-color: var(--signal);
-}
-
-.wallet-option:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.wallet-option[aria-busy="true"] {
-  opacity: 1;
-  border-color: var(--signal);
-}
-
-.wallet-option__icon {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: var(--radius-sm);
-}
-
-.wallet-option__text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.wallet-option__name {
-  font-size: var(--text-small);
-  font-weight: 600;
-}
-
-.wallet-option__tag {
-  margin-left: auto;
-  flex-shrink: 0;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  background: var(--bg-secondary);
-  color: var(--signal-deep);
-  font-size: var(--text-label);
-  font-weight: 600;
-}
-
-.wallet-option__detail {
-  font-size: var(--text-label);
-  color: var(--text-secondary);
-}
-
-.sign-in-page__notice {
-  margin-top: 20px;
-  padding: 12px 16px;
-  border-radius: var(--radius-md);
-  font-size: var(--text-small);
-  border: 1px solid var(--border);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-.sign-in-page__notice--error {
-  border-color: var(--border-strong);
-  border-left: 3px solid var(--signal-deep);
-}
-
-/* EmptyState (ui.md §7) */
+/* EmptyState */
 
 .empty-state {
   display: flex;
@@ -1174,7 +666,7 @@ button {
   max-width: 40ch;
 }
 
-/* Landing page hero (ui.md §4.6) */
+/* Landing page hero */
 
 /* .app-main centers content at a 1040px/24px-padding gutter (x=144 at a
    1280px viewport) — correct for ordinary app pages, wrong for a hero
@@ -1564,7 +1056,7 @@ button {
   font-size: var(--text-small);
 }
 
-/* Typewriter (ui.md §4.6 item 2) — the text node never changes; only a
+/* Typewriter. The text node never changes; only a
    clip width animates, so assistive tech sees the complete headline
    immediately regardless of animation state. Each line is its own block
    so a multi-line headline wraps normally (white-space: nowrap only
