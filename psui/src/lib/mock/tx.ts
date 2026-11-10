@@ -1,3 +1,4 @@
+import type { ProposalKind as DaoProposalKind } from "../dao";
 import {
   TxCancelledError,
   TxNetworkError,
@@ -6,6 +7,8 @@ import {
   type ContractCall,
   type TxOutcome,
 } from "../tx";
+import { CONTRACT_ID, DAO_ID } from "../near";
+import { daoStore } from "./dao";
 import { MOCK_ACCOUNT, MOCK_HEAD, type MockRound } from "./fixtures";
 import { store } from "./views";
 
@@ -53,9 +56,70 @@ function stepAllocation(round: MockRound): { done: boolean; logs: string[] } {
   return { done: true, logs };
 }
 
+function executeDao(call: ContractCall, signer: string): { value: unknown; logs: string[] } {
+  const { args } = call;
+  if (call.method === "add_proposal") {
+    if (call.deposit !== BigInt(daoStore.policy.proposal_bond)) throw new TxRefusedError("UNKNOWN", "ERR_MIN_BOND");
+    const input = args.proposal as { description: string; kind: DaoProposalKind };
+    const id = daoStore.proposals.length;
+    daoStore.proposals.push({ id, proposer: signer, description: input.description, kind: input.kind, status: "InProgress", vote_counts: {}, votes: {} });
+    return { value: id, logs: [] };
+  }
+  if (call.method === "act_proposal") {
+    const proposal = daoStore.proposals.find((p) => p.id === Number(args.id));
+    if (!proposal || proposal.status !== "InProgress") throw new TxRefusedError("UNKNOWN", "ERR_PROPOSAL_NOT_READY_FOR_VOTE");
+    const council = daoStore.policy.roles.find((r) => r.name === "council")?.kind as { Group: string[] };
+    if (!council.Group.includes(signer)) throw new TxRefusedError("UNKNOWN", "ERR_PERMISSION_DENIED");
+    proposal.votes[signer] = args.action === "VoteApprove" ? "Approve" : "Reject";
+    const approve = Object.values(proposal.votes).filter((v) => v === "Approve").length;
+    const reject = Object.values(proposal.votes).filter((v) => v === "Reject").length;
+    // Threshold: half the council (the live DAO's [1, 2] policy).
+    if (approve * 2 >= council.Group.length) {
+      proposal.status = "Approved";
+      const action = proposal.kind.FunctionCall!.actions[0];
+      const decoded = JSON.parse(atob(action.args).replace(/(?<=[:,[])(\d{16,})(?=[,}\]])/g, '"$1"')) as Record<string, unknown>;
+      return execute({ method: action.method_name, args: decoded, deposit: BigInt(action.deposit), gas: BigInt(action.gas) }, DAO_ID);
+    }
+    if (reject * 2 >= council.Group.length) proposal.status = "Rejected";
+    return { value: null, logs: [] };
+  }
+  throw new Error(`mock DAO: no change method named ${call.method}`);
+}
+
 function execute(call: ContractCall, signer: string): { value: unknown; logs: string[] } {
   const { args } = call;
   switch (call.method) {
+    case "fund_round": {
+      if (signer !== DAO_ID) refuse("ERR_NOT_SPUTNIK_DAO");
+      const config = args.config as { budget: string | number; opens_at: number; closes_at: number; t_min: number };
+      if (config.closes_at <= config.opens_at) refuse("ERR_INVALID_CONFIG");
+      const budget = BigInt(config.budget);
+      if (call.deposit !== budget) refuse("ERR_DEPOSIT_MISMATCH");
+      const id = store.rounds.length;
+      store.rounds.push({
+        id,
+        config: { budget, opens_at: config.opens_at, closes_at: config.closes_at, t_min: config.t_min },
+        phase: "Registration",
+        remaining: budget,
+        projects: [],
+        ballots: [],
+        result: null,
+      });
+      return { value: id, logs: [`RoundFunded round_id=${id}`] };
+    }
+    case "attest_milestone": {
+      if (signer !== DAO_ID) refuse("ERR_NOT_SPUTNIK_DAO");
+      const round = roundOf(args);
+      if (round.phase !== "Settlement") refuse("ERR_WRONG_PHASE");
+      const project = round.projects.find((p) => p.id === Number(args.project_id));
+      if (!project) refuse("ERR_PROJECT_NOT_FOUND");
+      if (project.status !== "Funded") refuse("ERR_PROJECT_NOT_FUNDED");
+      const milestone = project.milestones[Number(args.milestone_index)];
+      if (!milestone) refuse("ERR_INVALID_MILESTONE_INDEX");
+      if (milestone.attested) refuse("ERR_ALREADY_ATTESTED");
+      milestone.attested = true;
+      return { value: null, logs: [`MilestoneAttested round_id=${round.id} project_id=${project.id}`] };
+    }
     case "register_voter":
       if (!firstSeen.has(signer)) firstSeen.set(signer, MOCK_HEAD);
       return { value: null, logs: [] };
@@ -134,7 +198,7 @@ export async function mockSend(call: ContractCall): Promise<TxOutcome> {
   await wait(900);
   if (fail === "lost") throw new TxUnknownError("Request timed out");
   const signer = sessionStorage.getItem("psui:mock-account") ?? MOCK_ACCOUNT;
-  const { value, logs } = execute(call, signer);
+  const { value, logs } = call.receiverId && call.receiverId !== CONTRACT_ID ? executeDao(call, signer) : execute(call, signer);
   const hash = `mock-${Math.random().toString(36).slice(2, 10)}`;
   return { hash, logs, value };
 }

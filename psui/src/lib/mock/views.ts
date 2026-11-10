@@ -37,8 +37,9 @@ function find(args: Record<string, unknown>, method: string): MockRound | undefi
 
 export async function mockView(method: string, args: Record<string, unknown>, contractId: string): Promise<unknown> {
   await latency();
-  if (method === "get_policy" && contractId !== CONTRACT_ID) {
-    return asContractJson({ proposal_bond: "1000000000000000000000000" });
+  if (contractId !== CONTRACT_ID) {
+    const { daoView } = await import("./dao");
+    return daoView(method, args);
   }
   const pid = Number(args.project_id);
   switch (method) {

@@ -99,7 +99,7 @@ export function TxFlow(props: TxFlowProps) {
 
   if (stage === "review") {
     const payload = contractJson(
-      { receiver_id: CONTRACT_ID, method_name: call.method, args: call.args, deposit: call.deposit, gas: call.gas },
+      { receiver_id: call.receiverId ?? CONTRACT_ID, method_name: call.method, args: call.args, deposit: call.deposit, gas: call.gas },
       2,
     );
     return (

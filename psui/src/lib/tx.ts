@@ -3,6 +3,8 @@ import { CONTRACT_ID } from "./near";
 export const TGAS = 10n ** 12n;
 
 export interface ContractCall {
+  /** Defaults to the Polestar contract. */
+  receiverId?: string;
   method: string;
   args: Record<string, unknown>;
   deposit: bigint;
@@ -93,7 +95,7 @@ export async function sendCall(call: ContractCall): Promise<TxOutcome> {
   let raw: RawOutcome;
   try {
     raw = (await wallet.signAndSendTransaction({
-      receiverId: CONTRACT_ID,
+      receiverId: call.receiverId ?? CONTRACT_ID,
       actions: [
         {
           type: "FunctionCall",

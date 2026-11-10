@@ -1659,3 +1659,55 @@ th.dtable__num {
   align-items: flex-start;
   gap: var(--space-4);
 }
+
+/* Proposals */
+
+.proposal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.proposal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border);
+}
+
+.proposal:first-child {
+  border-top: 0;
+}
+
+.proposal > .tx {
+  flex: 1;
+}
+
+.proposal__text {
+  min-width: 0;
+}
+
+.proposal__title {
+  display: block;
+  font-weight: 600;
+}
+
+.proposal__detail {
+  display: block;
+  font-size: var(--app-small);
+  color: var(--text-muted);
+}
+
+.proposal__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.duration {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: var(--space-2);
+}

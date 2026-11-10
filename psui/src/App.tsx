@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { LandingPage } from "./pages/LandingPage";
 import { AccountPage } from "./pages/AccountPage";
-import { DaoProposePage } from "./pages/DaoProposePage";
+import { ProposalsPage } from "./pages/ProposalsPage";
 import { ProjectPage } from "./pages/ProjectPage";
 import { ProposePage } from "./pages/ProposePage";
 import { ProposeProjectPage } from "./pages/ProposeProjectPage";
@@ -21,7 +21,7 @@ export default function App() {
       <Route element={<AppShell />}>
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/account" element={<AccountPage />} />
-        <Route path="/dao/propose" element={<DaoProposePage />} />
+        <Route path="/proposals" element={<ProposalsPage />} />
         <Route path="/rounds" element={<RoundsPage />} />
         <Route path="/rounds/:roundId" element={<RoundPage />} />
         <Route path="/propose" element={<ProposePage />} />
