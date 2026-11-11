@@ -153,6 +153,7 @@ async fn return_remaining_on_real_wasm() -> anyhow::Result<()> {
     let remaining = BUDGET.as_yoctonear() - PROJECT_COST.as_yoctonear();
     assert_eq!(before["remaining"].to_string(), remaining.to_string());
     assert_eq!(before["remaining_returned"], false);
+    assert!(before["voter_namespace"].is_null());
 
     let refused = stranger
         .call(contract.id(), "return_remaining")

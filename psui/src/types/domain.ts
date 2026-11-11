@@ -28,6 +28,7 @@ export interface Round {
   phase: RoundPhase;
   remaining: string;
   remainingReturned: boolean;
+  voterNamespace: string | null;
   projectCount: number;
   ballotCount: number;
 }

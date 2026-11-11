@@ -31,6 +31,7 @@ export interface MockRound {
   phase: RoundPhase;
   remaining: bigint;
   remainingReturned?: boolean;
+  voterNamespace?: string;
   projects: MockProject[];
   ballots: { voter: string; approved: number[] }[];
   result: null | {

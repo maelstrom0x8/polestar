@@ -7,7 +7,8 @@ import {
   type ContractCall,
   type TxOutcome,
 } from "../tx";
-import { CONTRACT_ID, DAO_ID } from "../near";
+import { isDirectSubAccount } from "../eligibility";
+import { CONTRACT_ID, DAO_ID, parsePreservingBigNumbers } from "../near";
 import { daoStore } from "./dao";
 import { MOCK_ACCOUNT, MOCK_HEAD, type MockRound } from "./fixtures";
 import { store } from "./views";
@@ -77,7 +78,7 @@ function executeDao(call: ContractCall, signer: string): { value: unknown; logs:
     if (approve * 2 >= council.Group.length) {
       proposal.status = "Approved";
       const action = proposal.kind.FunctionCall!.actions[0];
-      const decoded = JSON.parse(atob(action.args).replace(/(?<=[:,[])(\d{16,})(?=[,}\]])/g, '"$1"')) as Record<string, unknown>;
+      const decoded = parsePreservingBigNumbers(atob(action.args)) as Record<string, unknown>;
       return execute({ method: action.method_name, args: decoded, deposit: BigInt(action.deposit), gas: BigInt(action.gas) }, DAO_ID);
     }
     if (reject * 2 >= council.Group.length) proposal.status = "Rejected";
@@ -101,6 +102,7 @@ function execute(call: ContractCall, signer: string): { value: unknown; logs: st
         config: { budget, opens_at: config.opens_at, closes_at: config.closes_at, t_min: config.t_min },
         phase: "Registration",
         remaining: budget,
+        ...(typeof args.voter_namespace === "string" ? { voterNamespace: args.voter_namespace } : {}),
         projects: [],
         ballots: [],
         result: null,
@@ -161,6 +163,7 @@ function execute(call: ContractCall, signer: string): { value: unknown; logs: st
       const round = roundOf(args);
       if (round.phase !== "Declaration") refuse("ERR_WRONG_PHASE");
       if (MOCK_HEAD > round.config.closes_at) refuse("ERR_DECLARATION_CLOSED");
+      if (round.voterNamespace && !isDirectSubAccount(signer, round.voterNamespace)) refuse("ERR_NOT_IN_VOTER_NAMESPACE");
       if (round.ballots.some((b) => b.voter === signer)) refuse("ERR_ALREADY_VOTED");
       const approved = (args.approved as number[]).map(Number);
       if (approved.length === 0) refuse("ERR_EMPTY_APPROVAL");

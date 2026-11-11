@@ -25,6 +25,7 @@ function roundView(round: MockRound) {
     phase: round.phase,
     remaining: round.remaining,
     remaining_returned: round.remainingReturned ?? false,
+    voter_namespace: round.voterNamespace ?? null,
     project_count: round.projects.length,
     ballot_count: round.ballots.length,
   };

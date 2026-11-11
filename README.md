@@ -73,7 +73,7 @@ Then run `npm run dev` in `psui/`.
 
 ## Usage
 
-1. **Fund a round.** As a council member, open **Proposals**, choose **Fund a round**, set the budget and timings, then **Submit** and **Approve** it.
+1. **Fund a round.** As a council member, open **Proposals**, choose **Fund a round**, set the budget, timings and who can vote, then **Submit** and **Approve** it. To limit voting to a community, choose **Members of a named account** and enter a name such as `guild.near`: only accounts directly under it, like `priya.guild.near`, can vote.
 2. **Register.** Voters open the round and choose **Register as a voter** before registration closes.
 3. **Propose.** On the round page, choose **Propose a project** and enter its milestones.
 4. **Vote.** Choose **Start voting**. Registered voters then approve the projects they support.

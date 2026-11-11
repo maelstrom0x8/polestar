@@ -95,12 +95,15 @@ fn run_scenario(
 ) -> ScenarioOutcome {
     let mut contract = new_contract();
     set_ctx(dao(), NearToken::from_yoctonear(scenario.budget), 0);
-    let round_id = contract.fund_round(RoundConfig {
-        budget: scenario.budget,
-        opens_at: OPENS_AT,
-        closes_at: CLOSES_AT,
-        t_min: T_MIN,
-    });
+    let round_id = contract.fund_round(
+        RoundConfig {
+            budget: scenario.budget,
+            opens_at: OPENS_AT,
+            closes_at: CLOSES_AT,
+            t_min: T_MIN,
+        },
+        None,
+    );
 
     let mut project_ids = vec![0u64; scenario.costs.len()];
     for &logical_index in project_order {
@@ -250,7 +253,7 @@ proptest! {
             opens_at: OPENS_AT,
             closes_at: CLOSES_AT,
             t_min: T_MIN,
-        });
+        }, None);
 
         set_ctx(synthetic_account("proposer", 0), NearToken::from_yoctonear(1), 0);
         let project_id = contract.register_project(

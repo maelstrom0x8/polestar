@@ -11,6 +11,7 @@ pub struct RoundView {
     pub phase: RoundPhase,
     pub remaining: u128,
     pub remaining_returned: bool,
+    pub voter_namespace: Option<AccountId>,
     pub project_count: u64,
     pub ballot_count: u64,
 }
@@ -27,6 +28,7 @@ impl Contract {
             phase: round.phase,
             remaining: round.remaining,
             remaining_returned: self.remaining_returned().contains_key(&round_id),
+            voter_namespace: self.voter_namespace().get(&round_id),
         })
     }
 

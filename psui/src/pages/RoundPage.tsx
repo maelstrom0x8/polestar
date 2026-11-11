@@ -65,6 +65,7 @@ function RoundFigure({ round, projects }: { round: Round; projects: Project[] })
         ...(round.phase === "Allocation" ? [{ label: "Still to share", value: formatNearAmount(round.remaining) }] : []),
         { label: "Projects", value: round.projectCount },
         ...(round.phase === "Registration" ? [] : [{ label: "Voters", value: round.ballotCount }]),
+        ...(round.voterNamespace ? [{ label: "Who can vote", value: `Members of ${round.voterNamespace}` }] : []),
       ]}
     />
   );
@@ -91,7 +92,7 @@ function PhaseContent({ round, projects, status }: { round: Round; projects: Pro
       );
     case "Declaration":
       // A known-ineligible account sees the proposals, not a ballot it can't cast.
-      return status === "too-late" || status === "not-registered" ? (
+      return status === "too-late" || status === "not-registered" || status === "not-member" ? (
         <Container title="Proposals">
           <ProjectsTable roundId={round.id} projects={projects} showStatus={false} />
         </Container>
@@ -180,7 +181,7 @@ export function RoundPage() {
     );
   }
 
-  const status = accountId && firstSeenQuery.isSuccess ? voterStatus(round, firstSeenQuery.data ?? null) : null;
+  const status = accountId && firstSeenQuery.isSuccess ? voterStatus(round, accountId, firstSeenQuery.data ?? null) : null;
   // During voting, only a known "you can't vote" is worth saying; the notice returns null otherwise.
   const showEligibility = round.phase === "Registration" || round.phase === "Declaration";
 

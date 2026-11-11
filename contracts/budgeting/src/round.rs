@@ -31,7 +31,11 @@ impl Contract {
 #[near]
 impl Contract {
     #[payable]
-    pub fn fund_round(&mut self, config: RoundConfig) -> RoundId {
+    pub fn fund_round(
+        &mut self,
+        config: RoundConfig,
+        voter_namespace: Option<AccountId>,
+    ) -> RoundId {
         self.assert_sputnik_dao();
         if config.closes_at <= config.opens_at {
             env::panic_str("ERR_INVALID_CONFIG");
@@ -55,10 +59,16 @@ impl Contract {
             progress: None,
         };
         self.rounds.insert(&round_id, &round);
+        if let Some(namespace) = &voter_namespace {
+            self.voter_namespace().insert(&round_id, namespace);
+        }
 
         env::log_str(&format!(
-            "RoundFunded round_id={round_id} budget={} opens_at={} closes_at={}",
-            round.config.budget, round.config.opens_at, round.config.closes_at
+            "RoundFunded round_id={round_id} budget={} opens_at={} closes_at={} voter_namespace={}",
+            round.config.budget,
+            round.config.opens_at,
+            round.config.closes_at,
+            voter_namespace.as_ref().map_or("none", |n| n.as_str())
         ));
 
         round_id
@@ -170,6 +180,11 @@ impl Contract {
         }
 
         let voter = env::predecessor_account_id();
+        if let Some(namespace) = self.voter_namespace().get(&round_id) {
+            if !voter.is_sub_account_of(&namespace) {
+                env::panic_str("ERR_NOT_IN_VOTER_NAMESPACE");
+            }
+        }
         if round.ballots.get(&voter).is_some() {
             env::panic_str("ERR_ALREADY_VOTED");
         }

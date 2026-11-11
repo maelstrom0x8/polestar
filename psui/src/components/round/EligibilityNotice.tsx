@@ -62,6 +62,15 @@ export function EligibilityNotice({
 
   const when = relativeTime(deadline, clock);
 
+  if (status === "not-member") {
+    return (
+      <Callout tone="info" title="You can't vote in this round">
+        Voting in this round is open to members of {round.voterNamespace}, meaning accounts named like
+        yourname.{round.voterNamespace}. You can still follow the results.
+      </Callout>
+    );
+  }
+
   if (round.phase === "Declaration") {
     return status === "too-late" || status === "not-registered" ? (
       <Callout tone="info" title="You can't vote in this round">

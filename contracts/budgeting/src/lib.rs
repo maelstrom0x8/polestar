@@ -22,6 +22,7 @@ enum StorageKey {
     Rounds,
     FirstSeen,
     RemainingReturned,
+    VoterNamespace,
 }
 
 #[near(contract_state)]
@@ -49,5 +50,9 @@ impl Contract {
 impl Contract {
     pub(crate) fn remaining_returned(&self) -> LookupMap<RoundId, u128> {
         LookupMap::new(StorageKey::RemainingReturned)
+    }
+
+    pub(crate) fn voter_namespace(&self) -> LookupMap<RoundId, AccountId> {
+        LookupMap::new(StorageKey::VoterNamespace)
     }
 }

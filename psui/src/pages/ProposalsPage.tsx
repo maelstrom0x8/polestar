@@ -31,6 +31,7 @@ import { useWallet } from "../lib/wallet";
 type Mode = "fund" | "milestone" | "return";
 type Unit = "minutes" | "hours" | "days";
 const UNIT_MS: Record<Unit, number> = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 };
+const ACCOUNT_ID = /^(?=.{2,64}$)(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/;
 
 function useRefreshAfterDecision() {
   const client = useQueryClient();
@@ -213,6 +214,8 @@ function FundRoundForm({ bond }: { bond: bigint }) {
   const [voteValue, setVoteValue] = useState("3");
   const [voteUnit, setVoteUnit] = useState<Unit>("days");
   const [description, setDescription] = useState<string | null>(null);
+  const [membersOnly, setMembersOnly] = useState(false);
+  const [namespace, setNamespace] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [review, setReview] = useState<ContractCall | null>(null);
 
@@ -232,8 +235,10 @@ function FundRoundForm({ bond }: { bond: bigint }) {
         : voteBlocks === null && voteValue
           ? "Enter a length of time."
           : null,
+    namespace: membersOnly && namespace && !ACCOUNT_ID.test(namespace) ? "Enter a NEAR account name, like guild.near." : null,
   };
-  const ready = !!clock && budgetYocto !== null && budgetYocto > 0n && regBlocks !== null && voteBlocks !== null && voteBlocks > regBlocks;
+  const namespaceOk = !membersOnly || ACCOUNT_ID.test(namespace);
+  const ready = !!clock && budgetYocto !== null && budgetYocto > 0n && regBlocks !== null && voteBlocks !== null && voteBlocks > regBlocks && namespaceOk;
 
   if (review) {
     return (
@@ -244,6 +249,7 @@ function FundRoundForm({ bond }: { bond: bigint }) {
           { label: "Budget", value: formatNear(budgetYocto ?? 0n, true) },
           { label: "Voter registration closes", value: relativeTime((clock?.height ?? 0) + (regBlocks ?? 0), clock) ?? "" },
           { label: "Voting closes", value: relativeTime((clock?.height ?? 0) + (voteBlocks ?? 0), clock) ?? "" },
+          { label: "Who can vote", value: membersOnly ? `Members of ${namespace}` : "Anyone who registers" },
         ]}
         onDone={() => setReview(null)}
       />
@@ -266,7 +272,10 @@ function FundRoundForm({ bond }: { bond: bigint }) {
           submitCall(
             desc,
             "fund_round",
-            { config: { budget: budgetYocto, opens_at: opensAt, closes_at: closesAt, t_min: 0 } },
+            {
+              config: { budget: budgetYocto, opens_at: opensAt, closes_at: closesAt, t_min: 0 },
+              ...(membersOnly ? { voter_namespace: namespace } : {}),
+            },
             budgetYocto as bigint,
             100n * TGAS,
             bond,
@@ -302,6 +311,26 @@ function FundRoundForm({ bond }: { bond: bigint }) {
         hint="Counted from now. Voting itself starts once there's a proposal and someone starts it."
         error={errors.vote}
       />
+      <FieldShell label="Who can vote">
+        {({ inputId }) => (
+          <div className="form-input">
+            <select id={inputId} value={membersOnly ? "members" : "anyone"} onChange={(e) => setMembersOnly(e.target.value === "members")}>
+              <option value="anyone">Anyone who registers</option>
+              <option value="members">Members of a named account</option>
+            </select>
+          </div>
+        )}
+      </FieldShell>
+      {membersOnly && (
+        <TextField
+          label="Named account"
+          value={namespace}
+          placeholder="guild.near"
+          onChange={(e) => setNamespace(e.target.value.trim().toLowerCase())}
+          hint="Only accounts directly under this name can vote, like priya.guild.near. Whoever controls the name decides who gets one."
+          error={submitted ? errors.namespace ?? (namespace ? null : "Enter the account name.") : errors.namespace}
+        />
+      )}
       <TextField label="Description" value={desc} onChange={(e) => setDescription(e.target.value)} />
       {!clock && <p className="form-field__hint">Reading the current block…</p>}
       <div className="form-actions">

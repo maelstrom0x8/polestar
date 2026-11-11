@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { formatNear } from "./format";
-import { CONTRACT_ID, DAO_ID, viewFunction } from "./near";
+import { CONTRACT_ID, DAO_ID, parsePreservingBigNumbers, viewFunction } from "./near";
 import { TGAS, contractJson, type ContractCall } from "./tx";
 
 // SputnikDAO's own shapes (all numbers arrive as strings).
@@ -75,9 +75,7 @@ export function useOpenProposals() {
 
 function decodeArgs(args: string): Record<string, unknown> | null {
   try {
-    // Bare 16+-digit numbers (u128 amounts) are kept as strings, not rounded.
-    const text = atob(args).replace(/(?<=[:,[])(\d{16,})(?=[,}\]])/g, '"$1"');
-    return JSON.parse(text) as Record<string, unknown>;
+    return parsePreservingBigNumbers(atob(args)) as Record<string, unknown>;
   } catch {
     return null;
   }
@@ -89,7 +87,8 @@ export function describeProposal(p: DaoProposal): { title: string; detail: strin
   const args = action ? decodeArgs(action.args) : null;
   if (action?.method_name === "fund_round" && args) {
     const config = args.config as { budget: string | number } | undefined;
-    return { title: "Fund a new round", detail: config ? `Budget ${formatNear(String(config.budget))}` : "" };
+    const members = typeof args.voter_namespace === "string" ? ` · voting open to members of ${args.voter_namespace}` : "";
+    return { title: "Fund a new round", detail: config ? `Budget ${formatNear(String(config.budget))}${members}` : "" };
   }
   if (action?.method_name === "attest_milestone" && args) {
     return {

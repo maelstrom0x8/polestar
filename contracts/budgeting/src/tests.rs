@@ -67,12 +67,15 @@ const T_MIN: u64 = 10;
 
 fn fund(contract: &mut Contract) -> RoundId {
     set_ctx(dao(), NearToken::from_yoctonear(BUDGET), 10);
-    contract.fund_round(RoundConfig {
-        budget: BUDGET,
-        opens_at: OPENS_AT,
-        closes_at: CLOSES_AT,
-        t_min: T_MIN,
-    })
+    contract.fund_round(
+        RoundConfig {
+            budget: BUDGET,
+            opens_at: OPENS_AT,
+            closes_at: CLOSES_AT,
+            t_min: T_MIN,
+        },
+        None,
+    )
 }
 
 fn register(
@@ -110,12 +113,15 @@ fn eligible_voter_seen_at(contract: &mut Contract, voter: AccountId, first_seen_
 fn fund_round_rejects_non_dao_caller() {
     let mut contract = new_contract();
     set_ctx(non_dao(), NearToken::from_yoctonear(BUDGET), 10);
-    contract.fund_round(RoundConfig {
-        budget: BUDGET,
-        opens_at: OPENS_AT,
-        closes_at: CLOSES_AT,
-        t_min: T_MIN,
-    });
+    contract.fund_round(
+        RoundConfig {
+            budget: BUDGET,
+            opens_at: OPENS_AT,
+            closes_at: CLOSES_AT,
+            t_min: T_MIN,
+        },
+        None,
+    );
 }
 
 #[test]
@@ -123,12 +129,15 @@ fn fund_round_rejects_non_dao_caller() {
 fn fund_round_rejects_deposit_mismatch() {
     let mut contract = new_contract();
     set_ctx(dao(), NearToken::from_yoctonear(BUDGET - 1), 10);
-    contract.fund_round(RoundConfig {
-        budget: BUDGET,
-        opens_at: OPENS_AT,
-        closes_at: CLOSES_AT,
-        t_min: T_MIN,
-    });
+    contract.fund_round(
+        RoundConfig {
+            budget: BUDGET,
+            opens_at: OPENS_AT,
+            closes_at: CLOSES_AT,
+            t_min: T_MIN,
+        },
+        None,
+    );
 }
 
 #[test]
@@ -136,12 +145,15 @@ fn fund_round_rejects_deposit_mismatch() {
 fn fund_round_rejects_invalid_config() {
     let mut contract = new_contract();
     set_ctx(dao(), NearToken::from_yoctonear(BUDGET), 10);
-    contract.fund_round(RoundConfig {
-        budget: BUDGET,
-        opens_at: CLOSES_AT,
-        closes_at: OPENS_AT,
-        t_min: T_MIN,
-    });
+    contract.fund_round(
+        RoundConfig {
+            budget: BUDGET,
+            opens_at: CLOSES_AT,
+            closes_at: OPENS_AT,
+            t_min: T_MIN,
+        },
+        None,
+    );
 }
 
 #[test]
@@ -684,4 +696,119 @@ fn on_remaining_return_success_keeps_the_record() {
     );
     contract.on_remaining_return(round_id);
     assert!(is_returned(&contract, round_id));
+}
+
+fn guild() -> AccountId {
+    "guild.near".parse().unwrap()
+}
+
+fn namespaced_round_in_declaration(contract: &mut Contract) -> (RoundId, ProjectId) {
+    set_ctx(dao(), NearToken::from_yoctonear(BUDGET), 10);
+    let round_id = contract.fund_round(
+        RoundConfig {
+            budget: BUDGET,
+            opens_at: OPENS_AT,
+            closes_at: CLOSES_AT,
+            t_min: T_MIN,
+        },
+        Some(guild()),
+    );
+    let project_id = register(contract, round_id, 600, vec![300, 300]);
+    set_ctx(stranger(), NearToken::from_near(0), 50);
+    contract.open_declaration(round_id);
+    (round_id, project_id)
+}
+
+fn vote_as(contract: &mut Contract, round_id: RoundId, project_id: ProjectId, voter: AccountId) {
+    eligible_voter_seen_at(contract, voter.clone(), OPENS_AT - T_MIN);
+    set_ctx(voter, NearToken::from_near(0), OPENS_AT);
+    contract.submit_ballot(round_id, BTreeSet::from([project_id]));
+}
+
+#[test]
+fn voter_namespace_is_recorded_and_reported() {
+    let mut contract = new_contract();
+    let (round_id, _) = namespaced_round_in_declaration(&mut contract);
+    assert_eq!(
+        contract.get_round(round_id).unwrap().voter_namespace,
+        Some(guild())
+    );
+}
+
+#[test]
+fn open_rounds_report_no_voter_namespace() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_declaration(&mut contract);
+    assert_eq!(contract.get_round(round_id).unwrap().voter_namespace, None);
+}
+
+#[test]
+fn direct_sub_accounts_of_the_namespace_can_vote() {
+    let mut contract = new_contract();
+    let (round_id, project_id) = namespaced_round_in_declaration(&mut contract);
+    let member: AccountId = "priya.guild.near".parse().unwrap();
+    vote_as(&mut contract, round_id, project_id, member.clone());
+    assert!(contract.get_ballot(round_id, member).is_some());
+}
+
+#[test]
+#[should_panic(expected = "ERR_NOT_IN_VOTER_NAMESPACE")]
+fn accounts_outside_the_namespace_cannot_vote() {
+    let mut contract = new_contract();
+    let (round_id, project_id) = namespaced_round_in_declaration(&mut contract);
+    vote_as(&mut contract, round_id, project_id, voter_a());
+}
+
+#[test]
+#[should_panic(expected = "ERR_NOT_IN_VOTER_NAMESPACE")]
+fn deeper_sub_accounts_cannot_vote() {
+    let mut contract = new_contract();
+    let (round_id, project_id) = namespaced_round_in_declaration(&mut contract);
+    vote_as(
+        &mut contract,
+        round_id,
+        project_id,
+        "sock.priya.guild.near".parse().unwrap(),
+    );
+}
+
+#[test]
+#[should_panic(expected = "ERR_NOT_IN_VOTER_NAMESPACE")]
+fn the_namespace_account_itself_cannot_vote() {
+    let mut contract = new_contract();
+    let (round_id, project_id) = namespaced_round_in_declaration(&mut contract);
+    vote_as(&mut contract, round_id, project_id, guild());
+}
+
+#[test]
+#[should_panic(expected = "ERR_NOT_IN_VOTER_NAMESPACE")]
+fn a_lookalike_suffix_is_not_a_sub_account() {
+    let mut contract = new_contract();
+    let (round_id, project_id) = namespaced_round_in_declaration(&mut contract);
+    vote_as(
+        &mut contract,
+        round_id,
+        project_id,
+        "fakeguild.near".parse().unwrap(),
+    );
+}
+
+#[test]
+fn the_namespace_is_checked_before_eligibility_timing() {
+    let mut contract = new_contract();
+    let (round_id, project_id) = namespaced_round_in_declaration(&mut contract);
+    set_ctx(voter_a(), NearToken::from_near(0), OPENS_AT);
+    let refusal = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        contract.submit_ballot(round_id, BTreeSet::from([project_id]));
+    }))
+    .expect_err("an unregistered outsider must be refused");
+    let message = refusal
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| refusal.downcast_ref::<&str>().map(|s| s.to_string()))
+        .unwrap_or_default();
+    assert!(
+        message.contains("ERR_NOT_IN_VOTER_NAMESPACE"),
+        "outsiders learn only that they can't vote, got: {message}"
+    );
 }
