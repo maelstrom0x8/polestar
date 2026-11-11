@@ -45,7 +45,6 @@ export function LandingFooter() {
 
         <div className="landing-footer__bottom">
           <span className="landing-footer__meta">&copy; 2026 Polestar</span>
-          <span className="landing-footer__meta">Testnet deployment &middot; Not audited</span>
         </div>
       </div>
     </footer>

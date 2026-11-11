@@ -67,11 +67,11 @@ const H = MOCK_HEAD;
 
 function settledRound(): MockRound {
   const projects = [
-    project(0, "Community garden irrigation", "Drip irrigation and rain barrels for the shared garden plots behind the library.", "marcus.testnet", [["0.10", true], ["0.20", true]], "Funded"),
-    project(1, "Mesh network repair kit", "Spare radios, mounts and a tool kit so volunteers can fix mesh nodes the same day they fail.", "lena.testnet", [["0.10", true], ["0.15", false]], "Funded"),
-    project(2, "Docs translation (ES/PT)", "Spanish and Portuguese translations of the onboarding guides.", "tomas.testnet", [["0.20", false]], "Funded"),
-    project(3, "Local meetup series", "Six evening meetups with a venue, snacks and recorded talks.", "ade.testnet", [["0.15", false], ["0.15", false]], "Unfunded"),
-    project(4, "Hardware wallet workshops", "Hands-on sessions setting up hardware wallets, devices provided.", "kofi.testnet", [["0.35", false]], "Unfunded"),
+    project(0, "Shared validator alerting", "One alerting stack for every member's validator, paging into each operator's on-call rota.", "marcus.testnet", [["0.10", true], ["0.20", true]], "Funded"),
+    project(1, "RPC failover pool", "A standby pool that takes over any member's RPC traffic within a minute of an outage.", "lena.testnet", [["0.10", true], ["0.15", false]], "Funded"),
+    project(2, "Operator runbooks (ES/PT)", "Incident and upgrade runbooks in Spanish and Portuguese for new operators.", "tomas.testnet", [["0.20", false]], "Funded"),
+    project(3, "Monthly operator calls", "A recorded monthly call to review incidents and plan protocol upgrades together.", "ade.testnet", [["0.15", false], ["0.15", false]], "Unfunded"),
+    project(4, "Hardware key custody pilot", "Hardware security modules for three members' validator keys, as a pilot.", "kofi.testnet", [["0.35", false]], "Unfunded"),
   ];
   return {
     id: 1,
@@ -107,10 +107,10 @@ function allocatingRound(): MockRound {
     phase: "Allocation",
     remaining: yocto("1.40"),
     projects: [
-      project(0, "Open-source grant tracker", "A public dashboard of every grant this DAO has made, sourced from chain data.", "lena.testnet", [["0.30", false], ["0.30", false]], "Funded"),
-      project(1, "Validator education course", "A free six-module course on running a validator, with labs.", "kofi.testnet", [["0.50", false], ["0.40", false]]),
-      project(2, "Accessibility audit of the DAO site", "An external WCAG audit and a fix list.", "marcus.testnet", [["0.45", false]]),
-      project(3, "Community call captions", "Live captions and transcripts for the monthly community call.", "mei.testnet", [["0.20", false]]),
+      project(0, "Indexer for the co-op explorer", "A dedicated indexer so the co-op's explorer no longer shares a database with member nodes.", "lena.testnet", [["0.30", false], ["0.30", false]], "Funded"),
+      project(1, "Validator onboarding course", "A six-module course for new member operators, with hands-on labs.", "kofi.testnet", [["0.50", false], ["0.40", false]]),
+      project(2, "RPC gateway penetration test", "An external penetration test of the shared RPC gateway, with a fix list.", "marcus.testnet", [["0.45", false]]),
+      project(3, "Incident postmortem library", "Write-ups of past outages, searchable by symptom, for every member to learn from.", "mei.testnet", [["0.20", false]]),
     ],
     ballots: Array.from({ length: 9 }, (_, i) => ({ voter: `voter${i + 1}.testnet`, approved: [0, i % 2 ? 1 : 3, 2].slice(0, 1 + (i % 3)) })),
     result: null,
@@ -124,9 +124,9 @@ function declarationRound(): MockRound {
     phase: "Declaration",
     remaining: yocto("1.00"),
     projects: [
-      project(0, "Neighbourhood repair café", "Monthly repair sessions with tools, parts and volunteer fixers.", "ade.testnet", [["0.10", false], ["0.20", false]]),
-      project(1, "Bike lane safety survey", "Volunteer counts and a short report for the city council.", "tomas.testnet", [["0.50", false]]),
-      project(2, "School coding club kits", "Microcontroller kits for two after-school clubs.", "marcus.testnet", [["0.10", false], ["0.10", false]]),
+      project(0, "Archival snapshot mirror", "Daily archival snapshots so members can bootstrap a new node in hours.", "ade.testnet", [["0.10", false], ["0.20", false]]),
+      project(1, "São Paulo RPC endpoint", "A public RPC endpoint in São Paulo for wallets and apps in Latin America.", "tomas.testnet", [["0.50", false]]),
+      project(2, "Peer-count monitoring", "Alerts when a member's node drops below a healthy number of peers.", "marcus.testnet", [["0.10", false], ["0.10", false]]),
     ],
     ballots: [
       { voter: "omar.testnet", approved: [0, 2] },
@@ -147,9 +147,9 @@ function registrationRound(): MockRound {
     phase: "Registration",
     remaining: yocto("2.00"),
     projects: [
-      project(0, "Food bank delivery bikes", "Two cargo bikes and maintenance for weekly deliveries.", "lena.testnet", [["0.40", false], ["0.20", false]]),
-      project(1, "Open data workshop", "A one-day workshop on publishing local open data.", "tomas.testnet", [["0.15", false]]),
-      project(2, "Translation sprint", "A weekend sprint translating the governance handbook.", "ade.testnet", [["0.10", false], ["0.10", false]]),
+      project(0, "Second public indexer", "A second indexer behind the explorer, so one outage doesn't take it down.", "lena.testnet", [["0.40", false], ["0.20", false]]),
+      project(1, "Co-op status page", "A public page showing the health of every member endpoint.", "tomas.testnet", [["0.15", false]]),
+      project(2, "Upgrade rehearsal node", "A node that rehearses every protocol upgrade a week before members apply it.", "ade.testnet", [["0.10", false], ["0.10", false]]),
     ],
     ballots: [],
     result: null,
