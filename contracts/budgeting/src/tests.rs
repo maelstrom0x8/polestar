@@ -812,3 +812,56 @@ fn the_namespace_is_checked_before_eligibility_timing() {
         "outsiders learn only that they can't vote, got: {message}"
     );
 }
+
+#[test]
+#[should_panic(expected = "ERR_INVALID_STEP_COUNT")]
+fn process_allocation_steps_rejects_zero_steps() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_declaration(&mut contract);
+    set_ctx(stranger(), NearToken::from_near(0), CLOSES_AT + 1);
+    contract.close_declaration(round_id);
+    contract.process_allocation_steps(round_id, 0);
+}
+
+#[test]
+#[should_panic(expected = "ERR_WRONG_PHASE")]
+fn process_allocation_steps_rejects_wrong_phase() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_declaration(&mut contract);
+    contract.process_allocation_steps(round_id, 10);
+}
+
+#[test]
+fn process_allocation_steps_stops_at_max_steps() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_declaration(&mut contract);
+    set_ctx(stranger(), NearToken::from_near(0), CLOSES_AT + 1);
+    contract.close_declaration(round_id);
+
+    assert!(!contract.process_allocation_steps(round_id, 1));
+    assert_eq!(
+        contract.get_round_phase(round_id),
+        Some(RoundPhase::Allocation)
+    );
+}
+
+#[test]
+fn process_allocation_steps_finishes_a_round_in_one_call() {
+    let mut contract = new_contract();
+    let (round_id, project_id) = round_in_declaration(&mut contract);
+    eligible_voter_seen_at(&mut contract, voter_a(), OPENS_AT - T_MIN);
+    set_ctx(voter_a(), NearToken::from_near(0), OPENS_AT);
+    contract.submit_ballot(round_id, BTreeSet::from([project_id]));
+    set_ctx(stranger(), NearToken::from_near(0), CLOSES_AT + 1);
+    contract.close_declaration(round_id);
+
+    assert!(contract.process_allocation_steps(round_id, 100));
+    assert_eq!(
+        contract.get_round_phase(round_id),
+        Some(RoundPhase::Settlement)
+    );
+    assert_eq!(
+        contract.get_project(round_id, project_id).unwrap().status,
+        ProjectStatus::Funded
+    );
+}

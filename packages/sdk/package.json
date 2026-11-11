@@ -1,0 +1,65 @@
+{
+  "name": "@ezeonlabs/polestar",
+  "version": "0.1.0",
+  "description": "TypeScript client for Polestar participatory budgeting on NEAR",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maelstrom0x8/polestar.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/maelstrom0x8/polestar/tree/main/packages/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/maelstrom0x8/polestar/issues"
+  },
+  "keywords": [
+    "near",
+    "sputnik-dao",
+    "participatory-budgeting",
+    "dao",
+    "method-of-equal-shares"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "engines": {
+    "node": ">=20.12.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./near-api-js": {
+      "types": "./dist/near-api-js.d.ts",
+      "default": "./dist/near-api-js.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "near-api-js": ">=7.4.0"
+  },
+  "peerDependenciesMeta": {
+    "near-api-js": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "near-api-js": "7.4.0",
+    "typescript": "~6.0.2",
+    "vitest": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

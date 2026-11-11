@@ -2,13 +2,13 @@ import { useRef, useState } from "react";
 import { noticeFor, type Notice } from "../components/app/TxFlow";
 import type { Project } from "../types/domain";
 import { readAllocationLogs, useRefreshRound, type StepLogEntry } from "./roundData";
-import { TGAS, TxCancelledError, sendCall } from "./tx";
+import { polestar } from "./polestar";
+import { TxCancelledError, sendCall } from "./tx";
 
-/**
- * Drives process_allocation_step. Each step is its own transaction and
- * its own wallet confirmation; "to completion" just repeats one step at a
- * time until the contract reports it's done or the user stops.
- */
+export function countingCall(roundId: string, mode: "one" | "all") {
+  return mode === "all" ? polestar.calls.processAllocationSteps(Number(roundId)) : polestar.calls.processAllocationStep(Number(roundId));
+}
+
 export function useAllocationRunner(roundId: string, projects: Project[]) {
   const refresh = useRefreshRound(roundId);
   const [log, setLog] = useState<StepLogEntry[]>([]);
@@ -27,12 +27,7 @@ export function useAllocationRunner(roundId: string, projects: Project[]) {
       setRunning({ mode, step });
       let done: boolean;
       try {
-        const outcome = await sendCall({
-          method: "process_allocation_step",
-          args: { round_id: Number(roundId) },
-          deposit: 0n,
-          gas: 300n * TGAS,
-        });
+        const outcome = await sendCall(countingCall(roundId, mode));
         done = outcome.value === true;
         const entries = readAllocationLogs(outcome.logs, titleOf);
         setLog((prev) => [

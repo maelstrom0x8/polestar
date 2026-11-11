@@ -1,27 +1,13 @@
+import type { ChainClock } from "@ezeonlabs/polestar";
 import { useQuery } from "@tanstack/react-query";
-import { getBlock } from "./near";
+import { polestar } from "./polestar";
 
-const SAMPLE_SPAN = 1_000;
-
-export interface ChainClock {
-  height: number;
-  timestampMs: number;
-  msPerBlock: number | null;
-}
-
-async function fetchClock(): Promise<ChainClock> {
-  const head = await getBlock("final");
-  // Block time is measured, not assumed: average over the last SAMPLE_SPAN
-  // blocks. If that older header isn't available, durations aren't shown.
-  const past = await getBlock(head.height - SAMPLE_SPAN).catch(() => null);
-  const msPerBlock = past ? (head.timestampMs - past.timestampMs) / (head.height - past.height) : null;
-  return { ...head, msPerBlock: msPerBlock && msPerBlock > 0 ? msPerBlock : null };
-}
+export type { ChainClock };
 
 export function useChainClock() {
   return useQuery({
     queryKey: ["chainClock"],
-    queryFn: fetchClock,
+    queryFn: () => polestar.getChainClock(),
     refetchInterval: 30_000,
     staleTime: 15_000,
   });

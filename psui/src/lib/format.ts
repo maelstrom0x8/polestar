@@ -1,40 +1,13 @@
-const NEAR_DECIMALS = 24;
-const YOCTO_PER_NEAR = 10n ** BigInt(NEAR_DECIMALS);
+import { formatNearAmount as formatYocto, parseNear } from "@ezeonlabs/polestar";
 
-function toBigInt(yocto: string | number | bigint): bigint {
-  return typeof yocto === "bigint" ? yocto : BigInt(yocto);
-}
+export { parseNear };
 
-/**
- * Exact yoctoNEAR -> "1.25" style string: at least two decimals, up to
- * five when the amount needs them (all of them with `exact`), never rounded up.
- */
 export function formatNearAmount(yocto: string | number | bigint, exact = false): string {
-  const value = toBigInt(yocto);
-  const negative = value < 0n;
-  const abs = negative ? -value : value;
-  const whole = abs / YOCTO_PER_NEAR;
-  const frac = (abs % YOCTO_PER_NEAR).toString().padStart(NEAR_DECIMALS, "0").slice(0, exact ? NEAR_DECIMALS : 5);
-  const trimmed = frac.replace(/0+$/, "").padEnd(2, "0");
-  return `${negative ? "-" : ""}${whole.toLocaleString("en-US")}.${trimmed}`;
+  return formatYocto(yocto, { exact });
 }
 
-/** `exact` shows every significant decimal: use it wherever someone is about to sign. */
 export function formatNear(yocto: string | number | bigint, exact = false): string {
   return `${formatNearAmount(yocto, exact)} NEAR`;
-}
-
-/**
- * Exact decimal NEAR -> yoctoNEAR. Returns null for anything that isn't a
- * plain non-negative decimal with at most 24 fractional digits.
- */
-export function parseNear(input: string): bigint | null {
-  const text = input.trim();
-  const match = /^(\d+)(?:\.(\d*))?$/.exec(text) ?? /^()\.(\d+)$/.exec(text);
-  if (!match) return null;
-  const [, whole, frac = ""] = match;
-  if (frac.length > NEAR_DECIMALS) return null;
-  return BigInt(whole || "0") * YOCTO_PER_NEAR + BigInt(frac.padEnd(NEAR_DECIMALS, "0") || "0");
 }
 
 // Implicit accounts are 64 hex chars; named ones are usually short enough to show whole.

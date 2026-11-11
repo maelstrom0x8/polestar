@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import type { AllocationRunner } from "../../lib/allocationRunner";
+import { countingCall, type AllocationRunner } from "../../lib/allocationRunner";
 import { relativeTime, type ChainClock } from "../../lib/chainClock";
 import { PHASE_LABEL } from "../../lib/phaseCopy";
 import { CONTRACT_ID } from "../../lib/near";
 import { signInHref } from "../../lib/returnPath";
 import { useRefreshRound } from "../../lib/roundData";
-import { TGAS, contractJson } from "../../lib/tx";
+import { polestar } from "../../lib/polestar";
+import { contractJson } from "../../lib/tx";
 import { useWallet } from "../../lib/wallet";
 import type { Round, RoundPhase } from "../../types/domain";
 import { Callout } from "../app/Callout";
@@ -69,15 +70,18 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
           steps={[
             {
               key: "step",
-              title: `Step ${runner.running.step}: confirm in your wallet`,
+              title:
+                runner.running.mode === "all"
+                  ? `Confirm in your wallet${runner.running.step > 1 ? ` (part ${runner.running.step})` : ""}`
+                  : "Confirm in your wallet",
               state: "working",
-              detail: runner.running.mode === "all" ? "Each step needs its own confirmation." : undefined,
+              detail: runner.running.mode === "all" ? "Counts as many steps as fit in one transaction." : undefined,
             },
           ]}
         />
         {runner.running.mode === "all" && (
           <button type="button" className="app-btn app-btn--secondary app-btn--block" onClick={runner.stop}>
-            Stop after this step
+            Stop after this one
           </button>
         )}
       </div>
@@ -85,14 +89,9 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
   }
 
   if (reviewing) {
+    const call = countingCall(roundId, reviewing);
     const payload = contractJson(
-      {
-        receiver_id: CONTRACT_ID,
-        method_name: "process_allocation_step",
-        args: { round_id: Number(roundId) },
-        deposit: 0n,
-        gas: 300n * TGAS,
-      },
+      { receiver_id: CONTRACT_ID, method_name: call.method, args: call.args, deposit: call.deposit, gas: call.gas },
       2,
     );
     return (
@@ -100,7 +99,7 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
         <p className="phase-card__review">
           <strong>No deposit.</strong>{" "}
           {reviewing === "all"
-            ? "Your wallet will ask you to confirm each step. You can stop between steps."
+            ? "One confirmation usually finishes the count. For a very large round your wallet may ask again."
             : "You're running one step of the count."}
         </p>
         <details className="tx__sign">
@@ -142,7 +141,7 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
         </Callout>
       )}
       <p className="phase-card__caption">
-        Counting happens one step at a time, and anyone can run it. Each step is a separate confirmation in your wallet.
+        Anyone can run the count. Finishing it usually takes one confirmation in your wallet.
       </p>
       <button type="button" className="app-btn app-btn--secondary app-btn--block" onClick={() => setReviewing("all")}>
         Finish counting
@@ -179,7 +178,7 @@ function TransitionAction({
           figure="No deposit"
           figureCaption="Network fee shown by your wallet"
           summary={summary}
-          call={{ method, args: { round_id: Number(round.id) }, deposit: 0n, gas: 300n * TGAS }}
+          call={method === "open_declaration" ? polestar.calls.startVoting(Number(round.id)) : polestar.calls.endVoting(Number(round.id))}
           onBack={() => setReviewing(false)}
           onConfirmed={refresh}
           renderDone={() => <p>Done. The page now shows the round's new stage.</p>}

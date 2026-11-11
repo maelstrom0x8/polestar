@@ -6,7 +6,7 @@ import type { ChainClock } from "../../lib/chainClock";
 import { useBallot } from "../../lib/contractQueries";
 import { formatNear } from "../../lib/format";
 import { useRefreshRound } from "../../lib/roundData";
-import { TGAS } from "../../lib/tx";
+import { polestar } from "../../lib/polestar";
 import { useWallet } from "../../lib/wallet";
 import type { Project, Round } from "../../types/domain";
 import { Amount } from "../app/Amount";
@@ -94,12 +94,10 @@ export function BallotSection({ round, projects, clock }: { round: Round; projec
             figureCaption="Network fee shown by your wallet"
             summary={`You're voting for ${chosen.length} ${chosen.length === 1 ? "project" : "projects"} in Round ${round.id}. Your vote can't be changed once it's cast.`}
             lines={chosen.map((p) => ({ label: p.title, value: formatNear(p.cost) }))}
-            call={{
-              method: "submit_ballot",
-              args: { round_id: Number(round.id), approved: chosen.map((p) => Number(p.id)) },
-              deposit: 0n,
-              gas: 50n * TGAS,
-            }}
+            call={polestar.calls.submitBallot(
+              Number(round.id),
+              chosen.map((p) => Number(p.id)),
+            )}
             onBack={() => setReviewing(false)}
             onConfirmed={async () => {
               if (accountId) recordActivity(accountId, { kind: "ballot", roundId: round.id, count: chosen.length, at: Date.now() });

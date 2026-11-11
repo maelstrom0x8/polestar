@@ -1,117 +1,52 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
-import type {
-  AllocationResult,
-  Ballot,
-  FundingStage,
-  Milestone,
-  Project,
-  ProjectStatus,
-  Round,
-  RoundPhase,
-} from "../types/domain";
-import { ContractPanicError, viewFunction } from "./near";
+import type * as Sdk from "@ezeonlabs/polestar";
+import type { AllocationResult, Ballot, Project, Round } from "../types/domain";
+import { ContractPanicError } from "./near";
+import { polestar } from "./polestar";
 
-// Raw wire shapes — field names and number-vs-string split exactly as the
-// contract's own JSON serializer sends them (snake_case; ids/counts/block
-// heights as plain numbers, u128 amounts as strings — see lib/near.ts for
-// why). These are intentionally not exported: everything outside this
-// file works with the mapped, camelCase domain types instead.
-
-interface RoundConfigRaw {
-  budget: string;
-  opens_at: number;
-  closes_at: number;
-  t_min: number;
-}
-
-interface RoundViewRaw {
-  id: number;
-  config: RoundConfigRaw;
-  phase: RoundPhase;
-  remaining: string;
-  remaining_returned?: boolean;
-  voter_namespace?: string | null;
-  project_count: number;
-  ballot_count: number;
-}
-
-interface ProjectRaw {
-  id: number;
-  proposer: string;
-  recipient: string;
-  title: string;
-  summary: string;
-  cost: string;
-  milestones: Milestone[];
-  status: ProjectStatus;
-}
-
-interface BallotRaw {
-  voter: string;
-  approved: number[];
-}
-
-interface FundingRecordRaw {
-  project: number;
-  stage: FundingStage;
-  amount: string;
-}
-
-interface AllocationResultRaw {
-  budget: string;
-  funded: FundingRecordRaw[];
-  unfunded: number[];
-  remaining: string;
-}
-
-function mapRound(raw: RoundViewRaw): Round {
+function toRound(r: Sdk.Round): Round {
   return {
-    id: String(raw.id),
-    config: {
-      budget: raw.config.budget,
-      opensAt: raw.config.opens_at,
-      closesAt: raw.config.closes_at,
-      tMin: raw.config.t_min,
-    },
-    phase: raw.phase,
-    remaining: raw.remaining,
-    remainingReturned: raw.remaining_returned ?? false,
-    voterNamespace: raw.voter_namespace ?? null,
-    projectCount: raw.project_count,
-    ballotCount: raw.ballot_count,
+    id: String(r.id),
+    config: { budget: r.config.budget.toString(), opensAt: r.config.opensAt, closesAt: r.config.closesAt, tMin: r.config.tMin },
+    phase: r.phase,
+    remaining: r.remaining.toString(),
+    remainingReturned: r.remainingReturned,
+    voterNamespace: r.voterNamespace,
+    projectCount: r.projectCount,
+    ballotCount: r.ballotCount,
   };
 }
 
-function mapProject(raw: ProjectRaw): Project {
+function toProject(p: Sdk.Project): Project {
   return {
-    id: String(raw.id),
-    proposer: raw.proposer,
-    recipient: raw.recipient,
-    title: raw.title,
-    summary: raw.summary,
-    cost: raw.cost,
-    milestones: raw.milestones,
-    status: raw.status,
+    id: String(p.id),
+    proposer: p.proposer,
+    recipient: p.recipient,
+    title: p.title,
+    summary: p.summary,
+    cost: p.cost.toString(),
+    milestones: p.milestones.map((m) => ({ amount: m.amount.toString(), attested: m.attested })),
+    status: p.status,
   };
 }
 
-function mapBallot(raw: BallotRaw): Ballot {
-  return { voter: raw.voter, approved: raw.approved.map(String) };
+function toBallot(b: Sdk.Ballot): Ballot {
+  return { voter: b.voter, approved: b.approved.map(String) };
 }
 
-function mapAllocationResult(raw: AllocationResultRaw): AllocationResult {
+function toAllocationResult(r: Sdk.AllocationResult): AllocationResult {
   return {
-    budget: raw.budget,
-    funded: raw.funded.map((f) => ({ project: String(f.project), stage: f.stage, amount: f.amount })),
-    unfunded: raw.unfunded.map(String),
-    remaining: raw.remaining,
+    budget: r.budget.toString(),
+    funded: r.funded.map((f) => ({ project: String(f.project), stage: f.stage, amount: f.amount.toString() })),
+    unfunded: r.unfunded.map(String),
+    remaining: r.remaining.toString(),
   };
 }
 
 export function useRoundCount() {
   return useQuery({
     queryKey: ["roundCount"],
-    queryFn: () => viewFunction<number>("get_round_count"),
+    queryFn: () => polestar.getRoundCount(),
   });
 }
 
@@ -126,7 +61,7 @@ export function useRound(roundId: string | undefined) {
 export function useRoundPhase(roundId: string | undefined) {
   return useQuery({
     queryKey: ["roundPhase", roundId],
-    queryFn: () => viewFunction<RoundPhase | null>("get_round_phase", { round_id: Number(roundId) }),
+    queryFn: () => polestar.getRoundPhase(Number(roundId)),
     enabled: roundId !== undefined,
   });
 }
@@ -134,25 +69,19 @@ export function useRoundPhase(roundId: string | undefined) {
 export function useProjects(roundId: string | undefined) {
   return useQuery({
     queryKey: ["projects", roundId],
-    queryFn: async () => {
-      const raw = await viewFunction<ProjectRaw[]>("get_projects", { round_id: Number(roundId) });
-      return raw.map(mapProject);
-    },
+    queryFn: async () => (await polestar.getProjects(Number(roundId))).map(toProject),
     enabled: roundId !== undefined,
   });
 }
 
 export async function fetchProject(roundId: string, projectId: string): Promise<Project | null> {
-  const raw = await viewFunction<ProjectRaw | null>("get_project", {
-    round_id: Number(roundId),
-    project_id: Number(projectId),
-  });
-  return raw ? mapProject(raw) : null;
+  const project = await polestar.getProject(Number(roundId), Number(projectId));
+  return project ? toProject(project) : null;
 }
 
 export async function fetchBallot(roundId: string, voter: string): Promise<Ballot | null> {
-  const raw = await viewFunction<BallotRaw | null>("get_ballot", { round_id: Number(roundId), voter });
-  return raw ? mapBallot(raw) : null;
+  const ballot = await polestar.getBallot(Number(roundId), voter);
+  return ballot ? toBallot(ballot) : null;
 }
 
 export function useProject(roundId: string | undefined, projectId: string | undefined) {
@@ -166,11 +95,7 @@ export function useProject(roundId: string | undefined, projectId: string | unde
 export function useProjectSupport(roundId: string | undefined, projectId: string | undefined) {
   return useQuery({
     queryKey: ["projectSupport", roundId, projectId],
-    queryFn: () =>
-      viewFunction<number>("get_project_support", {
-        round_id: Number(roundId),
-        project_id: Number(projectId),
-      }),
+    queryFn: () => polestar.getProjectSupport(Number(roundId), Number(projectId)),
     enabled: roundId !== undefined && projectId !== undefined,
   });
 }
@@ -183,11 +108,10 @@ export function useBallot(roundId: string | undefined, voter: string | undefined
   });
 }
 
-/** null: never interacted. Errors (e.g. a deployment without this view) leave it unknown. */
 export function useFirstSeen(accountId: string | null | undefined) {
   return useQuery({
     queryKey: ["firstSeen", accountId],
-    queryFn: () => viewFunction<number | null>("get_first_seen", { account_id: accountId }),
+    queryFn: () => polestar.getFirstSeen(accountId as string),
     enabled: !!accountId,
     retry: false,
   });
@@ -197,10 +121,8 @@ export function useAllocationResult(roundId: string | undefined) {
   return useQuery({
     queryKey: ["allocationResult", roundId],
     queryFn: async () => {
-      const raw = await viewFunction<AllocationResultRaw | null>("get_allocation_result", {
-        round_id: Number(roundId),
-      });
-      return raw ? mapAllocationResult(raw) : null;
+      const result = await polestar.getAllocationResult(Number(roundId));
+      return result ? toAllocationResult(result) : null;
     },
     enabled: roundId !== undefined,
   });
@@ -209,23 +131,16 @@ export function useAllocationResult(roundId: string | undefined) {
 export function useRemaining(roundId: string | undefined) {
   return useQuery({
     queryKey: ["remaining", roundId],
-    queryFn: async () => {
-      const raw = await viewFunction<string | number | null>("get_remaining", { round_id: Number(roundId) });
-      return raw === null ? null : String(raw);
-    },
+    queryFn: async () => (await polestar.getRemaining(Number(roundId)))?.toString() ?? null,
     enabled: roundId !== undefined,
   });
 }
 
 async function fetchRound(id: string): Promise<Round | null> {
-  const raw = await viewFunction<RoundViewRaw | null>("get_round", { round_id: Number(id) });
-  return raw ? mapRound(raw) : null;
+  const round = await polestar.getRound(Number(id));
+  return round ? toRound(round) : null;
 }
 
-/**
- * Every round, 0..get_round_count(). Shares the ["round", id] key with
- * useRound so a detail page opened from the list hits a warm cache.
- */
 export function useAllRounds() {
   const countQuery = useRoundCount();
   const count = countQuery.data ?? 0;

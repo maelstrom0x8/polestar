@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 
 // https://vite.dev/config/
@@ -10,6 +11,9 @@ export default defineConfig(({ mode }) => {
   }
   return {
     plugins: [react()],
+    resolve: {
+      alias: { '@ezeonlabs/polestar': fileURLToPath(new URL('../packages/sdk/src/index.ts', import.meta.url)) },
+    },
     // A compile-time constant, so a build without sample data drops the
     // mock modules entirely instead of shipping them unused.
     define: { __MOCK_DATA__: JSON.stringify(mockData) },

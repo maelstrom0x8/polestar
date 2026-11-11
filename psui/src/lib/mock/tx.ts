@@ -192,6 +192,18 @@ function execute(call: ContractCall, signer: string): { value: unknown; logs: st
       const { done, logs } = stepAllocation(roundOf(args));
       return { value: done, logs };
     }
+    case "process_allocation_steps": {
+      const maxSteps = Number(args.max_steps);
+      if (!Number.isInteger(maxSteps) || maxSteps < 1) refuse("ERR_INVALID_STEP_COUNT");
+      const round = roundOf(args);
+      const logs: string[] = [];
+      for (let i = 0; i < maxSteps; i += 1) {
+        const step = stepAllocation(round);
+        logs.push(...step.logs);
+        if (step.done) return { value: true, logs };
+      }
+      return { value: false, logs };
+    }
     default:
       throw new Error(`mock: no change method named ${call.method}`);
   }

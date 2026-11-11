@@ -97,6 +97,7 @@ Set these in `psui/.env.local`:
 | `contracts/budgeting` | NEAR smart contract |
 | `crates/allocate` | Method of Equal Shares allocation engine |
 | `crates/math` | Exact rational arithmetic |
+| `packages/sdk` | TypeScript SDK for reading rounds and sending transactions ([docs](packages/sdk/README.md)) |
 | `psui` | Web app (React, TypeScript, Vite) |
 
 ## Testing
@@ -104,6 +105,7 @@ Set these in `psui/.env.local`:
 ```bash
 cargo test -p math -p allocate
 cargo test -p polestar-budgeting --lib
+cd packages/sdk && npm install && npm test && cd ../..
 cd psui && npm run lint && npm run build
 ```
 

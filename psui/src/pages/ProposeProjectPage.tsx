@@ -14,7 +14,8 @@ import { formatNear, parseNear } from "../lib/format";
 import { viewFunction } from "../lib/near";
 import { signInHref } from "../lib/returnPath";
 import { useRefreshRound } from "../lib/roundData";
-import { TGAS, type TxOutcome } from "../lib/tx";
+import { polestar } from "../lib/polestar";
+import type { TxOutcome } from "../lib/tx";
 import { useWallet } from "../lib/wallet";
 
 const MAX_TITLE_BYTES = 200;
@@ -202,19 +203,14 @@ export function ProposeProjectPage() {
                   ...review.amounts.map((amount, i) => ({ label: `Milestone ${i + 1}`, value: formatNear(amount, true) })),
                   { label: "Total cost", value: formatNear(review.cost, true) },
                 ]}
-                call={{
-                  method: "register_project",
-                  args: {
-                    round_id: Number(roundId),
-                    recipient: recipient.trim(),
-                    title: draft.title.trim(),
-                    summary: draft.summary.trim(),
-                    cost: review.cost.toString(),
-                    milestone_amounts: review.amounts.map((amount) => amount.toString()),
-                  },
+                call={polestar.calls.registerProject({
+                  roundId: Number(roundId),
+                  recipient: recipient.trim(),
+                  title: draft.title.trim(),
+                  summary: draft.summary.trim(),
+                  milestones: review.amounts,
                   deposit: review.deposit,
-                  gas: 100n * TGAS,
-                }}
+                })}
                 onBack={() => setReview(null)}
                 onConfirmed={(outcome) => verify(outcome, review)}
                 unknownHint="this round's list of proposals"

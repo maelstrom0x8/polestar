@@ -92,6 +92,7 @@ fn run_scenario(
     scenario: &Scenario,
     project_order: &[usize],
     voter_order: &[usize],
+    batch: u32,
 ) -> ScenarioOutcome {
     let mut contract = new_contract();
     set_ctx(dao(), NearToken::from_yoctonear(scenario.budget), 0);
@@ -149,7 +150,11 @@ fn run_scenario(
         CLOSES_AT + 1,
     );
     contract.close_declaration(round_id);
-    while !contract.process_allocation_step(round_id) {}
+    if batch == 1 {
+        while !contract.process_allocation_step(round_id) {}
+    } else {
+        while !contract.process_allocation_steps(round_id, batch) {}
+    }
 
     ScenarioOutcome {
         result: contract
@@ -176,7 +181,7 @@ proptest! {
     fn prop_escrow_conservation_and_exhaustiveness(scenario in scenario_strategy(6, 6)) {
         let project_order = in_order(scenario.costs.len());
         let voter_order = in_order(scenario.approvals.len());
-        let outcome = run_scenario(&scenario, &project_order, &voter_order);
+        let outcome = run_scenario(&scenario, &project_order, &voter_order, 1);
 
         let spent: u128 = outcome.result.funded.iter().map(|record| record.amount).sum();
         prop_assert_eq!(spent + outcome.result.remaining, scenario.budget);
@@ -196,8 +201,8 @@ proptest! {
     #[test]
     fn prop_allocation_independent_of_ballot_submission_order(scenario in scenario_strategy(4, 4)) {
         let project_order = in_order(scenario.costs.len());
-        let outcome_a = run_scenario(&scenario, &project_order, &in_order(scenario.approvals.len()));
-        let outcome_b = run_scenario(&scenario, &project_order, &reversed(scenario.approvals.len()));
+        let outcome_a = run_scenario(&scenario, &project_order, &in_order(scenario.approvals.len()), 1);
+        let outcome_b = run_scenario(&scenario, &project_order, &reversed(scenario.approvals.len()), 1);
 
         prop_assert_eq!(&outcome_a.project_ids, &outcome_b.project_ids);
         prop_assert_eq!(outcome_a.result.remaining, outcome_b.result.remaining);
@@ -222,6 +227,20 @@ proptest! {
                 ),
             }
         }
+    }
+    #[test]
+    fn prop_batched_allocation_matches_one_step_at_a_time(
+        scenario in scenario_strategy(6, 6),
+        batch in prop_oneof![2u32..=4, Just(u32::MAX)],
+    ) {
+        let project_order = in_order(scenario.costs.len());
+        let voter_order = in_order(scenario.approvals.len());
+        let stepwise = run_scenario(&scenario, &project_order, &voter_order, 1);
+        let batched = run_scenario(&scenario, &project_order, &voter_order, batch);
+
+        prop_assert_eq!(&stepwise.result, &batched.result);
+        prop_assert_eq!(stepwise.remaining, batched.remaining);
+        prop_assert_eq!(&stepwise.projects, &batched.projects);
     }
 }
 

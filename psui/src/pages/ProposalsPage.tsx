@@ -16,22 +16,21 @@ import {
   canSubmit,
   canVote,
   describeProposal,
-  submitCall,
   useDaoPolicy,
   useOpenProposals,
-  voteCall,
   type DaoPolicy,
   type DaoProposal,
 } from "../lib/dao";
+import { isValidAccountId } from "../lib/accountId";
 import { formatNear, parseNear } from "../lib/format";
+import { polestar } from "../lib/polestar";
 import { signInHref } from "../lib/returnPath";
-import { TGAS, type ContractCall } from "../lib/tx";
+import type { ContractCall } from "../lib/tx";
 import { useWallet } from "../lib/wallet";
 
 type Mode = "fund" | "milestone" | "return";
 type Unit = "minutes" | "hours" | "days";
 const UNIT_MS: Record<Unit, number> = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 };
-const ACCOUNT_ID = /^(?=.{2,64}$)(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/;
 
 function useRefreshAfterDecision() {
   const client = useQueryClient();
@@ -69,7 +68,7 @@ function OpenProposal({ proposal, policy }: { proposal: DaoProposal; policy: Dao
               : `You're rejecting "${proposal.description}".`
           }
           lines={[{ label: title, value: detail }]}
-          call={voteCall(proposal, voting)}
+          call={polestar.governance.calls.vote(proposal, voting)}
           onBack={() => setVoting(null)}
           onConfirmed={refresh}
           renderDone={() => <p>Your vote is in.</p>}
@@ -235,9 +234,9 @@ function FundRoundForm({ bond }: { bond: bigint }) {
         : voteBlocks === null && voteValue
           ? "Enter a length of time."
           : null,
-    namespace: membersOnly && namespace && !ACCOUNT_ID.test(namespace) ? "Enter a NEAR account name, like guild.near." : null,
+    namespace: membersOnly && namespace && !isValidAccountId(namespace) ? "Enter a NEAR account name, like guild.near." : null,
   };
-  const namespaceOk = !membersOnly || ACCOUNT_ID.test(namespace);
+  const namespaceOk = !membersOnly || isValidAccountId(namespace);
   const ready = !!clock && budgetYocto !== null && budgetYocto > 0n && regBlocks !== null && voteBlocks !== null && voteBlocks > regBlocks && namespaceOk;
 
   if (review) {
@@ -269,16 +268,15 @@ function FundRoundForm({ bond }: { bond: bigint }) {
         const opensAt = clock.height + (regBlocks as number);
         const closesAt = clock.height + (voteBlocks as number);
         setReview(
-          submitCall(
-            desc,
-            "fund_round",
+          polestar.governance.calls.proposeFundRound(
             {
-              config: { budget: budgetYocto, opens_at: opensAt, closes_at: closesAt, t_min: 0 },
-              ...(membersOnly ? { voter_namespace: namespace } : {}),
+              budget: budgetYocto as bigint,
+              opensAt,
+              closesAt,
+              tMin: 0,
+              ...(membersOnly ? { voterNamespace: namespace } : {}),
             },
-            budgetYocto as bigint,
-            100n * TGAS,
-            bond,
+            { description: desc, bond },
           ),
         );
       }}
@@ -388,13 +386,9 @@ function MilestoneForm({ bond, initialRound }: { bond: bigint; initialRound: str
         e.preventDefault();
         if (chosenRound === null || !project || !chosen) return;
         setReview(
-          submitCall(
-            `Pay milestone ${chosen.index + 1} of "${project.title}" (Round ${chosenRound})`,
-            "attest_milestone",
-            { round_id: Number(chosenRound), project_id: Number(project.id), milestone_index: chosen.index },
-            0n,
-            150n * TGAS,
-            bond,
+          polestar.governance.calls.proposeMilestonePayment(
+            { roundId: Number(chosenRound), projectId: Number(project.id), milestoneIndex: chosen.index },
+            { description: `Pay milestone ${chosen.index + 1} of "${project.title}" (Round ${chosenRound})`, bond },
           ),
         );
       }}
@@ -511,14 +505,10 @@ function ReturnForm({ bond }: { bond: bigint }) {
       onSubmit={(e) => {
         e.preventDefault();
         setReview(
-          submitCall(
-            `Return the unspent ${formatNear(round.remaining, true)} from Round ${round.id} to the treasury`,
-            "return_remaining",
-            { round_id: Number(round.id) },
-            0n,
-            50n * TGAS,
+          polestar.governance.calls.proposeReturnRemaining(Number(round.id), {
+            description: `Return the unspent ${formatNear(round.remaining, true)} from Round ${round.id} to the treasury`,
             bond,
-          ),
+          }),
         );
       }}
     >

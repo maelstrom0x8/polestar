@@ -3,7 +3,7 @@ import { useState } from "react";
 import { relativeTime, type ChainClock } from "../../lib/chainClock";
 import type { VoterStatus } from "../../lib/eligibility";
 import { useRefreshRound } from "../../lib/roundData";
-import { TGAS } from "../../lib/tx";
+import { polestar } from "../../lib/polestar";
 import type { Round } from "../../types/domain";
 import { Callout } from "../app/Callout";
 import { TxFlow } from "../app/TxFlow";
@@ -43,7 +43,7 @@ export function EligibilityNotice({
             figure="No deposit"
             figureCaption="Network fee shown by your wallet"
             summary="You're registering this account as a voter. It's a one-time step, and it lets you vote in this round and later ones."
-            call={{ method: "register_voter", args: {}, deposit: 0n, gas: 30n * TGAS }}
+            call={polestar.calls.registerVoter()}
             onBack={() => setRegistering(false)}
             onConfirmed={refresh}
             renderDone={() => (
