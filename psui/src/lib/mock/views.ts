@@ -24,6 +24,7 @@ function roundView(round: MockRound) {
     config: round.config,
     phase: round.phase,
     remaining: round.remaining,
+    remaining_returned: round.remainingReturned ?? false,
     project_count: round.projects.length,
     ballot_count: round.ballots.length,
   };

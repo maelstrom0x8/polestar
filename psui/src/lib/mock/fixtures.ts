@@ -30,6 +30,7 @@ export interface MockRound {
   config: { budget: bigint; opens_at: number; closes_at: number; t_min: number };
   phase: RoundPhase;
   remaining: bigint;
+  remainingReturned?: boolean;
   projects: MockProject[];
   ballots: { voter: string; approved: number[] }[];
   result: null | {

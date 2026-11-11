@@ -120,6 +120,15 @@ function execute(call: ContractCall, signer: string): { value: unknown; logs: st
       milestone.attested = true;
       return { value: null, logs: [`MilestoneAttested round_id=${round.id} project_id=${project.id}`] };
     }
+    case "return_remaining": {
+      if (signer !== DAO_ID) refuse("ERR_NOT_SPUTNIK_DAO");
+      const round = roundOf(args);
+      if (round.phase !== "Settlement") refuse("ERR_WRONG_PHASE");
+      if (round.remainingReturned) refuse("ERR_ALREADY_RETURNED");
+      if (round.remaining === 0n) refuse("ERR_NOTHING_TO_RETURN");
+      round.remainingReturned = true;
+      return { value: null, logs: [`RemainingReturned round_id=${round.id} amount=${round.remaining}`] };
+    }
     case "register_voter":
       if (!firstSeen.has(signer)) firstSeen.set(signer, MOCK_HEAD);
       return { value: null, logs: [] };

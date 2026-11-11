@@ -97,6 +97,9 @@ export function describeProposal(p: DaoProposal): { title: string; detail: strin
       detail: `Round ${String(args.round_id)}, project #${String(args.project_id)}, milestone ${Number(args.milestone_index) + 1}`,
     };
   }
+  if (action?.method_name === "return_remaining" && args) {
+    return { title: "Return unspent budget", detail: `Round ${String(args.round_id)}` };
+  }
   return { title: p.description || "Proposal", detail: action?.method_name ?? "" };
 }
 

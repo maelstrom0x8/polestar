@@ -27,6 +27,7 @@ export interface Round {
   config: RoundConfig;
   phase: RoundPhase;
   remaining: string;
+  remainingReturned: boolean;
   projectCount: number;
   ballotCount: number;
 }

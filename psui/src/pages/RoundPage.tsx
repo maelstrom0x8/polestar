@@ -49,6 +49,9 @@ function RoundFigure({ round, projects }: { round: Round; projects: Project[] })
         items={[
           { label: "Projects funded", value: `${funded} of ${round.projectCount}` },
           { label: "Voters", value: round.ballotCount },
+          ...(BigInt(round.remaining) > 0n
+            ? [{ label: round.remainingReturned ? "Returned to the treasury" : "Unspent", value: formatNearAmount(round.remaining) }]
+            : []),
         ]}
       />
     );

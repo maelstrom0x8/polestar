@@ -29,6 +29,7 @@ interface RoundViewRaw {
   config: RoundConfigRaw;
   phase: RoundPhase;
   remaining: string;
+  remaining_returned?: boolean;
   project_count: number;
   ballot_count: number;
 }
@@ -73,6 +74,7 @@ function mapRound(raw: RoundViewRaw): Round {
     },
     phase: raw.phase,
     remaining: raw.remaining,
+    remainingReturned: raw.remaining_returned ?? false,
     projectCount: raw.project_count,
     ballotCount: raw.ballot_count,
   };

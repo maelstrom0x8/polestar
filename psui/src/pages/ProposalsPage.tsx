@@ -28,7 +28,7 @@ import { signInHref } from "../lib/returnPath";
 import { TGAS, type ContractCall } from "../lib/tx";
 import { useWallet } from "../lib/wallet";
 
-type Mode = "fund" | "milestone";
+type Mode = "fund" | "milestone" | "return";
 type Unit = "minutes" | "hours" | "days";
 const UNIT_MS: Record<Unit, number> = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 };
 
@@ -444,6 +444,77 @@ function MilestoneForm({ bond, initialRound }: { bond: bigint; initialRound: str
   );
 }
 
+function ReturnForm({ bond }: { bond: bigint }) {
+  const { rounds } = useAllRounds();
+  const returnable = rounds
+    .filter((r) => r.phase === "Settlement" && !r.remainingReturned && BigInt(r.remaining) > 0n)
+    .sort((a, b) => Number(b.id) - Number(a.id));
+  const [roundId, setRoundId] = useState<string | null>(null);
+  const round = returnable.find((r) => r.id === roundId) ?? returnable[0];
+  const [review, setReview] = useState<ContractCall | null>(null);
+
+  if (!round) {
+    return (
+      <div className="container__body">
+        <Callout tone="info">No finished round has unspent budget to return.</Callout>
+      </div>
+    );
+  }
+
+  if (review) {
+    return (
+      <SubmitFlow
+        call={review}
+        summary={`You're proposing to return what Round ${round.id} didn't award. Once approved, ${formatNear(round.remaining, true)} goes back to the treasury. Funded projects are not affected.`}
+        lines={[
+          { label: "Round", value: `Round ${round.id}` },
+          { label: "Unspent", value: formatNear(round.remaining, true) },
+        ]}
+        onDone={() => setReview(null)}
+      />
+    );
+  }
+
+  return (
+    <form
+      className="container__body form"
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        setReview(
+          submitCall(
+            `Return the unspent ${formatNear(round.remaining, true)} from Round ${round.id} to the treasury`,
+            "return_remaining",
+            { round_id: Number(round.id) },
+            0n,
+            50n * TGAS,
+            bond,
+          ),
+        );
+      }}
+    >
+      <FieldShell label="Round" hint="Finished rounds with budget left over.">
+        {({ inputId, describedBy }) => (
+          <div className="form-input">
+            <select id={inputId} aria-describedby={describedBy} value={round.id} onChange={(e) => setRoundId(e.target.value)}>
+              {returnable.map((r) => (
+                <option key={r.id} value={r.id}>
+                  Round {r.id} · {formatNear(r.remaining, true)} unspent
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </FieldShell>
+      <div className="form-actions">
+        <button type="submit" className="app-btn app-btn--primary">
+          Review
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export function ProposalsPage() {
   const [params] = useSearchParams();
   const location = useLocation();
@@ -471,6 +542,7 @@ export function ProposalsPage() {
               items={[
                 { id: "fund", label: "Fund a round" },
                 { id: "milestone", label: "Pay a milestone" },
+                { id: "return", label: "Return unspent budget" },
               ]}
             />
           }
@@ -488,8 +560,10 @@ export function ProposalsPage() {
             </div>
           ) : mode === "fund" ? (
             <FundRoundForm bond={bond} />
-          ) : (
+          ) : mode === "milestone" ? (
             <MilestoneForm bond={bond} initialRound={settledParam ? settledParam.id : null} />
+          ) : (
+            <ReturnForm bond={bond} />
           )}
         </Container>
       </div>

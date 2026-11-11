@@ -1,1 +1,112 @@
 # Polestar
+
+Participatory budgeting for SputnikDAO treasuries on NEAR. A DAO's council approves a budget, the community proposes projects and votes, the budget is split using the Method of Equal Shares, and each project is paid milestone by milestone as the council confirms delivery.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) 20.12 or later
+- [Rust](https://rustup.rs/) (stable) and [cargo-near](https://github.com/near/cargo-near): `cargo install --locked cargo-near`
+- [NEAR CLI](https://github.com/near/near-cli): `npm install -g near-cli`
+- A NEAR testnet account, funded from the [testnet faucet](https://near-faucet.io/)
+
+## Quick start
+
+```bash
+git clone https://github.com/maelstrom0x8/polestar.git
+cd polestar/psui
+npm install
+npm run dev
+```
+
+Open http://localhost:5173. By default the app connects to the testnet deployment:
+
+| | Account |
+| --- | --- |
+| Contract | `budgeting.polestar-dev.testnet` |
+| SputnikDAO | `dao.polestar-dev.testnet` |
+
+## Deploy your own
+
+Replace `you.testnet` and `mycommunity` with your own names.
+
+**1. Create a SputnikDAO**, or use one you already run:
+
+```bash
+ARGS=$(printf '%s' '{"config":{"name":"mycommunity","purpose":"Community budget","metadata":""},"policy":["you.testnet"]}' | base64 | tr -d '\n')
+
+near call sputnik-v2.testnet create "{\"name\":\"mycommunity\",\"args\":\"$ARGS\"}" \
+  --accountId you.testnet --deposit 6 --gas 150000000000000
+```
+
+**2. Build the contract:**
+
+```bash
+cd contracts/budgeting
+cargo near build non-reproducible-wasm
+cd ../..
+```
+
+**3. Deploy and initialize it with your DAO:**
+
+```bash
+near create-account budget.you.testnet --masterAccount you.testnet --initialBalance 5
+
+near deploy budget.you.testnet target/near/polestar_budgeting/polestar_budgeting.wasm \
+  --initFunction new \
+  --initArgs '{"sputnik_dao_account":"mycommunity.sputnik-v2.testnet"}'
+```
+
+**4. Fund the DAO's treasury:**
+
+```bash
+near send you.testnet mycommunity.sputnik-v2.testnet 3
+```
+
+**5. Point the app at your deployment.** Create `psui/.env.local`:
+
+```bash
+VITE_CONTRACT_ID=budget.you.testnet
+VITE_DAO_ID=mycommunity.sputnik-v2.testnet
+```
+
+Then run `npm run dev` in `psui/`.
+
+## Usage
+
+1. **Fund a round.** As a council member, open **Proposals**, choose **Fund a round**, set the budget and timings, then **Submit** and **Approve** it.
+2. **Register.** Voters open the round and choose **Register as a voter** before registration closes.
+3. **Propose.** On the round page, choose **Propose a project** and enter its milestones.
+4. **Vote.** Choose **Start voting**. Registered voters then approve the projects they support.
+5. **Count.** After voting closes, choose **End voting**, then **Finish counting** to see the results.
+6. **Pay.** As a council member, open **Proposals**, choose **Pay a milestone**, then submit and approve it.
+
+## Configuration
+
+Set these in `psui/.env.local`:
+
+| Variable | Default |
+| --- | --- |
+| `VITE_CONTRACT_ID` | `budgeting.polestar-dev.testnet` |
+| `VITE_DAO_ID` | `dao.polestar-dev.testnet` |
+| `VITE_NEAR_RPC_URL` | `https://test.rpc.fastnear.com` |
+
+## Project structure
+
+| Path | Description |
+| --- | --- |
+| `contracts/budgeting` | NEAR smart contract |
+| `crates/allocate` | Method of Equal Shares allocation engine |
+| `crates/math` | Exact rational arithmetic |
+| `psui` | Web app (React, TypeScript, Vite) |
+
+## Testing
+
+```bash
+cargo test -p math -p allocate
+cargo test -p polestar-budgeting --lib
+cd psui && npm run lint && npm run build
+```
+
+## License
+
+[Apache-2.0](LICENSE)

@@ -1,6 +1,7 @@
 use std::collections::{BTreeSet, HashMap};
 
 use near_sdk::json_types::U128;
+use near_sdk::mock::MockAction;
 use near_sdk::test_utils::{accounts, VMContextBuilder};
 use near_sdk::{
     test_vm_config, testing_env, AccountId, NearToken, PromiseResult, RuntimeFeesConfig,
@@ -503,4 +504,184 @@ fn get_first_seen_is_set_by_registering_a_project() {
     let round_id = fund(&mut contract);
     register(&mut contract, round_id, 600, vec![600]);
     assert_eq!(contract.get_first_seen(proposer()), Some(20));
+}
+
+const SETTLED_REMAINING: u128 = BUDGET - 600;
+
+fn return_remaining_as_dao(contract: &mut Contract, round_id: RoundId) {
+    set_ctx(dao(), NearToken::from_near(0), CLOSES_AT + 10);
+    let _ = contract.return_remaining(round_id);
+}
+
+fn is_returned(contract: &Contract, round_id: RoundId) -> bool {
+    contract
+        .get_round(round_id)
+        .expect("round exists")
+        .remaining_returned
+}
+
+#[test]
+fn return_remaining_sends_the_unspent_budget_to_the_dao() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_settlement(&mut contract);
+    assert_eq!(contract.get_remaining(round_id), Some(SETTLED_REMAINING));
+    assert!(!is_returned(&contract, round_id));
+
+    set_ctx(dao(), NearToken::from_near(0), CLOSES_AT + 10);
+    let _ = contract.return_remaining(round_id);
+
+    let transfers: Vec<(AccountId, NearToken)> = near_sdk::test_utils::get_created_receipts()
+        .into_iter()
+        .flat_map(|receipt| {
+            let receiver = receipt.receiver_id.clone();
+            receipt
+                .actions
+                .into_iter()
+                .filter_map(move |action| match action {
+                    MockAction::Transfer { deposit, .. } => Some((receiver.clone(), deposit)),
+                    _ => None,
+                })
+        })
+        .collect();
+    assert_eq!(
+        transfers,
+        vec![(dao(), NearToken::from_yoctonear(SETTLED_REMAINING))],
+        "exactly one transfer, of the round's remaining, to the DAO"
+    );
+    assert!(is_returned(&contract, round_id));
+}
+
+#[test]
+fn return_remaining_leaves_the_allocation_and_escrow_accounting_intact() {
+    let mut contract = new_contract();
+    let (round_id, project_id) = round_in_settlement(&mut contract);
+    let result_before = contract.get_allocation_result(round_id);
+
+    return_remaining_as_dao(&mut contract, round_id);
+
+    assert_eq!(
+        contract.get_remaining(round_id),
+        Some(SETTLED_REMAINING),
+        "remaining is the record of what the count left over and is never rewritten"
+    );
+    assert_eq!(contract.get_allocation_result(round_id), result_before);
+    let funded_cost: u128 = contract
+        .get_projects(round_id)
+        .iter()
+        .filter(|p| p.status == ProjectStatus::Funded)
+        .map(|p| p.cost)
+        .sum();
+    assert_eq!(
+        funded_cost + SETTLED_REMAINING,
+        BUDGET,
+        "INV-3 still holds after the return"
+    );
+
+    set_ctx(dao(), NearToken::from_near(0), CLOSES_AT + 11);
+    let _ = contract.attest_milestone(round_id, project_id, 0);
+    let project = contract.get_project(round_id, project_id).unwrap();
+    assert!(
+        project.milestones[0].attested,
+        "returning the remainder must not block paying funded projects"
+    );
+}
+
+#[test]
+#[should_panic(expected = "ERR_NOT_SPUTNIK_DAO")]
+fn return_remaining_rejects_non_dao_caller() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_settlement(&mut contract);
+    set_ctx(non_dao(), NearToken::from_near(0), CLOSES_AT + 10);
+    let _ = contract.return_remaining(round_id);
+}
+
+#[test]
+#[should_panic(expected = "ERR_WRONG_PHASE")]
+fn return_remaining_rejects_a_round_before_settlement() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_declaration(&mut contract);
+    return_remaining_as_dao(&mut contract, round_id);
+}
+
+#[test]
+#[should_panic(expected = "ERR_ROUND_NOT_FOUND")]
+fn return_remaining_rejects_an_unknown_round() {
+    let mut contract = new_contract();
+    return_remaining_as_dao(&mut contract, 42);
+}
+
+#[test]
+#[should_panic(expected = "ERR_ALREADY_RETURNED")]
+fn return_remaining_rejects_a_second_call() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_settlement(&mut contract);
+    return_remaining_as_dao(&mut contract, round_id);
+    return_remaining_as_dao(&mut contract, round_id);
+}
+
+#[test]
+#[should_panic(expected = "ERR_NOTHING_TO_RETURN")]
+fn return_remaining_rejects_a_fully_spent_round() {
+    let mut contract = new_contract();
+    let round_id = fund(&mut contract);
+    let project_id = register(&mut contract, round_id, BUDGET, vec![BUDGET]);
+    set_ctx(stranger(), NearToken::from_near(0), 50);
+    contract.open_declaration(round_id);
+    eligible_voter_seen_at(&mut contract, voter_a(), OPENS_AT - T_MIN);
+    set_ctx(voter_a(), NearToken::from_near(0), OPENS_AT);
+    contract.submit_ballot(round_id, BTreeSet::from([project_id]));
+    set_ctx(stranger(), NearToken::from_near(0), CLOSES_AT + 1);
+    contract.close_declaration(round_id);
+    while !contract.process_allocation_step(round_id) {}
+    assert_eq!(contract.get_remaining(round_id), Some(0));
+
+    return_remaining_as_dao(&mut contract, round_id);
+}
+
+#[test]
+#[should_panic(expected = "ERR_INSUFFICIENT_BALANCE")]
+fn return_remaining_rejects_when_the_contract_cannot_cover_it() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_settlement(&mut contract);
+    let context = VMContextBuilder::new()
+        .current_account_id(accounts(0))
+        .predecessor_account_id(dao())
+        .block_height(CLOSES_AT + 10)
+        .account_balance(NearToken::from_yoctonear(0))
+        .build();
+    testing_env!(context);
+    let _ = contract.return_remaining(round_id);
+}
+
+#[test]
+fn on_remaining_return_failure_clears_the_record_so_it_can_be_retried() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_settlement(&mut contract);
+    return_remaining_as_dao(&mut contract, round_id);
+
+    set_ctx_with_promise_result(accounts(0), CLOSES_AT + 10, PromiseResult::Failed);
+    contract.on_remaining_return(round_id);
+    assert!(
+        !is_returned(&contract, round_id),
+        "a failed transfer must not leave the round marked as returned"
+    );
+    assert_eq!(contract.get_remaining(round_id), Some(SETTLED_REMAINING));
+
+    return_remaining_as_dao(&mut contract, round_id);
+    assert!(is_returned(&contract, round_id));
+}
+
+#[test]
+fn on_remaining_return_success_keeps_the_record() {
+    let mut contract = new_contract();
+    let (round_id, _) = round_in_settlement(&mut contract);
+    return_remaining_as_dao(&mut contract, round_id);
+
+    set_ctx_with_promise_result(
+        accounts(0),
+        CLOSES_AT + 10,
+        PromiseResult::Successful(vec![]),
+    );
+    contract.on_remaining_return(round_id);
+    assert!(is_returned(&contract, round_id));
 }

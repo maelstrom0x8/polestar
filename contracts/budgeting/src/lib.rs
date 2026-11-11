@@ -21,6 +21,7 @@ pub use types::{
 enum StorageKey {
     Rounds,
     FirstSeen,
+    RemainingReturned,
 }
 
 #[near(contract_state)]
@@ -42,5 +43,11 @@ impl Contract {
             rounds: LookupMap::new(StorageKey::Rounds),
             first_seen: LookupMap::new(StorageKey::FirstSeen),
         }
+    }
+}
+
+impl Contract {
+    pub(crate) fn remaining_returned(&self) -> LookupMap<RoundId, u128> {
+        LookupMap::new(StorageKey::RemainingReturned)
     }
 }

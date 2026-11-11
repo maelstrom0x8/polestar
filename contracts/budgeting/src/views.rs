@@ -10,6 +10,7 @@ pub struct RoundView {
     pub config: RoundConfig,
     pub phase: RoundPhase,
     pub remaining: u128,
+    pub remaining_returned: bool,
     pub project_count: u64,
     pub ballot_count: u64,
 }
@@ -25,6 +26,7 @@ impl Contract {
             config: round.config,
             phase: round.phase,
             remaining: round.remaining,
+            remaining_returned: self.remaining_returned().contains_key(&round_id),
         })
     }
 
