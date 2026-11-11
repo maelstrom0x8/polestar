@@ -1,17 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { countingCall, type AllocationRunner } from "../../lib/allocationRunner";
+import type { AllocationRunner } from "../../lib/allocationRunner";
 import { relativeTime, type ChainClock } from "../../lib/chainClock";
 import { PHASE_LABEL } from "../../lib/phaseCopy";
-import { CONTRACT_ID } from "../../lib/near";
 import { signInHref } from "../../lib/returnPath";
 import { useRefreshRound } from "../../lib/roundData";
 import { polestar } from "../../lib/polestar";
-import { contractJson } from "../../lib/tx";
 import { useWallet } from "../../lib/wallet";
 import type { Round, RoundPhase } from "../../types/domain";
 import { Callout } from "../app/Callout";
-import { PayloadBlock } from "../app/PayloadBlock";
 import { Timeline, type StepState, type TimelineStep } from "../app/Timeline";
 import { TxFlow } from "../app/TxFlow";
 
@@ -57,7 +54,7 @@ function steps(round: Round, clock: ChainClock | undefined): TimelineStep[] {
   ];
 }
 
-function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roundId: string }) {
+function AllocationActions({ runner }: { runner: AllocationRunner }) {
   const { accountId } = useWallet();
   const location = useLocation();
   const [reviewing, setReviewing] = useState<null | "one" | "all">(null);
@@ -89,11 +86,6 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
   }
 
   if (reviewing) {
-    const call = countingCall(roundId, reviewing);
-    const payload = contractJson(
-      { receiver_id: CONTRACT_ID, method_name: call.method, args: call.args, deposit: call.deposit, gas: call.gas },
-      2,
-    );
     return (
       <div className="phase-card__action">
         <p className="phase-card__review">
@@ -102,10 +94,6 @@ function AllocationActions({ runner, roundId }: { runner: AllocationRunner; roun
             ? "One confirmation usually finishes the count. For a very large round your wallet may ask again."
             : "You're running one step of the count."}
         </p>
-        <details className="tx__sign">
-          <summary>What you'll sign</summary>
-          <PayloadBlock value={payload} label="Transaction details" />
-        </details>
         <div className="tx__actions">
           <button type="button" className="app-btn app-btn--secondary" onClick={() => setReviewing(null)}>
             Back
@@ -232,7 +220,7 @@ export function PhaseCard({ round, clock, runner }: PhaseCardProps) {
           summary={`You're ending voting in Round ${round.id} so the votes can be counted.`}
         />
       )}
-      {round.phase === "Allocation" && runner && <AllocationActions runner={runner} roundId={round.id} />}
+      {round.phase === "Allocation" && runner && <AllocationActions runner={runner} />}
     </section>
   );
 }

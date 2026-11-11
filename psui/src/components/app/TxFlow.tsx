@@ -2,14 +2,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle2, ExternalLink } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { CONTRACT_ID } from "../../lib/near";
 import { describeRefusal } from "../../lib/refusals";
 import { signInHref } from "../../lib/returnPath";
 import {
   TxCancelledError,
   TxNetworkError,
   TxRefusedError,
-  contractJson,
   explorerTxUrl,
   sendCall,
   type ContractCall,
@@ -17,7 +15,6 @@ import {
 } from "../../lib/tx";
 import { useWallet } from "../../lib/wallet";
 import { Callout } from "./Callout";
-import { PayloadBlock } from "./PayloadBlock";
 import { Timeline, type StepState } from "./Timeline";
 
 type Stage = "review" | "signing" | "updating" | "done" | "unknown";
@@ -98,10 +95,6 @@ export function TxFlow(props: TxFlowProps) {
   }
 
   if (stage === "review") {
-    const payload = contractJson(
-      { receiver_id: call.receiverId ?? CONTRACT_ID, method_name: call.method, args: call.args, deposit: call.deposit, gas: call.gas },
-      2,
-    );
     return (
       <div className="tx">
         <div className="tx__head">
@@ -127,10 +120,6 @@ export function TxFlow(props: TxFlowProps) {
             ))}
           </dl>
         )}
-        <details className="tx__sign">
-          <summary>What you'll sign</summary>
-          <PayloadBlock value={payload} label="Transaction details" />
-        </details>
         {notice && (
           <Callout
             tone={notice.tone}

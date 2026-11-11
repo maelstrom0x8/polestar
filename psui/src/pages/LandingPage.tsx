@@ -1,8 +1,9 @@
 import { CheckCircle2, FilePlus, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { LandingBackdrop } from "../components/LandingBackdrop";
 import { LandingFooter } from "../components/layout/LandingFooter";
 import { Nav } from "../components/layout/Nav";
+import { useWallet } from "../lib/wallet";
 
 const HEADLINE = "A DAO's treasury, split fairly by the community it funds.";
 const SUBHEAD =
@@ -29,6 +30,8 @@ const STEPS = [
 ];
 
 export function LandingPage() {
+  const { accountId } = useWallet();
+  if (accountId) return <Navigate to="/rounds" replace />;
   return (
     <div className="landing">
       <Nav />

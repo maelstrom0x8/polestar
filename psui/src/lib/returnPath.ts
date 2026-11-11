@@ -15,7 +15,7 @@ export function safeReturnPath(raw: string | null): string {
   } catch {
     return DEFAULT_RETURN_PATH;
   }
-  if (url.origin !== window.location.origin || url.pathname === "/sign-in") return DEFAULT_RETURN_PATH;
+  if (url.origin !== window.location.origin || url.pathname === "/sign-in" || url.pathname === "/") return DEFAULT_RETURN_PATH;
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
