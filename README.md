@@ -2,12 +2,16 @@
 
 Participatory budgeting for SputnikDAO treasuries on NEAR. A DAO's council approves a budget, the community proposes projects and votes, the budget is split using the Method of Equal Shares, and each project is paid milestone by milestone as the council confirms delivery.
 
+![Polestar](docs/images/landing.png)
+
+**Documentation:** [docs/](docs/README.md) · **SDK:** [`@ezeonlabs/polestar`](packages/sdk/README.md)
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) 20.12 or later
 - [Rust](https://rustup.rs/) (stable) and [cargo-near](https://github.com/near/cargo-near): `cargo install --locked cargo-near`
 - [NEAR CLI](https://github.com/near/near-cli): `npm install -g near-cli`
-- A NEAR testnet account, funded from the [testnet faucet](https://near-faucet.io/)
+- A NEAR account to deploy from (on testnet, fund one from the [faucet](https://near-faucet.io/))
 
 ## Quick start
 
@@ -18,7 +22,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173. By default the app connects to the testnet deployment:
+Open http://localhost:5173. By default the app connects to the public deployment:
 
 | | Account |
 | --- | --- |
@@ -80,6 +84,10 @@ Then run `npm run dev` in `psui/`.
 5. **Count.** After voting closes, choose **End voting**, then **Finish counting** to see the results.
 6. **Pay.** As a council member, open **Proposals**, choose **Pay a milestone**, then submit and approve it.
 
+![A round's results](docs/images/round-results.png)
+
+The [full walkthrough](docs/getting-started/run-a-first-round.md) has a screenshot of every step.
+
 ## Configuration
 
 Set these in `psui/.env.local`:
@@ -99,6 +107,7 @@ Set these in `psui/.env.local`:
 | `crates/math` | Exact rational arithmetic |
 | `packages/sdk` | TypeScript SDK for reading rounds and sending transactions ([docs](packages/sdk/README.md)) |
 | `psui` | Web app (React, TypeScript, Vite) |
+| `docs` | [Documentation](docs/README.md): setup, using Polestar, building on it, and how it works |
 
 ## Testing
 
