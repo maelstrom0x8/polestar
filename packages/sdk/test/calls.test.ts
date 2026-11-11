@@ -42,6 +42,7 @@ describe("polestarCalls", () => {
   it("maps the lifecycle calls to the contract's method names", () => {
     expect(calls.registerVoter().method).toBe("register_voter");
     expect(calls.startVoting(1).method).toBe("open_declaration");
+    expect(calls.startVoting(1).gas).toBe(30n * TGAS);
     expect(calls.endVoting(1).method).toBe("close_declaration");
     expect(calls.processAllocationStep(1).method).toBe("process_allocation_step");
   });

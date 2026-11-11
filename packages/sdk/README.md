@@ -36,9 +36,10 @@ const polestar = new PolestarClient({
   daoId: "dao.polestar-dev.testnet",
 });
 
-const round = await polestar.getRound(3);
-const projects = await polestar.getProjects(3);
-const result = await polestar.getAllocationResult(3);
+const roundId = 0;
+const round = await polestar.getRound(roundId);
+const projects = await polestar.getProjects(roundId);
+const result = await polestar.getAllocationResult(roundId);
 
 console.log(round?.phase, formatNearAmount(round!.config.budget));
 ```
@@ -70,7 +71,7 @@ const { wallet } = await connector.getConnectedWallet();
 const writer = polestar.withSigner({
   signAndSendTransaction: (tx) => wallet.signAndSendTransaction(tx as never),
 });
-await writer.submitBallot(3, [0, 2]);
+await writer.submitBallot(roundId, [0, 2]);
 ```
 
 **Servers and bots** use a near-api-js account:
@@ -92,7 +93,7 @@ const writer = polestar.withSigner(fromNearApiAccount(account));
 | `processAllocationSteps(roundId, maxSteps?)` | Runs as many counting steps as fit in one transaction |
 | `runCounting(roundId, { onProgress, signal })` | Repeats the above until the results are in |
 
-Every writer method has a pure builder on `polestar.calls` (for example `polestar.calls.submitBallot(3, [0, 2])`) that returns the exact transaction without sending it. Use it to show people what they are about to sign.
+Every writer method has a pure builder on `polestar.calls` (for example `polestar.calls.submitBallot(roundId, [0, 2])`) that returns the exact transaction without sending it. Use it to show people what they are about to sign.
 
 ## DAO actions are proposals
 
@@ -153,7 +154,7 @@ Eligibility is a social threshold, not proof of a unique person. A namespace's o
 
 ```bash
 npm run build
-node examples/read-round.mjs --round 3
+node examples/read-round.mjs --round 0
 node examples/keeper.mjs
 node examples/keeper.mjs --send --account keeper.testnet --watch 60
 ```

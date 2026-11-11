@@ -50,7 +50,7 @@ export function polestarCalls(contractId: string) {
       return call("submit_ballot", { ...round(roundId), approved }, 50n * TGAS);
     },
 
-    startVoting: (roundId: number) => call("open_declaration", round(roundId), 300n * TGAS),
+    startVoting: (roundId: number) => call("open_declaration", round(roundId), 30n * TGAS),
 
     endVoting: (roundId: number) => call("close_declaration", round(roundId), 300n * TGAS),
 
