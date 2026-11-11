@@ -57,8 +57,8 @@ The `args` payload for that example, before encoding:
 | Operation | `method_name` | `args` before encoding | `deposit` | Gas |
 | :-- | :-- | :-- | :-- | :-- |
 | Fund a round | `fund_round` | as above; leave out `voter_namespace` for an open round | the budget | 100 Tgas |
-| Pay a milestone | `attest_milestone` | `{"round_id":3,"project_id":1,"milestone_index":0}` | `0` | 150 Tgas |
-| Return unspent budget | `return_remaining` | `{"round_id":2}` | `0` | 50 Tgas |
+| Pay a milestone | `attest_milestone` | `{"round_id":0,"project_id":1,"milestone_index":0}` | `0` | 150 Tgas |
+| Return unspent budget | `return_remaining` | `{"round_id":0}` | `0` | 50 Tgas |
 
 **Note**
 

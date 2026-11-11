@@ -26,4 +26,4 @@ Each upgrade is checked before it's deployed. The sandbox test `return_remaining
 
 ## Next steps
 
-- [Deployments](../resources/deployments.md) — What's deployed now, and the upgrade history
+- [Deployments](../resources/deployments.md) — What's deployed now

@@ -18,9 +18,10 @@ const polestar = new PolestarClient({
   daoId: "dao.polestar-dev.testnet",
 });
 
-const round = await polestar.getRound(3);
-const projects = await polestar.getProjects(3);
-const result = await polestar.getAllocationResult(3);
+const roundId = 0;
+const round = await polestar.getRound(roundId);
+const projects = await polestar.getProjects(roundId);
+const result = await polestar.getAllocationResult(roundId);
 
 console.log(round?.phase, formatNearAmount(round!.config.budget));
 ```
@@ -48,7 +49,7 @@ const { wallet } = await connector.getConnectedWallet();
 const writer = polestar.withSigner({
   signAndSendTransaction: (tx) => wallet.signAndSendTransaction(tx as never),
 });
-await writer.submitBallot(3, [0, 2]);
+await writer.submitBallot(roundId, [0, 2]);
 ```
 
 **On a server**, use a near-api-js account:

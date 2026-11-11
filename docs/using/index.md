@@ -10,6 +10,10 @@ Everything in Polestar happens in a **round**: one budget, the projects proposed
 
 ![The rounds list](../images/rounds.png)
 
+## Getting around
+
+The header has the two places you'll use most: **Rounds**, for every round and its projects and results, and **Proposals**, where the council funds rounds and pays milestones. Once you've signed in, the Polestar logo takes you to **Rounds** too.
+
 ## A round's stages
 
 A round moves through four stages, always in this order:
@@ -34,7 +38,7 @@ The panel on the right of every round page, **Where this round is**, shows the c
 
 ## Signing in
 
-**Sign in** in the header opens the wallet choice. Polestar never holds your keys; every action is a transaction your wallet shows you before you sign. Each transaction screen in the app shows the deposit, if any, and a **What you'll sign** section with the exact call.
+**Sign in** in the header opens the wallet choice. Polestar never holds your keys; every action is a transaction your wallet shows you before you sign. Each transaction screen in the app shows what the action does and the deposit, if any, before your wallet opens.
 
 ## Next steps
 

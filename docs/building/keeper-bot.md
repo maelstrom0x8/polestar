@@ -24,7 +24,7 @@ node examples/keeper.mjs
 Without flags it only reports what it would do:
 
 ```
-2026-11-11T04:38:22.653Z  nothing to do across 4 round(s) at block 277166935
+2026-11-11T13:10:22.503Z  nothing to do across 0 round(s) at block 277219773
 ```
 
 To act, give it an account whose key the NEAR CLI has stored in `~/.near-credentials/testnet/`:

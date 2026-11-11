@@ -20,7 +20,7 @@ Money for a milestone the council never approves stays in the contract, with no 
 
 ## Some failures need a redeploy
 
-A round whose count overflowed (`ERR_RATIONAL_OVERFLOW`) couldn't finish counting until a new build could count it, and its budget would wait in the contract. Rounds stored before a breaking storage change can become unreadable, as rounds 0 and 1 on the public deployment did.
+A round whose count overflowed (`ERR_RATIONAL_OVERFLOW`) couldn't finish counting until a new build could count it, and its budget would wait in the contract. A change to how rounds are stored would also need a migration, or existing rounds would become unreadable; see [Storage and upgrades](../internals/storage-and-upgrades.md).
 
 ## Views return amounts as plain JSON numbers
 

@@ -66,7 +66,6 @@ A round can have at most 50 projects, which bounds the work any count needs. The
 | **Reference implementation** | An independent Python version (`crates/allocate/tests/fixtures/mes_reference.py`, exact fractions) is run on a 100-voter, 6-project scenario; the Rust engine must match it decision for decision. |
 | **Property tests** | Random rounds: budget conservation, no unfunded project fitting in what's left, voter shares never going negative, independence from ballot order, and batched counting matching single steps. |
 | **Sandbox tests** | The compiled contract, in a local NEAR node, counts a 6-project round in one transaction and in six, with identical results. |
-| **Live rounds** | Rounds counted on the public deployment were checked against the reference before and after. |
 
 ## Next steps
 
