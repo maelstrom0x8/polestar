@@ -8,6 +8,7 @@ import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./index.css";
 import "./styles/app.css";
+import "./styles/marketing.css";
 import App from "./App";
 import { ContractPanicError } from "./lib/near";
 import { WalletProvider } from "./lib/wallet";

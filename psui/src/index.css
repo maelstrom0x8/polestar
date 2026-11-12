@@ -423,7 +423,7 @@ button {
   /* Content (wordmark + 2 links + 2 buttons) measures ~700px; 1200px
      left the grid's outer 1fr columns stretching far past their
      content, reading as a mostly-empty pill rather than a nav. */
-  max-width: 880px;
+  max-width: 1000px;
   border-radius: 9999px;
   background: transparent;
   border: 1px solid transparent;
@@ -435,100 +435,12 @@ button {
 }
 
 .nav--scrolled {
-  max-width: 760px;
+  max-width: 920px;
   background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-color: var(--border);
   box-shadow: 0 8px 30px rgba(0, 1, 21, 0.12);
-}
-
-/* Full-bleed dark footer (same breakout technique as .landing__hero) —
-   deliberately heavier than the rest of the light page, distinguishing
-   it as the page's closing section the way a conventional product
-   site's footer does. */
-
-.landing-footer {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  margin-top: 120px;
-  background: var(--ink);
-  color: var(--mist);
-}
-
-.landing-footer .nav__brand {
-  color: var(--mist);
-}
-
-.landing-footer__inner {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 64px 24px 32px;
-}
-
-.landing-footer__top {
-  display: flex;
-  justify-content: space-between;
-  gap: 48px;
-  flex-wrap: wrap;
-}
-
-.landing-footer__brand {
-  max-width: 320px;
-}
-
-.landing-footer__brand-mark {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.1rem;
-  letter-spacing: 0.04em;
-  color: var(--mist);
-}
-
-.landing-footer__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 32px;
-  flex: 1;
-  max-width: 560px;
-}
-
-.landing-footer__column .label {
-  color: color-mix(in srgb, var(--mist) 56%, transparent);
-}
-
-.landing-footer__column nav {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.landing-footer__link {
-  display: block;
-  font-size: var(--text-small);
-  color: color-mix(in srgb, var(--mist) 72%, transparent);
-  transition: color var(--duration-hover) var(--ease-reveal);
-}
-
-.landing-footer__link:hover {
-  color: var(--mist);
-}
-
-.landing-footer__bottom {
-  margin-top: 56px;
-  padding-top: 24px;
-  border-top: 1px solid color-mix(in srgb, var(--mist) 16%, transparent);
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.landing-footer__meta {
-  color: color-mix(in srgb, var(--mist) 56%, transparent);
-  font-size: var(--text-label);
 }
 
 /* Three true columns — brand left, links centered in the bar as a
@@ -722,12 +634,12 @@ button {
 
 .landing {
   margin-top: -48px;
-  margin-bottom: -120px;
 }
 
 .landing__hero {
   position: relative;
   width: 100vw;
+  margin-top: 100px;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   display: flex;
@@ -757,24 +669,10 @@ button {
   z-index: 1;
 }
 
-/* Restored from the pre-redesign hero (git 7644ce8) — accidentally
-   deleted as "unused stub cruft" during today's cleanup pass without
-   checking it against imports/'s PRA brand reference first. It isn't
-   decoration picked for its own sake: the ghost wordmark, hatch
-   swatch, heatmap grid, barcode bars, and isometric cubes are a direct
-   translation of that reference's own visual language (registration
-   marks, data-forward motifs, restrained low-opacity texture) into
-   Polestar's tokens. Re-positioned for the current full-bleed hero
-   (absolute within .landing__hero, which is already position:
-   relative) rather than the smaller boxed hero it was first built
-   for — sizes may need a pass once seen against the larger canvas. */
 
 .landing-backdrop {
   position: absolute;
-  /* Top offset clears the fixed, transparent nav — its ghost wordmark
-     and top-right block would otherwise sit directly behind/across the
-     real nav content, since both start at the literal top of the
-     now-full-bleed hero. */
+
   inset: 130px 0 0 0;
   z-index: 0;
   overflow: hidden;
@@ -1001,177 +899,4 @@ button {
   max-width: 54ch;
   font-size: var(--text-small);
   color: var(--text-secondary);
-}
-
-.landing__cta {
-  margin-top: 32px;
-}
-
-/* How it works */
-
-.landing__how {
-  max-width: 1040px;
-  margin: 120px auto 0;
-  padding: 0 24px;
-}
-
-/* A deliberate change of rhythm from the left-aligned hero/how-it-works
-   above — centered, tinted, single statement — rather than another
-   left-aligned block that would read as more of the same. */
-
-.landing__authority {
-  margin-top: 140px;
-  background: var(--bg-secondary);
-}
-
-.landing__authority-inner {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 96px 24px;
-  text-align: center;
-}
-
-.landing__authority-inner p {
-  margin-top: 20px;
-  color: var(--text-secondary);
-  font-size: var(--text-small);
-}
-
-@media (max-width: 640px) {
-  .landing__how {
-    margin-top: 72px;
-  }
-
-  .landing__authority {
-    margin-top: 72px;
-  }
-
-  .landing__authority-inner {
-    padding: 64px 24px;
-  }
-}
-
-.landing__steps {
-  margin-top: 40px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 40px;
-}
-
-.landing__step {
-  position: relative;
-  padding-top: 8px;
-}
-
-.landing__step-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  color: var(--accent);
-}
-
-.landing__step-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.landing__step-number {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: var(--text-h3);
-  color: var(--border-strong);
-}
-
-.landing__step-title {
-  margin-top: 20px;
-}
-
-.landing__step-body {
-  margin-top: 10px;
-  color: var(--text-secondary);
-  font-size: var(--text-small);
-}
-
-.landing__step-link {
-  display: inline-block;
-  margin-top: 12px;
-  font-size: var(--text-small);
-  font-weight: 600;
-  color: var(--signal);
-}
-
-.landing__step-link:hover {
-  color: var(--signal-deep);
-}
-
-/* Typewriter. The text node never changes; only a
-   clip width animates, so assistive tech sees the complete headline
-   immediately regardless of animation state. Each line is its own block
-   so a multi-line headline wraps normally (white-space: nowrap only
-   applies within one already-short line, never across the whole
-   headline) and lines reveal in sequence, not all at once. */
-
-.typewriter-line {
-  display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  max-width: 0;
-}
-
-.typewriter-line--started {
-  max-width: calc(var(--typewriter-steps) * 1ch);
-  animation: typewriter-reveal var(--typewriter-duration, 2s) steps(var(--typewriter-steps, 20)) forwards;
-}
-
-@keyframes typewriter-reveal {
-  from {
-    max-width: 0;
-  }
-  to {
-    max-width: calc(var(--typewriter-steps) * 1ch);
-  }
-}
-
-/* The caret is ordinary inline content placed right after the text, inside
-   the same overflow-hidden/clip-width box — it rides the clip edge while
-   typing and settles at the end of the line once max-width reaches its
-   final value, with no extra positioning logic needed. */
-.typewriter-line--caret::after {
-  content: "";
-  display: inline-block;
-  width: 0.08em;
-  height: 0.8em;
-  margin-left: 0.08em;
-  background: currentColor;
-  vertical-align: -0.1em;
-  animation: typewriter-blink 0.9s steps(1) infinite;
-}
-
-@keyframes typewriter-blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .typewriter-line {
-    max-width: none;
-    animation: none;
-  }
-
-  .typewriter-line--caret::after {
-    content: none;
-  }
 }
