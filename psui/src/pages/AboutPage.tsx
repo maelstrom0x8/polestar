@@ -60,28 +60,28 @@ function Timeline() {
   const progress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <ol className="timeline" ref={ref}>
-      <span className="timeline__rail" aria-hidden="true">
-        <motion.span className="timeline__fill" style={{ scaleY: progress }} />
+    <ol className="journey" ref={ref}>
+      <span className="journey__rail" aria-hidden="true">
+        <motion.span className="journey__fill" style={{ scaleY: progress }} />
       </span>
       {PHASES.map((phase, index) => (
         <motion.li
-          className="timeline__item"
+          className="journey__item"
           key={phase.title}
           initial={{ opacity: 0, x: -12 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.7, ease: EASE }}
         >
-          <span className="timeline__marker">
+          <span className="journey__marker">
             <phase.Icon aria-hidden size={18} />
           </span>
-          <div className="timeline__content">
-            <span className="timeline__meta">
+          <div className="journey__content">
+            <span className="journey__meta">
               <span className="figure">{String(index + 1).padStart(2, "0")}</span> · {phase.who}
             </span>
-            <h3 className="timeline__title">{phase.title}</h3>
-            <p className="timeline__body">{phase.body}</p>
+            <h3 className="journey__title">{phase.title}</h3>
+            <p className="journey__body">{phase.body}</p>
           </div>
         </motion.li>
       ))}

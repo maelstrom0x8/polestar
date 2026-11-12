@@ -1410,7 +1410,7 @@
   }
 }
 
-.timeline {
+.journey {
   position: relative;
   list-style: none;
   display: flex;
@@ -1419,7 +1419,7 @@
   padding-left: 0;
 }
 
-.timeline__rail {
+.journey__rail {
   position: absolute;
   left: 21px;
   top: 22px;
@@ -1429,7 +1429,7 @@
   overflow: hidden;
 }
 
-.timeline__fill {
+.journey__fill {
   display: block;
   width: 100%;
   height: 100%;
@@ -1437,13 +1437,13 @@
   transform-origin: top;
 }
 
-.timeline__item {
+.journey__item {
   position: relative;
   display: flex;
   gap: 24px;
 }
 
-.timeline__marker {
+.journey__marker {
   position: relative;
   z-index: 1;
   flex: none;
@@ -1458,7 +1458,7 @@
   color: var(--signal);
 }
 
-.timeline__meta {
+.journey__meta {
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -1466,14 +1466,14 @@
   color: var(--text-muted);
 }
 
-.timeline__title {
+.journey__title {
   margin-top: 4px;
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.timeline__body {
+.journey__body {
   margin-top: 6px;
   font-size: var(--text-label);
   color: var(--text-secondary);

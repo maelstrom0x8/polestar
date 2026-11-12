@@ -183,25 +183,27 @@ function blocksFor(ms: number, clock: ChainClock | undefined): number | null {
 function SubmitFlow({ call, summary, lines, onDone }: { call: ContractCall; summary: string; lines: { label: string; value: string }[]; onDone: () => void }) {
   const refresh = useRefreshAfterDecision();
   return (
-    <TxFlow
-      title="Review your proposal"
-      progressTitle="Submitting"
-      figure={formatNear(call.deposit, true)}
-      figureCaption="Bond, returned once the proposal is decided · network fee shown by your wallet"
-      summary={summary}
-      lines={lines}
-      call={call}
-      onBack={onDone}
-      onConfirmed={refresh}
-      renderDone={() => (
-        <p>
-          Submitted. It's now waiting for approval above.{" "}
-          <button type="button" className="app-btn app-btn--ghost" onClick={onDone}>
-            Start another
-          </button>
-        </p>
-      )}
-    />
+    <div className="container__body">
+      <TxFlow
+        title="Review your proposal"
+        progressTitle="Submitting"
+        figure={formatNear(call.deposit, true)}
+        figureCaption="Bond, returned once the proposal is decided · network fee shown by your wallet"
+        summary={summary}
+        lines={lines}
+        call={call}
+        onBack={onDone}
+        onConfirmed={refresh}
+        renderDone={() => (
+          <p>
+            Submitted. It's now waiting for approval above.{" "}
+            <button type="button" className="app-btn app-btn--ghost" onClick={onDone}>
+              Start another
+            </button>
+          </p>
+        )}
+      />
+    </div>
   );
 }
 
