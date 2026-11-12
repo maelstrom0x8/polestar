@@ -111,12 +111,24 @@ Set these in `psui/.env.local`:
 
 ## Testing
 
+The allocation engine is checked against an independent Python reference that counts with exact fractions (100 voters, 6 projects), and property tests check it on randomly generated rounds. The sandbox tests deploy the contract and measure counting gas at up to 50 projects and 500 voters.
+
 ```bash
 cargo test -p math -p allocate
 cargo test -p polestar-budgeting --lib
 cd packages/sdk && npm install && npm test && cd ../..
 cd psui && npm run lint && npm run build
 ```
+
+Sandbox tests need a contract build first:
+
+```bash
+cd contracts/budgeting && cargo near build non-reproducible-wasm && cd ../..
+cargo test -p polestar-budgeting --test voter_namespace --test batched_allocation --test return_remaining
+cargo test -p polestar-budgeting --test gas_profile -- --nocapture
+```
+
+The gas profile takes over 15 minutes.
 
 ## License
 
