@@ -145,14 +145,7 @@ export function AboutPage() {
               </StaggerItem>
             ))}
           </Stagger>
-          <Reveal className="note">
-            <p className="note__credit">
-              Method by Dominik Peters, Grzegorz Pierczyński and Piotr Skowron.{" "}
-              <a href={LINKS.equalShares} target="_blank" rel="noreferrer" className="text-link">
-                equalshares.net <ArrowUpRight aria-hidden size={14} />
-              </a>
-            </p>
-          </Reveal>
+
         </div>
       </section>
 

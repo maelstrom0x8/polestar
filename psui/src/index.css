@@ -165,6 +165,10 @@
   padding: 0;
 }
 
+html {
+  scrollbar-width: thin;
+}
+
 body {
   font-family: var(--font-body);
   font-weight: 400;
