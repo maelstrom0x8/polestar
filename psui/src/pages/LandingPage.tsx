@@ -1,13 +1,9 @@
 import {
   ArrowRight,
   ArrowUpRight,
-  BadgeCheck,
   Blocks,
-  Code,
   Hammer,
   Landmark,
-  Milestone,
-  Scale,
   UsersRound,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -26,16 +22,6 @@ import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { useWallet } from "../lib/wallet";
 
 const HEADLINE = "A DAO's treasury, split fairly by the community it funds.";
-const SUBHEAD =
-  "Community members back the projects they want to see funded. Polestar turns that support into a budget allocation, and pays funded teams in stages as the DAO confirms their progress.";
-
-const FACTS = [
-  { Icon: Landmark, text: "Any SputnikDAO, unmodified" },
-  { Icon: BadgeCheck, text: "Members-only voting" },
-  { Icon: Milestone, text: "Paid per milestone" },
-  { Icon: Code, text: "Open source, Apache-2.0" },
-];
-
 const AUDIENCES = [
   {
     Icon: UsersRound,
