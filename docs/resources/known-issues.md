@@ -29,7 +29,3 @@ Views return yoctoNEAR amounts as bare numbers, which ordinary JSON parsing roun
 ## No list of rounds
 
 There's no paginated view of rounds. Clients read `get_round_count` and fetch rounds one at a time.
-
-## Trezu
-
-Polestar's council actions are ordinary SputnikDAO proposals, so a treasury managed in Trezu should be able to approve them there. This hasn't been tried yet.
