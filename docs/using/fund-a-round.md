@@ -15,7 +15,7 @@ Open **Proposals** and choose **Fund a round**.
 | **Budget** | How much moves into the round when the proposal is approved |
 | **Voter registration closes in** | How long people have to register as voters. Only accounts registered by then can vote in this round. |
 | **Voting closes in** | How long until voting can be ended, counted from now |
-| **Who can vote** | **Anyone who registers**, or **Members of a named account**: only accounts directly under that name, such as `ana.meridian.near` for `meridian.near` |
+| **Who can vote** | **Members of a named account** (the default): only accounts directly under that name, such as `ana.meridian.near` for `meridian.near`. Or **Anyone who registers**. |
 | **Description** | What council members see when they approve it |
 
 **Review** shows everything you're about to propose, including the bond. **Confirm in wallet** submits the proposal.

@@ -213,7 +213,7 @@ function FundRoundForm({ bond }: { bond: bigint }) {
   const [voteValue, setVoteValue] = useState("3");
   const [voteUnit, setVoteUnit] = useState<Unit>("days");
   const [description, setDescription] = useState<string | null>(null);
-  const [membersOnly, setMembersOnly] = useState(false);
+  const [membersOnly, setMembersOnly] = useState(true);
   const [namespace, setNamespace] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [review, setReview] = useState<ContractCall | null>(null);
@@ -313,8 +313,8 @@ function FundRoundForm({ bond }: { bond: bigint }) {
         {({ inputId }) => (
           <div className="form-input">
             <select id={inputId} value={membersOnly ? "members" : "anyone"} onChange={(e) => setMembersOnly(e.target.value === "members")}>
-              <option value="anyone">Anyone who registers</option>
               <option value="members">Members of a named account</option>
+              <option value="anyone">Anyone who registers</option>
             </select>
           </div>
         )}
