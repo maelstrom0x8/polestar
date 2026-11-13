@@ -6,6 +6,13 @@ Participatory budgeting for SputnikDAO treasuries on NEAR. A DAO's council appro
 
 **Documentation:** [docs/](docs/README.md) · **SDK:** [`@ezeonlabs/polestar`](packages/sdk/README.md)
 
+## Live
+
+| | |
+| --- | --- |
+| [polestar-one.vercel.app](https://polestar-one.vercel.app) | The app, connected to the public testnet deployment. Sign in with a real NEAR wallet. |
+| [polestar-demo.vercel.app](https://polestar-demo.vercel.app) | Every role, no wallet: sign in as the council, a proposer, a voter, or an outsider. See the [walkthrough](example/README.md). |
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) 20.12 or later

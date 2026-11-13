@@ -69,4 +69,4 @@ A round can have at most 50 projects, which bounds the work any count needs. The
 
 ## Next steps
 
-- [Funds and escrow](funds-and-escrow.md) — What happens to the money once the count is done
+- [Funds and escrow](funds-and-escrow.md): What happens to the money once the count is done

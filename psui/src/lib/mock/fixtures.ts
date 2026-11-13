@@ -4,6 +4,24 @@ import type { FundingStage, ProjectStatus, RoundPhase } from "../../types/domain
 export const MOCK_HEAD = 200_000_000;
 export const MOCK_MS_PER_BLOCK = 600;
 export const MOCK_ACCOUNT = "priya.testnet";
+export const COUNCIL_ACCOUNT = "council.testnet";
+export const DEMO_MEMBER_ACCOUNT = "lena.testnet";
+export const DEMO_OUTSIDER_ACCOUNT = "jordan.testnet";
+
+export interface DemoRole {
+  id: string;
+  label: string;
+  detail: string;
+  account: string;
+}
+
+/** Demo-mode role roster: each tile signs in as a different sample account. */
+export const DEMO_ROLES: DemoRole[] = [
+  { id: "council", label: "The council", detail: "Funds rounds, approves payments", account: COUNCIL_ACCOUNT },
+  { id: "priya", label: "Priya", detail: "Member, proposes projects", account: MOCK_ACCOUNT },
+  { id: "member", label: "Lena", detail: "Member, votes on projects", account: DEMO_MEMBER_ACCOUNT },
+  { id: "outsider", label: "Jordan", detail: "Not a member of the co-op", account: DEMO_OUTSIDER_ACCOUNT },
+];
 
 const YOCTO_PER_MILLI = 10n ** 21n;
 

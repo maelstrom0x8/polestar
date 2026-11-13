@@ -38,4 +38,4 @@ _What a refusal or an odd screen means, and what to do about it_
 
 ## Next steps
 
-- [Contract reference](contract-reference.md) — Every error code
+- [Contract reference](contract-reference.md): Every error code

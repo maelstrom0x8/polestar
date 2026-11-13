@@ -94,5 +94,5 @@ NEAR amounts are integers in yoctoNEAR, far larger than a JavaScript `number` ca
 
 ## Next steps
 
-- [Run a keeper bot](keeper-bot.md) — A complete example using the writer
-- [Prepare SputnikDAO proposals](sputnikdao-proposals.md) — What the governance builders produce
+- [Run a keeper bot](keeper-bot.md): A complete example using the writer
+- [Prepare SputnikDAO proposals](sputnikdao-proposals.md): What the governance builders produce

@@ -50,4 +50,4 @@ The name is fixed when the round is funded, inside the same proposal the council
 
 ## Next steps
 
-- [Eligibility](../internals/eligibility.md) — The exact checks every ballot goes through
+- [Eligibility](../internals/eligibility.md): The exact checks every ballot goes through

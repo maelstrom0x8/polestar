@@ -58,5 +58,5 @@ Each round has its own id, stage, budget, projects and ballots. One round can be
 
 ## Next steps
 
-- [The counting engine](counting-engine.md) — Step 7 in detail
-- [Funds and escrow](funds-and-escrow.md) — Steps 9 to 12 in detail
+- [The counting engine](counting-engine.md): Step 7 in detail
+- [Funds and escrow](funds-and-escrow.md): Steps 9 to 12 in detail

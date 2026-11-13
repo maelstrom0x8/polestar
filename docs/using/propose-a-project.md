@@ -34,5 +34,5 @@ A round takes at most 50 projects. Projects can't be edited or withdrawn; to cor
 
 ## Next steps
 
-- [Vote](vote.md) — What happens once proposals close
-- [Pay milestones and return unspent budget](pay-milestones.md) — Getting paid after the count
+- [Vote](vote.md): What happens once proposals close
+- [Pay milestones and return unspent budget](pay-milestones.md): Getting paid after the count

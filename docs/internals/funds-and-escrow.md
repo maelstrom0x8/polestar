@@ -53,4 +53,4 @@ The DAO can only call the three operations above. It can't move a funded project
 
 ## Next steps
 
-- [Pay milestones and return unspent budget](../using/pay-milestones.md) — The same flow, from the council's side in the app
+- [Pay milestones and return unspent budget](../using/pay-milestones.md): The same flow, from the council's side in the app

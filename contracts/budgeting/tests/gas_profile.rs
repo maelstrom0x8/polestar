@@ -9,7 +9,7 @@ const WASM_PATH: &str = concat!(
 const PROJECT_COUNTS: [u64; 4] = [5, 10, 20, 30];
 const VOTER_COUNTS: [usize; 4] = [20, 100, 300, 500];
 // 1000 Tgas: confirmed via `protocol_config_check.rs` against this sandbox's actual
-// `limit_config.max_gas_burnt` — not the commonly-cited 300 Tgas figure, which is stale.
+// `limit_config.max_gas_burnt`, not the commonly-cited 300 Tgas figure, which is stale.
 const MAX_GAS: u64 = 1_000_000_000_000_000;
 
 #[tokio::test(flavor = "multi_thread")]

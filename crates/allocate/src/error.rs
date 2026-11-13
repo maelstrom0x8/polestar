@@ -20,7 +20,7 @@ impl fmt::Display for AllocationError {
         match self {
             Self::DuplicateProject(id) => write!(f, "Duplicate registered project: {id}"),
             Self::ZeroCostProject(id) => {
-                write!(f, "Project {id} has zero cost; model.md §7.1 requires cost > 0")
+                write!(f, "Project {id} has zero cost")
             }
             Self::EmptyApprovalSet => write!(f, "Ballot's approval set is empty"),
             Self::UnrecognizedProject(id) => {

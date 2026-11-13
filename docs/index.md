@@ -55,8 +55,8 @@ A round can be limited to members of a community's NEAR name: only accounts like
 
 ## Get started
 
-- [Set up Polestar](getting-started/index.md) — Run the app, deploy your own instance, and take a round from funding to payout.
+- [Set up Polestar](getting-started/index.md): Run the app, deploy your own instance, and take a round from funding to payout.
 
-- [Meet Polestar](using/index.md) — You've been invited to a round. Here's what you're looking at and what you can do.
+- [Meet Polestar](using/index.md): You've been invited to a round. Here's what you're looking at and what you can do.
 
-- [Build on Polestar](building/index.md) — Read rounds, run a keeper, issue members and prepare council proposals with the SDK.
+- [Build on Polestar](building/index.md): Read rounds, run a keeper, issue members and prepare council proposals with the SDK.

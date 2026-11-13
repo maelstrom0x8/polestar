@@ -68,4 +68,4 @@ The SDK's `voterStatus(round, accountId, firstSeen)` applies the same rules to p
 
 ## Next steps
 
-- [Vote](../using/vote.md) — The same rules, from the voter's side
+- [Vote](../using/vote.md): The same rules, from the voter's side

@@ -156,7 +156,9 @@ function LiveWalletProvider({ children }: { children: ReactNode }) {
 
 /**
  * Mock mode: the same wallet list, but choosing any wallet signs in as the
- * sample account instantly, and writes go to the simulated wallet.
+ * sample account instantly, and writes go to the simulated wallet. In demo
+ * mode, SignInPage swaps the wallet list for a role picker, and the chosen
+ * id resolves to that role's own sample account instead.
  */
 function MockWalletProvider({ children }: { children: ReactNode }) {
   const [accountId, setAccountId] = useState<string | null>(readMockAccount);
@@ -170,11 +172,12 @@ function MockWalletProvider({ children }: { children: ReactNode }) {
       lastWalletId,
       signIn: async (walletId: string) => {
         await new Promise((resolve) => setTimeout(resolve, 600));
-        const { MOCK_ACCOUNT } = await import("./mock/fixtures");
-        writeMockAccount(MOCK_ACCOUNT);
+        const { MOCK_ACCOUNT, DEMO_ROLES } = await import("./mock/fixtures");
+        const account = __DEMO_MODE__ ? (DEMO_ROLES.find((role) => role.id === walletId)?.account ?? MOCK_ACCOUNT) : MOCK_ACCOUNT;
+        writeMockAccount(account);
         writeLastWallet(walletId);
         setLastWalletId(walletId);
-        setAccountId(MOCK_ACCOUNT);
+        setAccountId(account);
       },
       signOut: async () => {
         writeMockAccount(null);

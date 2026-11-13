@@ -40,5 +40,5 @@ Voting can be ended once its closing time passes. Anyone can do it, from the rou
 
 ## Next steps
 
-- [How the budget is split](how-the-split-works.md) — What your ballot does in the count
-- [Eligibility](../internals/eligibility.md) — The exact rules the contract applies
+- [How the budget is split](how-the-split-works.md): What your ballot does in the count
+- [Eligibility](../internals/eligibility.md): The exact rules the contract applies

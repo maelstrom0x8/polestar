@@ -2,7 +2,7 @@ const DEFAULT_RETURN_PATH = "/rounds";
 
 /**
  * The return target arrives in a query string anyone can craft, so only a
- * same-origin path is honoured — anything else would make /sign-in an open
+ * same-origin path is honoured: anything else would make /sign-in an open
  * redirect. Parsing through URL (rather than prefix checks) also catches
  * forms like "//evil.example" and "/\evil.example" that browsers resolve
  * to another host.

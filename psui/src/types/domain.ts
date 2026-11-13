@@ -2,12 +2,12 @@
 //
 // RoundId/ProjectId are kept as strings here even though the contract's
 // wire format sends them as plain numbers (confirmed against the deployed
-// testnet contract — see lib/near.ts) — ids are used for routing, Set/Map
+// testnet contract, see lib/near.ts): ids are used for routing, Set/Map
 // keys and equality checks, not arithmetic, and a string avoids float-vs-
 // string key mismatches elsewhere in the app. Amount fields (budget, cost,
 // remaining, milestone/funding amounts) are strings because they're u128
 // yoctoNEAR values that routinely exceed Number.MAX_SAFE_INTEGER. Counts
-// and block heights stay as plain numbers — they're always small in
+// and block heights stay as plain numbers: they're always small in
 // practice and are used for arithmetic/display, not as opaque keys.
 
 export type RoundId = string;

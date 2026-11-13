@@ -19,7 +19,7 @@ interface Particle {
   angle: number;
 }
 
-// "Several hundred... individually visible" — a large elliptical/toroidal
+// "Several hundred... individually visible": a large elliptical/toroidal
 // formation, not a sparse scatter.
 const PARTICLE_COUNT = 520;
 const MARGIN_FACTOR = 0.1;
@@ -41,7 +41,7 @@ const CURSOR_PULL = 0.5;
 const CURSOR_SWIRL = 1.0;
 
 /**
- * Restrained and blue-dominant, matching the reference stills — blue
+ * Restrained and blue-dominant, matching the reference stills: blue
  * alone reads as the majority of any given frame, indigo/violet are
  * close relatives rather than equally-weighted alternatives, and
  * coral/orange/yellow are rare accents, not a quarter of the field.
@@ -72,7 +72,7 @@ const SATURATION = 58;
 
 // Roughly the hero's left-aligned text column (nav + headline + subhead +
 // CTA), where density and opacity are reduced so the ring never competes
-// with legibility — expressed as canvas fractions so it scales with width.
+// with legibility, expressed as canvas fractions so it scales with width.
 const TEXT_ZONE = { x0: 0, x1: 0.68, y0: 0.3, y1: 0.86 };
 
 export function ParticleField({ className }: { className?: string }) {
@@ -183,8 +183,8 @@ export function ParticleField({ className }: { className?: string }) {
 
     function fieldCenter(): readonly [number, number] {
       // The orbit's center drifts slowly along its own low-frequency
-      // path — the whole formation gradually shifts, never a rigid
-      // fixed-point rotation — but stays near the hero's true center
+      // path (the whole formation gradually shifts, never a rigid
+      // fixed-point rotation), but stays near the hero's true center
       // (never pinned to an edge or corner).
       const t = frame * CENTER_DRIFT_SCALE;
       const driftX = centerNoise.sample(t, 0) * width * CENTER_DRIFT_RADIUS_X;
@@ -204,14 +204,14 @@ export function ParticleField({ className }: { className?: string }) {
         const dist = Math.hypot(rx, ry) || 1;
         const homeRadius = Math.hypot(p.homeRadiusX, p.homeRadiusY) || 1;
 
-        // Tangential (orbital) term — perpendicular to the radius vector,
+        // Tangential (orbital) term: perpendicular to the radius vector,
         // so particles sweep around the center instead of approaching or
         // receding from it.
         const tangentSpeed = SWIRL_SPEED * p.speedScale * p.orbitSign;
         p.vx += (-ry / dist) * tangentSpeed;
         p.vy += (rx / dist) * tangentSpeed;
 
-        // A gentle spring back toward each particle's own home radius —
+        // A gentle spring back toward each particle's own home radius:
         // keeps the ring's shape stable over an arbitrarily long session
         // without constraining instant-to-instant organic variation.
         const radialError = homeRadius - dist;
@@ -219,7 +219,7 @@ export function ParticleField({ className }: { className?: string }) {
         p.vy += (ry / dist) * radialError * RADIAL_SPRING;
 
         // Curl noise: organic variation so particles don't all trace the
-        // same clean ellipse — some wider arcs, some tighter curves.
+        // same clean ellipse: some wider arcs, some tighter curves.
         const [ncx, ncy] = curl2D(
           motionNoise,
           p.x * MOTION_NOISE_SCALE,
@@ -254,15 +254,15 @@ export function ParticleField({ className }: { className?: string }) {
 
       ctx.lineCap = "round";
       for (const p of particles) {
-        // A slow depth oscillation — the "subtle movement perpendicular
-        // to the orbital plane" — modulates size/opacity a little over
+        // A slow depth oscillation (the "subtle movement perpendicular
+        // to the orbital plane") modulates size/opacity a little over
         // time so the formation isn't a static ring of fixed dots.
         const wobble = Math.sin(frame * p.depthFreq + p.depthPhase);
         const liveDepth = Math.min(1, Math.max(0, p.depth + wobble * 0.12));
         const radius = 0.5 + liveDepth * 1.4;
         const alpha = p.baseAlpha * (0.75 + liveDepth * 0.5);
 
-        // Short directional dashes rather than dots — length tracks
+        // Short directional dashes rather than dots: length tracks
         // current speed (with a floor so slow particles stay visible).
         const speed = Math.hypot(p.vx, p.vy);
         const dashLen = Math.max(1.6, Math.min(7, speed * 5)) * (0.6 + liveDepth * 0.8);

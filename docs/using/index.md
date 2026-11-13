@@ -42,5 +42,5 @@ The panel on the right of every round page, **Where this round is**, shows the c
 
 ## Next steps
 
-- [Vote](vote.md) — Registering, eligibility, and casting a ballot
-- [How the budget is split](how-the-split-works.md) — How votes become an allocation
+- [Vote](vote.md): Registering, eligibility, and casting a ballot
+- [How the budget is split](how-the-split-works.md): How votes become an allocation

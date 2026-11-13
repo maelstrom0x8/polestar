@@ -31,5 +31,5 @@ A project goes unfunded when its supporters couldn't cover its cost from their s
 
 ## Next steps
 
-- [Pay milestones and return unspent budget](pay-milestones.md) — What the council does next
-- [The counting engine](../internals/counting-engine.md) — How the count runs across transactions
+- [Pay milestones and return unspent budget](pay-milestones.md): What the council does next
+- [The counting engine](../internals/counting-engine.md): How the count runs across transactions

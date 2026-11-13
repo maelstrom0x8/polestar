@@ -9,7 +9,7 @@ const SECTIONS = [
 ];
 
 /**
- * In-flow header for app pages — distinct from Nav, the landing page's own
+ * In-flow header for app pages, distinct from Nav, the landing page's own
  * fixed, scroll-reactive overlay. Carries the wallet state so it stays
  * visible on every app route.
  */

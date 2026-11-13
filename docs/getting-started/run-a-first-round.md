@@ -53,5 +53,5 @@ node examples/read-round.mjs --round <id>
 
 ## Next steps
 
-- [Meet Polestar](../using/index.md) — Each part of the app in more detail
-- [How the budget is split](../using/how-the-split-works.md) — Why the results came out the way they did
+- [Meet Polestar](../using/index.md): Each part of the app in more detail
+- [How the budget is split](../using/how-the-split-works.md): Why the results came out the way they did

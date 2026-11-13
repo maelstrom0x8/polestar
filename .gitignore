@@ -420,3 +420,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 !psui/src/lib/
+.vercel
+.env*

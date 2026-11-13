@@ -83,7 +83,7 @@ const CURL_EPSILON = 0.01;
 /**
  * A divergence-free direction at (x, y), derived from the scalar noise
  * field's own numerical gradient (rotated 90°). Particles following this
- * trace continuous, non-crossing swirls instead of jittering randomly —
+ * trace continuous, non-crossing swirls instead of jittering randomly:
  * this is what "curl noise" means, as distinct from plain random motion.
  */
 export function curl2D(noise: Noise2D, x: number, y: number): readonly [number, number] {

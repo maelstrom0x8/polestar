@@ -57,5 +57,5 @@ There's no admin role. The DAO check compares the caller with the configured acc
 
 ## Next steps
 
-- [Life of a round](life-of-a-round.md) — One round traced from funding to its last payment
-- [The counting engine](counting-engine.md) — How the allocation is computed and why it's reproducible
+- [Life of a round](life-of-a-round.md): One round traced from funding to its last payment
+- [The counting engine](counting-engine.md): How the allocation is computed and why it's reproducible

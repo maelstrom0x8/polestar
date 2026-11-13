@@ -67,4 +67,4 @@ The rule is proportional to whoever votes. It can't tell whether two accounts be
 
 ## Next steps
 
-- [The counting engine](../internals/counting-engine.md) — Ties, exact arithmetic, and running the count in steps
+- [The counting engine](../internals/counting-engine.md): Ties, exact arithmetic, and running the count in steps

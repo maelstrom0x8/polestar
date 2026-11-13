@@ -40,5 +40,5 @@ Each funded round is independent. A DAO can open November's round while October'
 
 ## Next steps
 
-- [Pay milestones and return unspent budget](pay-milestones.md) — The council's job after the count
-- [Issue members for members-only rounds](../building/members-only-rounds.md) — Giving members accounts under your name
+- [Pay milestones and return unspent budget](pay-milestones.md): The council's job after the count
+- [Issue members for members-only rounds](../building/members-only-rounds.md): Giving members accounts under your name

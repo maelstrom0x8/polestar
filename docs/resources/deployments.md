@@ -17,4 +17,4 @@ _What's deployed, and where to find it_
 
 ## Next steps
 
-- [Storage and upgrades](../internals/storage-and-upgrades.md) — How upgrades keep rounds readable
+- [Storage and upgrades](../internals/storage-and-upgrades.md): How upgrades keep rounds readable

@@ -43,5 +43,5 @@ Reading needs nothing but an RPC endpoint. Writing needs a signer. The three DAO
 
 ## Next steps
 
-- [The SDK](sdk.md) — Install it and make your first read
-- [Contract reference](../resources/contract-reference.md) — Every method, view, event and error
+- [The SDK](sdk.md): Install it and make your first read
+- [Contract reference](../resources/contract-reference.md): Every method, view, event and error

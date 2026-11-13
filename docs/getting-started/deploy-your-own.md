@@ -62,4 +62,4 @@ Then run `npm run dev` in `psui/`.
 
 ## Next steps
 
-- [Run a first round](run-a-first-round.md) — Take one round from funding to its first payout
+- [Run a first round](run-a-first-round.md): Take one round from funding to its first payout

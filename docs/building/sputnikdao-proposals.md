@@ -80,4 +80,4 @@ Attach 300 Tgas, so there's room for the Polestar call if this vote is the one t
 
 ## Next steps
 
-- [Contract reference](../resources/contract-reference.md) — Every argument and refusal for the three calls
+- [Contract reference](../resources/contract-reference.md): Every argument and refusal for the three calls

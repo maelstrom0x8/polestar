@@ -1,10 +1,15 @@
 import { CONTRACT_ID, ContractPanicError, parsePreservingBigNumbers, type BlockRef } from "../near";
-import { MOCK_ACCOUNT, MOCK_HEAD, MOCK_MS_PER_BLOCK, createFixtures, type MockRound } from "./fixtures";
+import { DEMO_MEMBER_ACCOUNT, MOCK_ACCOUNT, MOCK_HEAD, MOCK_MS_PER_BLOCK, createFixtures, type MockRound } from "./fixtures";
 
 // firstSeen: when each mock account first used the contract (voter eligibility).
+// The council and outsider demo roles are deliberately left unseeded, so
+// voting as either fails the same way it would for a genuine non-member.
 export const store: { rounds: MockRound[]; firstSeen: Map<string, number> } = {
   rounds: createFixtures(),
-  firstSeen: new Map([[MOCK_ACCOUNT, MOCK_HEAD - 50_000]]),
+  firstSeen: new Map([
+    [MOCK_ACCOUNT, MOCK_HEAD - 50_000],
+    [DEMO_MEMBER_ACCOUNT, MOCK_HEAD - 50_000],
+  ]),
 };
 
 const latency = () =>

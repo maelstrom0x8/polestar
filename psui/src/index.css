@@ -383,7 +383,7 @@ button {
 }
 
 /* Transparent over the hero by default; condenses into a floating,
-   blurred capsule once scrolled past it — the page's content underneath
+   blurred capsule once scrolled past it: the page's content underneath
    never sits in flow below the nav (it's a fixed overlay), so every page
    that isn't the hero-led landing page needs its own top clearance. */
 
@@ -404,7 +404,7 @@ button {
 }
 
 /* The nav is a fixed overlay with no flow height, so it never
-   naturally scrolls away — without this it stays pinned over the
+   naturally scrolls away: without this it stays pinned over the
    footer once you reach the bottom of the page. */
 .nav-wrap--hidden {
   opacity: 0;
@@ -447,13 +447,13 @@ button {
   box-shadow: 0 8px 30px rgba(0, 1, 21, 0.12);
 }
 
-/* Three true columns — brand left, links centered in the bar as a
-   whole (not just in the leftover space), actions right — via equal
+/* Three true columns: brand left, links centered in the bar as a
+   whole (not just in the leftover space), actions right. Via equal
    1fr outer columns rather than flex's space-between, which only
    centers the links within whatever room is left after the brand. */
 .nav__inner {
   display: grid;
-  /* minmax(0, 1fr), not bare 1fr — the wordmark SVG's own aspect ratio
+  /* minmax(0, 1fr), not bare 1fr: the wordmark SVG's own aspect ratio
      makes it wider than it looks (~212px at 22px tall), and a bare 1fr
      column won't shrink below its content's width, which was forcing
      the opposite actions column down to almost nothing on narrow
@@ -480,7 +480,7 @@ button {
   justify-self: start;
   display: flex;
   align-items: center;
-  /* Capped on width, not just height — at 22px tall this wordmark's
+  /* Capped on width, not just height: at 22px tall this wordmark's
      own aspect ratio (~9.7:1) makes it ~212px wide, which left no room
      for the actions column on a 390px viewport (it was clipping the
      logo instead of wrapping the button, same shortage either way). */
@@ -515,7 +515,7 @@ button {
   gap: 28px;
 }
 
-/* No hamburger menu for two links — below this width they're dropped
+/* No hamburger menu for two links: below this width they're dropped
    rather than colliding with the actions (measured: they already
    overlapped from ~800px down); "Get started" still reaches Rounds and
    How it works is the next section down. */
@@ -551,7 +551,7 @@ button {
   border-radius: 9999px;
 }
 
-/* Same reasoning as .nav__links below 640px — the secondary action is
+/* Same reasoning as .nav__links below 640px: the secondary action is
    the one to drop, not the primary CTA; both buttons together with the
    wordmark overflowed the pill at this width. Sign-in stays reachable
    from every app page's header. */
@@ -628,7 +628,7 @@ button {
 /* Landing page hero */
 
 /* .app-main centers content at a 1040px/24px-padding gutter (x=144 at a
-   1280px viewport) — correct for ordinary app pages, wrong for a hero
+   1280px viewport): correct for ordinary app pages, wrong for a hero
    meant to run edge to edge. .landing cancels .app-main's top padding
    (so the hero starts at the literal top of the viewport, under the
    transparent nav) and .landing__hero breaks out of the width
@@ -649,7 +649,7 @@ button {
   display: flex;
   align-items: center;
   overflow: hidden;
-  /* Sized to its content, not forced to fill the viewport — this hero
+  /* Sized to its content, not forced to fill the viewport: this hero
      has no product screenshot or visual to fill a full-height frame
      with, so min-height: 100vh left a real empty gap below the CTA
      before "How it works" even started (measured: ~170px of nothing

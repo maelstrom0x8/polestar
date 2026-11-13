@@ -37,4 +37,4 @@ Fund a round, propose, vote, count and pay a milestone, end to end. → [Run a f
 
 ## Next steps
 
-- [Run the app](run-the-app.md) — Start the web app against the public deployment
+- [Run the app](run-the-app.md): Start the web app against the public deployment

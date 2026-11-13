@@ -35,5 +35,5 @@ The output in `psui/dist` is a static site. Serve it from any static host.
 
 ## Next steps
 
-- [Deploy your own](deploy-your-own.md) — A Polestar contract for your own DAO
-- [Meet Polestar](../using/index.md) — What each page in the app is for
+- [Deploy your own](deploy-your-own.md): A Polestar contract for your own DAO
+- [Meet Polestar](../using/index.md): What each page in the app is for

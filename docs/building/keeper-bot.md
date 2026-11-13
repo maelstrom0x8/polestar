@@ -60,4 +60,4 @@ None of these calls takes a deposit. The keeper pays only network fees: ending v
 
 ## Next steps
 
-- [The counting engine](../internals/counting-engine.md) — Why splitting the count across transactions never changes the result
+- [The counting engine](../internals/counting-engine.md): Why splitting the count across transactions never changes the result

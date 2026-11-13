@@ -21,7 +21,7 @@ if (!rootElement) {
   );
 }
 
-// Chain state changes at block-height cadence, not continuously — a
+// Chain state changes at block-height cadence, not continuously, so a
 // short staleTime avoids a refetch storm on every mount/focus without
 // going stale for the length of a typical page visit.
 const queryClient = new QueryClient({

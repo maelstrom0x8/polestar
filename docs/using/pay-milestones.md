@@ -30,5 +30,5 @@ A milestone the council never approves stays in the contract.
 
 ## Next steps
 
-- [Funds and escrow](../internals/funds-and-escrow.md) — How the contract accounts for every round's money
-- [Prepare SputnikDAO proposals](../building/sputnikdao-proposals.md) — The proposals the app submits, for building your own tools
+- [Funds and escrow](../internals/funds-and-escrow.md): How the contract accounts for every round's money
+- [Prepare SputnikDAO proposals](../building/sputnikdao-proposals.md): The proposals the app submits, for building your own tools

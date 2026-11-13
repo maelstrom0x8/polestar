@@ -1,13 +1,18 @@
 import { DAO_ID } from "../near";
 import type { DaoPolicy, DaoProposal } from "../dao";
-import { MOCK_ACCOUNT } from "./fixtures";
+import { COUNCIL_ACCOUNT, MOCK_ACCOUNT } from "./fixtures";
+
+// Demo mode seeds a council distinct from any member, so the role switcher
+// shows the real boundary; plain mock mode keeps the single sample account
+// as its own council, unchanged.
+const COUNCIL_GROUP = __DEMO_MODE__ ? [COUNCIL_ACCOUNT] : [MOCK_ACCOUNT];
 
 /** A one-member council (the sample account), anyone may submit: the live DAO's shape. */
 export const daoStore: { policy: DaoPolicy; proposals: DaoProposal[] } = {
   policy: {
     roles: [
       { name: "all", kind: "Everyone", permissions: ["*:AddProposal"] },
-      { name: "council", kind: { Group: [MOCK_ACCOUNT] }, permissions: ["*:VoteApprove", "*:VoteReject", "*:AddProposal", "*:Finalize"] },
+      { name: "council", kind: { Group: COUNCIL_GROUP }, permissions: ["*:VoteApprove", "*:VoteReject", "*:AddProposal", "*:Finalize"] },
     ],
     proposal_bond: "1000000000000000000000000",
   },
